@@ -174,3 +174,7 @@ h1{margin:12px 0 0;font:600 clamp(58px,5.2vw,86px)/.78 "Cormorant Garamond",seri
   .lock-card p{font-size:7px}
   .door-hit{top:52%;height:44%}
 }
+
+\n@media(max-width:900px){
+  .door-hit{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+}

@@ -10,10 +10,35 @@ function showToast(t){toast.textContent=t;toast.classList.add("show");clearTimeo
 function openDoor(reason){if(unlocked)return;unlocked=true;clearInterval(timer);[d,h,m,s].forEach(x=>x.textContent="00");title.textContent="THE DOOR IS READY";text.innerHTML=reason==="admin"?"Preview mode activated.<br>Click the door to begin the adventure.":"The right moment has arrived.<br>Click the door and begin the adventure."}
 function openAdmin(){modal.hidden=false;code.value="";error.textContent="";setTimeout(()=>code.focus(),20)}
 function closeAdmin(){modal.hidden=true;code.value="";error.textContent="";clicks=0;first=0}
-door.addEventListener("click",()=>{if(!unlocked){const now=performance.now();if(!first||now-first>WINDOW){first=now;clicks=1}else clicks++;if(clicks>=LIMIT){openAdmin();clicks=0;first=0}else showToast("The door is still locked...");return}screen.hidden=false});
+door.addEventListener("click",(event)=>{
+  event.preventDefault();
+  if(!unlocked){
+    const now=performance.now();
+    if(!first||now-first>WINDOW){first=now;clicks=1}else clicks++;
+    if(clicks>=LIMIT){openAdmin();clicks=0;first=0}
+    else showToast("The door is still locked...");
+    return;
+  }
+  screen.hidden=false;
+  screen.scrollTop=0;
+});
 unlock.addEventListener("click",()=>{if(code.value.trim()===ADMIN){closeAdmin();openDoor("admin");showToast("Developer preview unlocked.")}else{error.textContent="Wrong code.";code.select()}});
 cancel.addEventListener("click",closeAdmin);
 code.addEventListener("keydown",e=>{if(e.key==="Enter")unlock.click();if(e.key==="Escape")closeAdmin()});
 modal.addEventListener("click",e=>{if(e.target===modal)closeAdmin()});
 update();timer=setInterval(update,250);
 })();
+\n// Mobile fallback: a quick touch sequence on the door opens the private preview.
+let touchCount=0,touchStart=0;
+door.addEventListener("touchend",(event)=>{
+  event.preventDefault();
+  const now=performance.now();
+  if(!unlocked){
+    if(!touchStart || now-touchStart>WINDOW){touchStart=now;touchCount=1}else touchCount++;
+    if(touchCount>=LIMIT){openAdmin();touchCount=0;touchStart=0}
+    else showToast("The door is still locked...");
+  }else{
+    screen.hidden=false;
+    screen.scrollTop=0;
+  }
+},{passive:false});
