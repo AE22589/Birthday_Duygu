@@ -28,7 +28,8 @@ code.addEventListener("keydown",e=>{if(e.key==="Enter")unlock.click();if(e.key==
 modal.addEventListener("click",e=>{if(e.target===modal)closeAdmin()});
 update();timer=setInterval(update,250);
 })();
-\n// Mobile fallback: a quick touch sequence on the door opens the private preview.
+
+// Mobile fallback: a quick touch sequence on the door opens the private preview.
 let touchCount=0,touchStart=0;
 door.addEventListener("touchend",(event)=>{
   event.preventDefault();
@@ -42,3 +43,23 @@ door.addEventListener("touchend",(event)=>{
     screen.scrollTop=0;
   }
 },{passive:false});
+
+
+// Quest map navigation
+const backToDoor = document.getElementById("backToDoor");
+const questStops = document.querySelectorAll(".quest-stop");
+if (backToDoor) {
+  backToDoor.addEventListener("click", () => {
+    screen.hidden = true;
+    window.scrollTo(0, 0);
+  });
+}
+questStops.forEach(stop => {
+  stop.addEventListener("click", () => {
+    if (stop.classList.contains("locked")) {
+      showToast("Complete the previous quest to unlock this one.");
+      return;
+    }
+    showToast("Quest I is ready. The first challenge comes next.");
+  });
+});

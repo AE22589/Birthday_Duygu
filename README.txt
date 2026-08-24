@@ -19,3 +19,11 @@ and the large lock text becomes a small decorative lock plaque.
 MOBILE V2:
 The full locked-door message is visible again on mobile.
 The header and lock plaque are compact so the door remains unobstructed.
+
+
+QUEST MAP V1:
+The placeholder box grid has been replaced with a fantasy adventure map.
+Desktop uses a winding path and atmospheric quest stations.
+Mobile uses a dedicated vertical quest route instead of shrinking the desktop map.
+Quest 1 is the only active station for now; the other quests are intentionally locked.
+The final door is a visual endpoint and is not yet interactive.

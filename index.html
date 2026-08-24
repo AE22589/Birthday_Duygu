@@ -45,21 +45,97 @@
   <div id="toast" class="toast" role="status"></div>
 
   <section id="questScreen" class="quest-screen" hidden>
-    <div class="quest-inner">
-      <p class="eyebrow">WELCOME, DUYGU</p>
-      <h2>THE QUEST AWAITS</h2>
-      <p>Seven keys are hidden along your birthday adventure.</p>
-      <div class="map">
-        <div class="route"></div>
-        <div class="node n1"><b>I</b><strong>ROAD TRIP</strong><small>LOCKED</small></div>
-        <div class="node n2"><b>II</b><strong>PAINT MASTER</strong><small>LOCKED</small></div>
-        <div class="node n3"><b>III</b><strong>SUCUK MASTER</strong><small>LOCKED</small></div>
-        <div class="node n4"><b>IV</b><strong>LOKUM</strong><small>LOCKED</small></div>
-        <div class="node n5"><b>V</b><strong>MEMORY</strong><small>LOCKED</small></div>
-        <div class="node n6"><b>VI</b><strong>PHOTO PUZZLE</strong><small>LOCKED</small></div>
-        <div class="node n7"><b>VII</b><strong>GERMAN WORDS</strong><small>LOCKED</small></div>
-        <div class="final"><span>✦</span><strong>THE FINAL DOOR</strong><small>7 KEYS REQUIRED</small></div>
+    <div class="quest-world">
+      <header class="quest-header">
+        <div class="mini-crown">♛</div>
+        <p class="eyebrow">DUYGU'S BIRTHDAY ADVENTURE</p>
+        <h2>THE QUEST BEGINS</h2>
+        <p class="quest-subtitle">Seven keys. Seven challenges. One final door.</p>
+      </header>
+
+      <div class="adventure-map" aria-label="Birthday quest map">
+        <div class="map-mist mist-a"></div>
+        <div class="map-mist mist-b"></div>
+        <div class="map-path path-one"></div>
+        <div class="map-path path-two"></div>
+        <div class="map-path path-three"></div>
+        <div class="map-path path-four"></div>
+        <div class="map-path path-five"></div>
+        <div class="map-path path-six"></div>
+
+        <button class="quest-stop active" data-quest="1" aria-label="Quest 1: The Road Trip">
+          <span class="stop-ring"></span>
+          <span class="stop-number">I</span>
+          <span class="stop-symbol">ROAD</span>
+          <span class="stop-title">THE ROAD TRIP</span>
+          <span class="stop-state">READY</span>
+        </button>
+
+        <button class="quest-stop locked" data-quest="2" aria-label="Quest 2: Paint It">
+          <span class="stop-ring"></span>
+          <span class="stop-number">II</span>
+          <span class="stop-symbol">PAINT</span>
+          <span class="stop-title">PAINT IT!</span>
+          <span class="stop-state">LOCKED</span>
+        </button>
+
+        <button class="quest-stop locked" data-quest="3" aria-label="Quest 3: Sucuk Master">
+          <span class="stop-ring"></span>
+          <span class="stop-number">III</span>
+          <span class="stop-symbol">SUCUK</span>
+          <span class="stop-title">SUCUK MASTER</span>
+          <span class="stop-state">LOCKED</span>
+        </button>
+
+        <button class="quest-stop locked" data-quest="4" aria-label="Quest 4: Lokum's Challenge">
+          <span class="stop-ring"></span>
+          <span class="stop-number">IV</span>
+          <span class="stop-symbol">LOKUM</span>
+          <span class="stop-title">LOKUM'S CHALLENGE</span>
+          <span class="stop-state">LOCKED</span>
+        </button>
+
+        <button class="quest-stop locked" data-quest="5" aria-label="Quest 5: Memory Lane">
+          <span class="stop-ring"></span>
+          <span class="stop-number">V</span>
+          <span class="stop-symbol">MEMORY</span>
+          <span class="stop-title">MEMORY LANE</span>
+          <span class="stop-state">LOCKED</span>
+        </button>
+
+        <button class="quest-stop locked" data-quest="6" aria-label="Quest 6: Our Little Puzzle">
+          <span class="stop-ring"></span>
+          <span class="stop-number">VI</span>
+          <span class="stop-symbol">PUZZLE</span>
+          <span class="stop-title">OUR LITTLE PUZZLE</span>
+          <span class="stop-state">LOCKED</span>
+        </button>
+
+        <button class="quest-stop locked" data-quest="7" aria-label="Quest 7: German Words">
+          <span class="stop-ring"></span>
+          <span class="stop-number">VII</span>
+          <span class="stop-symbol">WORDS</span>
+          <span class="stop-title">GERMAN WORDS</span>
+          <span class="stop-state">LOCKED</span>
+        </button>
+
+        <div class="final-door">
+          <div class="final-door-frame">
+            <div class="final-lantern left"></div>
+            <div class="final-lantern right"></div>
+            <div class="final-door-face">
+              <span class="final-lock">✦</span>
+              <strong>THE FINAL DOOR</strong>
+              <small>7 KEYS REQUIRED</small>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <footer class="quest-footer">
+        <span class="key-counter"><b id="keyCount">0</b> / 7 KEYS FOUND</span>
+        <button id="backToDoor" class="back-button" type="button">RETURN TO THE DOOR</button>
+      </footer>
     </div>
   </section>
 
