@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -23,38 +23,37 @@
         <div class="ornament small"></div>
       </div>
 
-      <p class="lead">Das Abenteuer beginnt in</p>
+      <p class="lead">The adventure begins in</p>
 
       <div class="countdown" aria-live="polite" aria-label="Countdown">
-        <div><strong id="days">00</strong><span>TAGE</span></div>
+        <div><strong id="days">00</strong><span>DAYS</span></div>
         <b>◆</b>
-        <div><strong id="hours">00</strong><span>STUNDEN</span></div>
+        <div><strong id="hours">00</strong><span>HOURS</span></div>
         <b>◆</b>
-        <div><strong id="minutes">00</strong><span>MINUTEN</span></div>
+        <div><strong id="minutes">00</strong><span>MINUTES</span></div>
         <b>◆</b>
-        <div><strong id="seconds">00</strong><span>SEKUNDEN</span></div>
+        <div><strong id="seconds">00</strong><span>SECONDS</span></div>
       </div>
 
-      <p class="date">✦ &nbsp;08. September 2026 um 00:00 Uhr</p>
+      <p class="date">✦ &nbsp;September 8, 2026 at midnight</p>
 
       <div class="lock-panel">
         <div class="lock-icon">♙</div>
-        <h2 id="lockTitle">DIE TÜR IST VERSCHLOSSEN</h2>
+        <h2 id="lockTitle">THE DOOR IS LOCKED</h2>
         <p id="lockText">
-          Das Abenteuer kann erst beginnen,<br>
-          wenn der richtige Moment gekommen ist.<br>
-          Komm am 08.09.2026 um 00:00 Uhr zurück<br>
-          und öffne die Tür.
+          The adventure can only begin<br>
+          when the right moment has come.<br>
+          Come back on September 8 at midnight<br>
+          and open the door.
         </p>
-        <p class="secret-hint">✦ &nbsp;Psst... 5 schnelle Klicks auf die Tür<br>könnten etwas Besonderes auslösen...</p>
+        <p class="secret-hint">✦ &nbsp;Psst... 5 quick clicks on the door<br>might trigger something special...</p>
       </div>
     </div>
 
     <div class="door-side">
-      <button id="doorButton" class="door-button" type="button" aria-label="Verschlossene Tür">
+      <button id="doorButton" class="door-button" type="button" aria-label="Locked door">
         <span class="door-image"></span>
       </button>
-      <div class="door-sign">NUR FÜR<br>DIE AUSERWÄHLTE<br><span>♡</span></div>
     </div>
   </section>
 
@@ -66,46 +65,40 @@
       <h2>THE QUEST AWAITS</h2>
       <p class="map-intro">Seven keys are hidden along your birthday adventure.</p>
 
-      <div class="quest-map" aria-label="Birthday quest map">
+      <div class="quest-map">
         <div class="map-route"></div>
 
-        <button class="quest-node locked" type="button" data-quest="1">
+        <button class="quest-node locked" type="button">
           <span class="node-number">I</span>
           <span class="node-icon">ROAD TRIP</span>
           <span class="node-status">LOCKED</span>
         </button>
-
-        <button class="quest-node locked" type="button" data-quest="2">
+        <button class="quest-node locked" type="button">
           <span class="node-number">II</span>
           <span class="node-icon">PAINT MASTER</span>
           <span class="node-status">LOCKED</span>
         </button>
-
-        <button class="quest-node locked" type="button" data-quest="3">
+        <button class="quest-node locked" type="button">
           <span class="node-number">III</span>
-          <span class="node-icon">SUCuk MASTER</span>
+          <span class="node-icon">SUCUK MASTER</span>
           <span class="node-status">LOCKED</span>
         </button>
-
-        <button class="quest-node locked" type="button" data-quest="4">
+        <button class="quest-node locked" type="button">
           <span class="node-number">IV</span>
           <span class="node-icon">LOKUM</span>
           <span class="node-status">LOCKED</span>
         </button>
-
-        <button class="quest-node locked" type="button" data-quest="5">
+        <button class="quest-node locked" type="button">
           <span class="node-number">V</span>
           <span class="node-icon">MEMORY</span>
           <span class="node-status">LOCKED</span>
         </button>
-
-        <button class="quest-node locked" type="button" data-quest="6">
+        <button class="quest-node locked" type="button">
           <span class="node-number">VI</span>
           <span class="node-icon">PHOTO PUZZLE</span>
           <span class="node-status">LOCKED</span>
         </button>
-
-        <button class="quest-node locked" type="button" data-quest="7">
+        <button class="quest-node locked" type="button">
           <span class="node-number">VII</span>
           <span class="node-icon">GERMAN WORDS</span>
           <span class="node-status">LOCKED</span>
@@ -123,7 +116,7 @@
   <div id="adminModal" class="admin-modal" hidden>
     <div class="admin-card" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
       <p class="admin-kicker">DEVELOPER ACCESS</p>
-      <h2 id="adminTitle">Unlock preview</h2>
+      <h2 id="adminTitle">Unlock Preview</h2>
       <p>Enter the administrator code to bypass the countdown.</p>
       <input id="adminCode" type="password" inputmode="numeric" maxlength="4"
              autocomplete="off" aria-label="Administrator code" placeholder="••••">

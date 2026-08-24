@@ -1,16 +1,8 @@
-# Duygu's 43rd Birthday Quest – Entrance v2
+# Duygu Birthday Quest – English v3
 
-The entrance now uses the generated ornate doorway artwork as a cropped visual asset.
-After unlocking, a first version of the quest map appears.
+All visible website copy is English.
+The duplicate sign has been removed.
+The doorway is now a clean cropped asset with no German overlay.
 
-Unlock:
-08 September 2026 at 00:00 Europe/Berlin.
-
-Admin preview:
-5 fast clicks on the door, then code 1337.
-
-Files:
-- index.html
-- style.css
-- script.js
-- assets/duygu-door.jpg
+Unlock: September 8, 2026 at 00:00 Europe/Berlin.
+Admin preview: 5 quick clicks on the door, then 1337.
