@@ -15,3 +15,7 @@ MOBILE UPDATE:
 The portrait layout is intentionally different from desktop.
 The title/countdown are compact at the top, the door is the main visual focus,
 and the large lock text becomes a small decorative lock plaque.
+
+MOBILE V2:
+The full locked-door message is visible again on mobile.
+The header and lock plaque are compact so the door remains unobstructed.

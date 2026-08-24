@@ -16,14 +16,15 @@ h1{margin:12px 0 0;font:600 clamp(58px,5.2vw,86px)/.78 "Cormorant Garamond",seri
 .quest-screen{position:absolute;z-index:30;inset:0;overflow:auto;padding:35px 18px 55px;background:radial-gradient(circle at 50% 30%,rgba(226,177,97,.13),transparent 30%),linear-gradient(180deg,#080b12,#030509)}.quest-screen[hidden],.modal[hidden]{display:none}.quest-inner{width:min(1100px,100%);margin:auto;text-align:center}.quest-inner h2{margin:5px 0;font:600 clamp(44px,6vw,72px) "Cormorant Garamond",serif;color:#f0c67c;letter-spacing:.08em}.quest-inner>p:not(.eyebrow){color:#bcae9c;font-size:12px}.map{position:relative;min-height:620px;margin:28px auto 0;border:1px solid rgba(226,177,97,.25);background:radial-gradient(circle at 30% 20%,rgba(116,56,75,.15),transparent 25%),#0b0e15;overflow:hidden;box-shadow:inset 0 0 90px #000}.map:before{content:"";position:absolute;inset:18px;border:1px solid rgba(226,177,97,.1)}.route{position:absolute;left:10%;right:10%;top:51%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),var(--pink),var(--gold),transparent);opacity:.3;transform:rotate(-8deg)}.node{position:absolute;width:135px;height:108px;border:1px solid rgba(226,177,97,.27);background:rgba(6,9,14,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#d8c8b0}.node b{font:25px "Cormorant Garamond",serif;color:#c7a66a}.node strong{font-size:8px;letter-spacing:.12em}.node small{font-size:6px;letter-spacing:.2em;color:#776e64}.n1{left:7%;top:12%}.n2{left:30%;top:6%}.n3{right:29%;top:13%}.n4{right:6%;top:34%}.n5{right:16%;bottom:8%}.n6{left:35%;bottom:6%}.n7{left:7%;bottom:22%}.final{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:190px;height:145px;border:1px solid rgba(226,177,97,.45);background:rgba(3,6,10,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#e4c17b;font:20px "Cormorant Garamond",serif;letter-spacing:.1em}.final span{color:var(--pink);font-size:23px}.final small{margin-top:8px;font:7px Montserrat;letter-spacing:.22em;color:#8e8275}
 .modal{position:absolute;z-index:50;inset:0;display:grid;place-items:center;background:rgba(2,4,8,.72);backdrop-filter:blur(8px)}.admin-card{width:min(390px,92%);padding:30px;text-align:center;border:1px solid rgba(228,189,105,.3);background:#0a0f18;box-shadow:0 30px 80px #000}.admin-card h2{font:600 40px "Cormorant Garamond",serif;margin:4px 0}.admin-card>p:not(.eyebrow){color:#b9aa96;font-size:12px;line-height:1.6}.admin-card input{width:100%;height:50px;margin:10px 0 14px;background:#050911;border:1px solid rgba(228,189,105,.3);color:var(--cream);text-align:center;font-size:21px;letter-spacing:.3em}.actions button{min-height:42px;padding:0 17px;margin:0 4px;border-radius:999px;cursor:pointer;font-size:10px;font-weight:700;letter-spacing:.12em}.secondary{background:transparent;color:#b9aa96;border:1px solid #33404e}.primary{background:var(--cream);color:#101010;border:1px solid var(--gold)}#error{display:block;color:#e9a3a3;min-height:16px;margin-top:10px;font-size:10px}
 
+
 @media (max-width:900px){
+  html,body{background:#05070b}
   .page{
     min-height:100svh;
-    height:auto;
+    height:100svh;
     overflow:hidden;
   }
 
-  /* Keep the fantasy scene visible instead of covering it with a panel. */
   .background{
     background-position:58% center;
     transform:scale(1.02);
@@ -31,78 +32,69 @@ h1{margin:12px 0 0;font:600 clamp(58px,5.2vw,86px)/.78 "Cormorant Garamond",seri
 
   .vignette{
     background:
-      linear-gradient(180deg,rgba(0,0,0,.62) 0%,rgba(0,0,0,.18) 32%,rgba(0,0,0,.05) 58%,rgba(0,0,0,.55) 100%);
+      linear-gradient(180deg,rgba(0,0,0,.66) 0%,rgba(0,0,0,.16) 34%,rgba(0,0,0,.03) 58%,rgba(0,0,0,.66) 100%);
   }
 
-  /* Compact header: it no longer sits on top of the door. */
+  /* Compact header, deliberately separated from the door. */
   .intro{
-    position:absolute;
     left:50%;
-    top:2.2%;
+    top:1.5%;
     transform:translateX(-50%);
-    width:92%;
+    width:94%;
     min-width:0;
-    padding:10px 10px 12px;
-    border:0;
-    background:linear-gradient(180deg,rgba(3,7,11,.72),rgba(3,7,11,.34));
-    box-shadow:none;
-    backdrop-filter:none;
+    padding:9px 12px 10px;
+    border:1px solid rgba(235,194,105,.14);
+    background:rgba(3,7,11,.67);
+    box-shadow:0 10px 35px rgba(0,0,0,.2);
+    backdrop-filter:blur(3px);
   }
 
-  .crown{font-size:24px}
-  .ornament{width:54%;margin:5px auto 9px}
-  .eyebrow{font-size:7px;letter-spacing:.24em}
-  h1{font-size:44px;margin-top:8px}
-  .birthday{font-size:27px;margin-top:10px}
-  .quest-title{font-size:25px;margin-top:7px}
-  .ornament.short{width:40%;margin:9px auto 0}
+  .crown{font-size:22px}
+  .ornament{width:48%;margin:4px auto 7px}
+  .eyebrow{font-size:6.5px;letter-spacing:.24em}
+  h1{font-size:42px;margin-top:7px}
+  .birthday{font-size:26px;margin-top:9px}
+  .quest-title{font-size:24px;margin-top:6px}
+  .ornament.short{width:38%;margin:7px auto 0}
 
-  .lead{
-    margin:13px 0 6px;
-    font-size:7px;
-    letter-spacing:.18em;
-  }
-
+  .lead{margin:10px 0 6px;font-size:6.5px;letter-spacing:.18em}
   .countdown{gap:3px}
-  .countdown>div{min-width:45px}
-  .countdown strong{font-size:27px}
-  .countdown span{font-size:5px;margin-top:5px}
-  .countdown i{font-size:6px}
+  .countdown>div{min-width:43px}
+  .countdown strong{font-size:25px}
+  .countdown span{font-size:5px;margin-top:4px}
+  .countdown i{font-size:5px}
+  .date{margin:8px 0 0;font-size:11.5px}
 
-  .date{
-    margin:10px 0 0;
-    font-size:12px;
-  }
-
-  /* Replace the desktop lock box with a tiny fantasy plaque. */
+  /* Keep the complete text, but turn it into a compact plaque. */
   .lock-card{
-    width:auto;
-    margin:8px auto 0;
-    padding:7px 14px;
-    display:inline-flex;
-    align-items:center;
-    gap:7px;
-    border:1px solid rgba(228,189,105,.42);
-    background:rgba(3,6,10,.72);
-    box-shadow:none;
+    width:min(350px,94%);
+    margin:9px auto 0;
+    padding:8px 12px 9px;
+    border:1px solid rgba(228,189,105,.4);
+    background:rgba(3,6,10,.82);
+    box-shadow:inset 0 0 24px rgba(226,177,97,.03);
   }
-
   .lock-card .lock-icon{font-size:11px}
   .lock-card h2{
-    margin:0;
-    font-size:13px;
-    letter-spacing:.06em;
+    margin:3px 0 4px;
+    font-size:14px;
+    letter-spacing:.055em;
   }
-  .lock-card p{display:none}
+  .lock-card p{
+    display:block;
+    margin:0;
+    font-size:8.5px;
+    line-height:1.42;
+    color:#cdbda6;
+  }
 
-  /* Door becomes the main mobile focus. */
+  /* Door sits below the text block and remains the visual hero. */
   .door-hit{
-    z-index:6;
+    top:54%;
     right:50%;
     transform:translateX(50%);
-    top:40%;
-    width:82%;
-    height:54%;
+    width:76%;
+    height:43%;
     border-radius:38% 38% 4% 4%;
   }
 
@@ -111,70 +103,74 @@ h1{margin:12px 0 0;font:600 clamp(58px,5.2vw,86px)/.78 "Cormorant Garamond",seri
   }
 
   .lantern-glow{
-    width:85px;
-    height:85px;
-    top:54%;
+    width:72px;
+    height:72px;
+    top:68%;
   }
-  .glow-left{left:5%}
-  .glow-right{right:5%}
+  .glow-left{left:3%}
+  .glow-right{right:3%}
 
-  .toast{
-    bottom:12px;
-    font-size:10px;
-  }
+  .toast{bottom:10px;font-size:10px}
 }
 
-@media (max-width:520px){
-  .page{min-height:820px}
-
-  .background{
-    background-position:57% center;
-  }
+@media(max-width:520px){
+  .page{min-height:100svh;height:100svh}
+  .background{background-position:57% center}
 
   .intro{
-    top:1.2%;
-    width:94%;
-    padding:7px 7px 9px;
+    top:.8%;
+    width:95%;
+    padding:6px 8px 8px;
   }
-
-  .crown{font-size:21px}
-  .ornament{margin:3px auto 6px}
+  .crown{font-size:19px}
+  .ornament{margin:3px auto 5px}
   .eyebrow{font-size:6px}
-  h1{font-size:39px}
-  .birthday{font-size:24px;margin-top:8px}
-  .quest-title{font-size:23px;margin-top:5px}
-  .ornament.short{margin-top:6px}
-
-  .lead{margin-top:10px;font-size:6px}
-  .countdown>div{min-width:42px}
-  .countdown strong{font-size:25px}
-  .date{font-size:11px;margin-top:8px}
+  h1{font-size:37px}
+  .birthday{font-size:23px;margin-top:7px}
+  .quest-title{font-size:22px;margin-top:4px}
+  .ornament.short{margin-top:5px}
+  .lead{margin-top:8px;font-size:6px}
+  .countdown{gap:2px}
+  .countdown>div{min-width:40px}
+  .countdown strong{font-size:23px}
+  .countdown span{font-size:4.5px}
+  .date{font-size:10.5px;margin-top:6px}
 
   .lock-card{
-    margin-top:6px;
-    padding:6px 11px;
+    margin-top:7px;
+    padding:6px 9px 7px;
   }
-  .lock-card h2{font-size:11px}
+  .lock-card .lock-icon{font-size:9px}
+  .lock-card h2{font-size:12px;margin:2px 0 3px}
+  .lock-card p{font-size:7.5px;line-height:1.35}
 
   .door-hit{
-    top:39%;
-    width:88%;
-    height:57%;
+    top:55%;
+    width:82%;
+    height:41%;
   }
 
   .lantern-glow{
-    width:70px;
-    height:70px;
-    top:57%;
+    width:62px;
+    height:62px;
+    top:69%;
   }
-  .glow-left{left:1%}
-  .glow-right{right:1%}
+  .glow-left{left:0}
+  .glow-right{right:0}
 }
 
-@media (max-height:700px) and (max-width:900px){
-  .intro{top:1%}
-  h1{font-size:36px}
-  .birthday{font-size:23px}
-  .quest-title{font-size:22px}
-  .door-hit{top:37%;height:59%}
+@media(max-height:700px) and (max-width:900px){
+  .intro{
+    top:.5%;
+    padding:5px 8px 6px;
+  }
+  h1{font-size:34px}
+  .birthday{font-size:21px}
+  .quest-title{font-size:20px}
+  .lead{margin-top:6px}
+  .date{margin-top:5px}
+  .lock-card{margin-top:5px;padding:5px 8px}
+  .lock-card h2{font-size:11px}
+  .lock-card p{font-size:7px}
+  .door-hit{top:52%;height:44%}
 }
