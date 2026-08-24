@@ -1,10 +1,13 @@
-Duygu's 43rd Birthday Quest
+DUYGU'S 43rd BIRTHDAY QUEST
 
-Complete website package.
-All visible website text is English.
-The door image is text-free and stored at assets/duygu-door.jpg.
+Complete current landing page.
 
-Birthday unlock: September 8, 2026 at 00:00 Europe/Berlin.
-Admin preview: click the door 5 times quickly, then enter 1337.
+- Full continuous fantasy background
+- Animated lantern glow effect
+- English UI
+- Countdown to September 8, 2026 at midnight Europe/Berlin
+- Door click interaction
+- Private admin preview: 5 fast clicks + code 1337
+- Quest map placeholder behind the door
 
-Upload all files and the assets folder to the GitHub repository root.
+Upload every file and the assets folder to the repository root.

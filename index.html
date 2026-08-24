@@ -2,83 +2,69 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#05070d">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Duygu's 43rd Birthday Quest</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main class="page">
-  <div class="ambient"></div>
+<main class="scene">
+  <div class="scene-shade"></div>
 
-  <section class="content">
-    <div class="left">
-      <div class="brand">
-        <div class="crown">♛</div>
-        <div class="ornament"></div>
-        <p class="eyebrow">A little adventure is waiting</p>
-        <h1>DUYGU'S</h1>
-        <div class="age">43<sup>rd</sup> BIRTHDAY</div>
-        <div class="quest">QUEST</div>
-        <div class="ornament small"></div>
-      </div>
+  <section class="hero-copy">
+    <div class="crown">♛</div>
+    <div class="rule"></div>
+    <p class="eyebrow">A LITTLE ADVENTURE IS WAITING</p>
+    <h1>DUYGU'S</h1>
+    <div class="birthday">43<sup>rd</sup> BIRTHDAY</div>
+    <div class="quest-title">QUEST</div>
+    <div class="rule small"></div>
 
-      <p class="lead">THE ADVENTURE BEGINS IN</p>
-      <div class="countdown">
-        <div><strong id="days">00</strong><span>DAYS</span></div><b>◆</b>
-        <div><strong id="hours">00</strong><span>HOURS</span></div><b>◆</b>
-        <div><strong id="minutes">00</strong><span>MINUTES</span></div><b>◆</b>
-        <div><strong id="seconds">00</strong><span>SECONDS</span></div>
-      </div>
-      <p class="date">✦ &nbsp;SEPTEMBER 8, 2026 AT MIDNIGHT</p>
-
-      <div class="lock-panel">
-        <div class="lock-icon">♙</div>
-        <h2 id="lockTitle">THE DOOR IS LOCKED</h2>
-        <p id="lockText">The adventure can only begin<br>when the right moment has come.<br>Come back on September 8 at midnight<br>and open the door.</p>
-        <p class="secret-hint">✦ &nbsp;Psst... 5 quick clicks on the door<br>might trigger something special...</p>
-      </div>
+    <p class="lead">THE ADVENTURE BEGINS IN</p>
+    <div class="countdown">
+      <div><strong id="days">00</strong><span>DAYS</span></div><i>◆</i>
+      <div><strong id="hours">00</strong><span>HOURS</span></div><i>◆</i>
+      <div><strong id="minutes">00</strong><span>MINUTES</span></div><i>◆</i>
+      <div><strong id="seconds">00</strong><span>SECONDS</span></div>
     </div>
+    <p class="date">✦ &nbsp;SEPTEMBER 8, 2026 AT MIDNIGHT</p>
 
-    <div class="door-side">
-      <button id="doorButton" class="door-button" aria-label="Locked door">
-        <span class="door-image"></span>
-      </button>
+    <div class="lock-card">
+      <div class="lock">♙</div>
+      <h2 id="lockTitle">THE DOOR IS LOCKED</h2>
+      <p id="lockText">The adventure can only begin<br>when the right moment has come.<br>Come back on September 8 at midnight<br>and open the door.</p>
     </div>
   </section>
 
+  <button id="door" class="door-hit" aria-label="Locked door"></button>
   <div id="message" class="message"></div>
 
-  <section id="questPreview" class="quest-preview" hidden>
-    <div class="map-shell">
-      <p class="preview-kicker">WELCOME, DUYGU</p>
+  <section id="quests" class="quests" hidden>
+    <div class="quest-inner">
+      <p class="eyebrow">WELCOME, DUYGU</p>
       <h2>THE QUEST AWAITS</h2>
-      <p class="map-intro">Seven keys are hidden along your birthday adventure.</p>
-      <div class="quest-map">
-        <div class="map-route"></div>
-        <button class="quest-node locked"><span class="node-number">I</span><span class="node-icon">ROAD TRIP</span><span class="node-status">LOCKED</span></button>
-        <button class="quest-node locked"><span class="node-number">II</span><span class="node-icon">PAINT MASTER</span><span class="node-status">LOCKED</span></button>
-        <button class="quest-node locked"><span class="node-number">III</span><span class="node-icon">SUCUK MASTER</span><span class="node-status">LOCKED</span></button>
-        <button class="quest-node locked"><span class="node-number">IV</span><span class="node-icon">LOKUM</span><span class="node-status">LOCKED</span></button>
-        <button class="quest-node locked"><span class="node-number">V</span><span class="node-icon">MEMORY</span><span class="node-status">LOCKED</span></button>
-        <button class="quest-node locked"><span class="node-number">VI</span><span class="node-icon">PHOTO PUZZLE</span><span class="node-status">LOCKED</span></button>
-        <button class="quest-node locked"><span class="node-number">VII</span><span class="node-icon">GERMAN WORDS</span><span class="node-status">LOCKED</span></button>
-        <div class="final-gate"><div class="gate-lock">✦</div><div>THE FINAL DOOR</div><small>7 KEYS REQUIRED</small></div>
+      <p>Seven keys are hidden along your birthday adventure.</p>
+      <div class="map">
+        <div class="route"></div>
+        <div class="node n1"><b>I</b><strong>ROAD TRIP</strong><small>LOCKED</small></div>
+        <div class="node n2"><b>II</b><strong>PAINT MASTER</strong><small>LOCKED</small></div>
+        <div class="node n3"><b>III</b><strong>SUCUK MASTER</strong><small>LOCKED</small></div>
+        <div class="node n4"><b>IV</b><strong>LOKUM</strong><small>LOCKED</small></div>
+        <div class="node n5"><b>V</b><strong>MEMORY</strong><small>LOCKED</small></div>
+        <div class="node n6"><b>VI</b><strong>PHOTO PUZZLE</strong><small>LOCKED</small></div>
+        <div class="node n7"><b>VII</b><strong>GERMAN WORDS</strong><small>LOCKED</small></div>
+        <div class="final"><span>✦</span><strong>THE FINAL DOOR</strong><small>7 KEYS REQUIRED</small></div>
       </div>
     </div>
   </section>
 
-  <div id="adminModal" class="admin-modal" hidden>
+  <div id="admin" class="modal" hidden>
     <div class="admin-card">
-      <p class="admin-kicker">DEVELOPER ACCESS</p>
+      <p class="eyebrow">DEVELOPER ACCESS</p>
       <h2>Unlock Preview</h2>
       <p>Enter the administrator code to bypass the countdown.</p>
-      <input id="adminCode" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••">
-      <div class="admin-actions">
-        <button id="adminCancel" class="secondary-button">CANCEL</button>
-        <button id="adminSubmit" class="primary-button">UNLOCK</button>
-      </div>
-      <p id="adminError" class="admin-error"></p>
+      <input id="code" maxlength="4" inputmode="numeric" type="password" autocomplete="off" placeholder="••••">
+      <div><button id="cancel">CANCEL</button><button id="unlock">UNLOCK</button></div>
+      <small id="error"></small>
     </div>
   </div>
 </main>
