@@ -1,13 +1,11 @@
-DUYGU'S 43rd BIRTHDAY QUEST
+DUYGU'S 43RD BIRTHDAY QUEST – CLEAN START PAGE
 
-Complete current landing page.
+This package uses a single continuous fantasy background across the whole landing page.
+The lower "For Duygu Only" admin strip from the source artwork is removed.
+All visible copy is English.
+No public admin hint is shown.
+Lanterns have a subtle animated glow.
+Countdown unlock: September 8, 2026 at 00:00 Europe/Berlin.
+Private preview: click the door 5 times quickly, then enter 1337.
 
-- Full continuous fantasy background
-- Animated lantern glow effect
-- English UI
-- Countdown to September 8, 2026 at midnight Europe/Berlin
-- Door click interaction
-- Private admin preview: 5 fast clicks + code 1337
-- Quest map placeholder behind the door
-
-Upload every file and the assets folder to the repository root.
+Upload the complete contents of this package to the GitHub Pages repository root.
