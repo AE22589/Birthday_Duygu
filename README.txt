@@ -1,8 +1,10 @@
-# Duygu Birthday Quest – English v3
+Duygu's 43rd Birthday Quest
 
-All visible website copy is English.
-The duplicate sign has been removed.
-The doorway is now a clean cropped asset with no German overlay.
+Complete website package.
+All visible website text is English.
+The door image is text-free and stored at assets/duygu-door.jpg.
 
-Unlock: September 8, 2026 at 00:00 Europe/Berlin.
-Admin preview: 5 quick clicks on the door, then 1337.
+Birthday unlock: September 8, 2026 at 00:00 Europe/Berlin.
+Admin preview: click the door 5 times quickly, then enter 1337.
+
+Upload all files and the assets folder to the GitHub repository root.
