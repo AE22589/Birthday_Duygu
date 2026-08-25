@@ -1,4 +1,4 @@
-/* Quest I — The Road Trip v1.3.0
+/* Quest I — The Road Trip v1.3.1
    Art-first implementation based on the accepted Quest I concept artwork.
    The artwork is the visual source of truth; HTML/CSS only adds interaction.
 */
@@ -27,7 +27,8 @@ const RESULT_COPY=document.getElementById('resultCopy');
 const RESULT_KICKER=document.getElementById('resultKicker');
 const KEY_REWARD=document.getElementById('keyReward');
 const QUEST_KEY='duyguBirthdayQuestState_v1';
-const VERSION='1.3.0';
+const VERSION='1.3.1';
+const SCREEN=document.getElementById('roadTripScreen');
 const DURATION=60;
 const TARGET_STARS=20;
 const MAX_STARS=43;
@@ -53,16 +54,51 @@ function startLoop(){stop();running=true;startAt=performance.now();lastFrame=sta
 function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=0}
 function move(dir){if(!running)return;const now=performance.now();if(now-lastMove<120)return;const next=Math.max(0,Math.min(2,lane+dir));if(next===lane)return;lane=next;lastMove=now;positionCar(true);PULSE.style.setProperty('--pulse-x',laneX(lane));PULSE.classList.remove('show');void PULSE.offsetWidth;PULSE.classList.add('show')}
 function bindControls(){document.querySelectorAll('[data-move]').forEach(btn=>{btn.addEventListener('click',()=>move(Number(btn.dataset.move)))})}
-function onKey(e){if(!running)return;if(e.key==='ArrowLeft'||e.key.toLowerCase()==='a'){e.preventDefault();move(-1)}if(e.key==='ArrowRight'||e.key.toLowerCase()==='d'){e.preventDefault();move(1)}}
-function onTouchStart(e){if(!running)return;touchStart=e.changedTouches[0].clientX}
+function onKey(e){
+  if(!running)return;
+  const key=e.key;
+  if(key==='ArrowLeft'||key==='a'||key==='A'){e.preventDefault();e.stopPropagation();move(-1);return}
+  if(key==='ArrowRight'||key==='d'||key==='D'){e.preventDefault();e.stopPropagation();move(1)}
+}
+function onTouchStart(e){if(!running)return;e.preventDefault();touchStart=e.changedTouches[0].clientX}
 function onTouchEnd(e){if(!running||touchStart===null)return;const dx=e.changedTouches[0].clientX-touchStart;touchStart=null;if(Math.abs(dx)>28){e.preventDefault();move(dx<0?1:-1)}}
-function intro(){stop();clearObjects();INTRO.hidden=false;GAME.hidden=true;RESULT.hidden=true;reset();setDevice()}
-function ready(){if(readyTimer)return;READY.disabled=true;let n=3;READY.textContent='GET READY';flash('');const id=setInterval(()=>{READY.textContent=n>0?String(n):'GO';n--;if(n<0){clearInterval(id);readyTimer=0;READY.disabled=false;READY.textContent="I'M READY";INTRO.hidden=true;GAME.hidden=false;RESULT.hidden=true;reset();startLoop()}},700);readyTimer=id}
-function finish(gameOver=false){stop();const finalTime=Math.min(DURATION,elapsed);RESULT_STARS.textContent=String(score);RESULT_TIME.textContent=`${Math.round(finalTime)}s`;RESULT_KICKER.textContent=gameOver?'JOURNEY ENDED':'JOURNEY COMPLETE';RESULT_TITLE.textContent=gameOver?'THE ROAD TURNED AGAINST YOU':'THE ROAD REMEMBERS';RESULT_COPY.textContent=gameOver?'The road has turned against you. Take a breath and try again.':`You collected ${score} / ${MAX_STARS} stars.`;const won=score>=TARGET_STARS&&!gameOver;KEY_REWARD.hidden=!won;if(won){grantKey();}GAME.hidden=true;RESULT.hidden=false}
+function clearReadyTimer(){if(readyTimer){clearInterval(readyTimer);readyTimer=0}READY.disabled=false;READY.textContent="I'M READY"}
+function setView(view){
+  if(view!=='intro') clearReadyTimer();
+  INTRO.hidden=view!=='intro';
+  GAME.hidden=view!=='game';
+  RESULT.hidden=view!=='result';
+  SCREEN.classList.toggle('is-playing',view==='game');
+  SCREEN.classList.toggle('is-result',view==='result');
+  SCREEN.classList.toggle('is-intro',view==='intro');
+  if(view==='game'){requestAnimationFrame(()=>BOARD.focus({preventScroll:true}))}
+}
+function intro(){stop();clearObjects();setView('intro');reset();setDevice()}
+function ready(){
+  if(readyTimer||running)return;
+  READY.disabled=true;
+  let n=3;
+  setView('intro');
+  const id=setInterval(()=>{
+    READY.textContent=n>0?String(n):'GO';
+    n--;
+    if(n<0){
+      clearInterval(id);
+      readyTimer=0;
+      READY.disabled=false;
+      READY.textContent="I'M READY";
+      reset();
+      setView('game');
+      startLoop();
+    }
+  },700);
+  readyTimer=id;
+}
+function finish(gameOver=false){stop();const finalTime=Math.min(DURATION,elapsed);RESULT_STARS.textContent=String(score);RESULT_TIME.textContent=`${Math.round(finalTime)}s`;RESULT_KICKER.textContent=gameOver?'JOURNEY ENDED':'JOURNEY COMPLETE';RESULT_TITLE.textContent=gameOver?'THE ROAD TURNED AGAINST YOU':'THE ROAD REMEMBERS';RESULT_COPY.textContent=gameOver?'The road has turned against you. Take a breath and try again.':`You collected ${score} / ${MAX_STARS} stars.`;const won=score>=TARGET_STARS&&!gameOver;KEY_REWARD.hidden=!won;if(won){grantKey();}setView('result')}
 function grantKey(){try{const s=JSON.parse(localStorage.getItem(QUEST_KEY)||'{}');const c=Array.isArray(s.completed)?s.completed.filter(Number.isInteger):[];if(!c.includes(1))c.push(1);localStorage.setItem(QUEST_KEY,JSON.stringify({completed:[...new Set(c)].sort((a,b)=>a-b)}))}catch{}}
-function back(){stop();clearObjects();GAME.hidden=true;RESULT.hidden=true;INTRO.hidden=true;window.showQuestMap?.()}
-function showRoadTripScreen(){INTRO.hidden=false;GAME.hidden=true;RESULT.hidden=true;reset();setDevice()}
-READY.addEventListener('click',ready);BACK.addEventListener('click',back);RETURN.addEventListener('click',back);RETRY.addEventListener('click',()=>{RESULT.hidden=true;INTRO.hidden=false;reset()});window.addEventListener('keydown',onKey,{passive:false});BOARD.addEventListener('touchstart',onTouchStart,{passive:true});BOARD.addEventListener('touchend',onTouchEnd,{passive:false});window.addEventListener('resize',setDevice);window.addEventListener('orientationchange',()=>setTimeout(setDevice,60));bindControls();setDevice();
+function back(){clearReadyTimer();stop();clearObjects();setView('intro');window.showQuestMap?.()}
+function showRoadTripScreen(){clearReadyTimer();stop();clearObjects();reset();setView('intro');setDevice()}
+READY.addEventListener('click',ready);BACK.addEventListener('click',back);RETURN.addEventListener('click',back);RETRY.addEventListener('click',()=>{stop();clearObjects();reset();setView('intro');setDevice()});document.addEventListener('keydown',onKey,{passive:false});BOARD.addEventListener('keydown',onKey,{passive:false});BOARD.addEventListener('touchstart',onTouchStart,{passive:false});BOARD.addEventListener('touchend',onTouchEnd,{passive:false});window.addEventListener('resize',setDevice);window.addEventListener('orientationchange',()=>setTimeout(setDevice,60));bindControls();setDevice();
 window.showRoadTripScreen=showRoadTripScreen;
-window.__DUYGU_ROADTRIP_SELF_TEST__=()=>({version:VERSION,renderer:'HTML/CSS layered art',background:'assets/quest1-game-background.jpg',car:'assets/roadtrip-car.png',desktopKeyboard:true,mobileSwipe:true,lanes:LANES.length,duration:DURATION,targetStars:TARGET_STARS,maxStars:MAX_STARS,stateKey:QUEST_KEY,readyGate:!!READY});
+window.__DUYGU_ROADTRIP_SELF_TEST__=()=>({version:VERSION,renderer:'HTML/CSS layered art',background:'assets/quest1-game-background.jpg',car:'assets/roadtrip-car.png',desktopKeyboard:true,mobileSwipe:true,lanes:LANES.length,duration:DURATION,targetStars:TARGET_STARS,maxStars:MAX_STARS,stateKey:QUEST_KEY,readyGate:!!READY,hiddenCssEnforced:getComputedStyle(GAME).display==='none'||GAME.hidden});
 })();

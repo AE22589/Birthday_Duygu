@@ -1,6 +1,6 @@
 # Duygu's Birthday Quest — QA / TEST PLAN
 
-## Release v1.3.0 — Quest I art-first responsive implementation
+## Release v1.3.1 — Quest I art-first responsive implementation
 
 ### A. Regression / security
 1. Countdown screen loads.
@@ -76,9 +76,23 @@
 55. `node --check script.js`
 56. `node --check roadtrip.js`
 57. Required assets exist.
-58. All HTML/CSS/JS cache-busters are `v1.3.0`.
+58. All HTML/CSS/JS cache-busters are `v1.3.1`.
 59. `window.__DUYGU_ROADTRIP_SELF_TEST__()` reports renderer, source asset, controls, lanes and state key.
 60. ZIP contents are internally consistent.
 
 ### Deployment gate
 The live GitHub Pages URL must be checked manually after upload. Local static tests are not proof of the deployed CDN state. If the live page is unchanged, inspect the Network panel for `style.css?v=1.3.0`, `script.js?v=1.3.0`, and `roadtrip.js?v=1.3.0`.
+
+
+## Regression gate — Quest I v1.3.1
+
+- [ ] Before READY: intro visible, game hidden, result hidden.
+- [ ] After READY countdown: intro hidden and game visible; both must not coexist.
+- [ ] Game board is entirely inside the viewport on 1366×768, 1920×1080, 390×844 and 844×390.
+- [ ] Desktop ArrowLeft / ArrowRight move exactly one lane per accepted input.
+- [ ] A / D remain supported.
+- [ ] Mobile swipe left / right moves exactly one lane.
+- [ ] Touch scrolling does not start while playing.
+- [ ] Returning to map stops the game loop and hides the entire Road Trip screen.
+- [ ] Reloading the project never leaves the game view visible behind the intro.
+- [ ] Developer security flow remains 5 clicks → code 1337 → quest map.
