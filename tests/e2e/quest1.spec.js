@@ -42,7 +42,8 @@ test('Quest I ready gate starts a real game', async ({ page }) => {
   await expect(page.locator('#timeCount')).toHaveText(/^(5[0-9]|60)$/);
 });
 
-test('desktop keyboard visibly changes lanes and prevents page scrolling', async ({ page }) => {
+test('desktop keyboard visibly changes lanes and prevents page scrolling', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.startsWith('mobile-'), 'desktop keyboard test is not run on mobile projects');
   await openDeveloperQuestMap(page);
   await openQuestOne(page);
   await page.locator('#readyButton').click();
@@ -87,7 +88,8 @@ test('desktop keyboard visibly changes lanes and prevents page scrolling', async
   expect(await page.evaluate(() => window.scrollY)).toBe(0);
 });
 
-test('mobile swipe visibly changes lanes without browser scrolling', async ({ page }) => {
+test('mobile swipe visibly changes lanes without browser scrolling', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith('mobile-'), 'swipe test is run only on mobile projects');
   await openDeveloperQuestMap(page);
   await openQuestOne(page);
   await page.locator('#readyButton').click();
@@ -101,16 +103,21 @@ test('mobile swipe visibly changes lanes without browser scrolling', async ({ pa
     return box.x + box.width / 2;
   };
 
+  await expect.poll(async () => await car.getAttribute('data-lane')).toBe('1');
   const before = await center();
-  await board.evaluate(board => {
-    const fire = (type, x) => {
-      const ev = new Event(type, { bubbles: true, cancelable: true });
-      Object.defineProperty(ev, 'changedTouches', { value: [{ clientX: x }] });
-      board.dispatchEvent(ev);
-    };
-    fire('touchstart', 300);
-    fire('touchend', 100);
-  });
+  const box = await board.boundingBox();
+  if (!box) throw new Error('road board has no bounding box');
+  const y = box.y + box.height / 2;
+  const xStart = box.x + box.width * 0.70;
+  const xEnd = box.x + box.width * 0.30;
+
+  await page.evaluate(({xStart, xEnd, y}) => {
+    const board = document.querySelector('#roadBoard');
+    const down = new PointerEvent('pointerdown', {bubbles:true, cancelable:true, pointerId:7, pointerType:'touch', clientX:xStart, clientY:y});
+    const up = new PointerEvent('pointerup', {bubbles:true, cancelable:true, pointerId:7, pointerType:'touch', clientX:xEnd, clientY:y});
+    board.dispatchEvent(down);
+    board.dispatchEvent(up);
+  }, {xStart, xEnd, y});
 
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('0');
   await page.waitForTimeout(350);

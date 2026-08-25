@@ -1,72 +1,50 @@
-# Deep QA Report — Duygu Birthday Quest v1.3.2
+# Deep QA Report — Duygu Birthday Quest v1.3.8
 
 ## Release decision
-**PASS for static/integration review.** Live GitHub Pages deployment must still be verified after upload.
+**HOLD until the next GitHub Browser QA run is green.** Static QA and JavaScript syntax checks pass locally. The previous v1.3.7 Browser QA run exposed test-scope errors and a mobile-input path that needed hardening; those are corrected in this release.
 
-## Root cause found in v1.3.1
-Quest I's `<section id="roadTripScreen" ... hidden>` was never unhidden by `showRoadTripScreen()`. The click handler could call the function successfully, but the browser was required to keep the entire Quest I screen hidden. This made the Quest I hotspot appear non-functional.
+## Findings from the v1.3.7 Browser QA run
+The supplied GitHub Actions run executed 16 tests and finished with **10 passed / 6 failed**. The failures were:
+- the desktop projects incorrectly executed the mobile-swipe test;
+- the mobile projects incorrectly executed the desktop keyboard/on-screen-button test;
+- the mobile swipe assertion remained on lane `2` instead of reaching lane `0`.
+The log explicitly shows the desktop/mobile test-matrix mismatch and the hidden desktop controls on mobile. The swipe failure also showed `Expected: "0" / Received: "2"`. 
 
-## Corrective actions
-- `showRoadTripScreen()` now explicitly sets `#roadTripScreen.hidden = false`.
-- Opening Quest I hides both `#questScreen` and `#entrance`.
-- The runtime script loader was removed. `roadtrip.js` is loaded once by the main HTML with `defer`; the Quest I hotspot now calls the already-registered entry function directly.
-- Returning to the map hides `#roadTripScreen` and restores the map through the existing navigation function.
-- Life decrement corrected from `max(1, lives - 1)` to `max(0, lives - 1)`, so Game Over can actually occur.
-- Collected/hit/expired game objects are removed from the DOM and object state.
-- Retry resets timer, score, lives, lane, timers, objects and visual state.
+## Corrective actions in v1.3.8
+- Desktop keyboard test now runs only on desktop projects.
+- Mobile swipe test now runs only on mobile projects.
+- Mobile lane input was moved from the old synthetic `touchstart/touchend` path to Pointer Events (`pointerdown/pointerup`) with `pointerType === 'touch'`, pointer capture, and cancellation cleanup.
+- `touch-action: none` remains on the game board to prevent browser gesture scrolling.
+- The visible car position remains bound to `left: calc(var(--car-x) * 1%)`, so lane changes are tested as actual visual movement rather than only internal state.
+- Browser tests assert the car's bounding-box center moves by a visible amount after keyboard/swipe input.
+- Desktop keyboard testing still covers ArrowLeft/ArrowRight and the visible on-screen arrow controls.
+- The test suite now avoids false failures caused by controls intentionally hidden on mobile.
 
 ## Static checks
 - `node --check script.js`: PASS
 - `node --check roadtrip.js`: PASS
+- `node --check tests/e2e/quest1.spec.js`: PASS
 - required assets: PASS
-- cache-busters consistent at v1.3.2: PASS
-- no Canvas renderer: PASS
-- no obsolete generic `road-scene` renderer: PASS
-- concept background referenced: PASS
-- `[hidden] { display:none!important }` guard present: PASS
-- view-state manager present: PASS
-- Quest I entry function present: PASS
-- direct Quest I entry, no runtime script injection: PASS
+- version/cache consistency v1.3.8: PASS
+- developer 5-click + 1337 gate: PASS
+- Quest I navigation bridge: PASS
+- ArrowLeft / ArrowRight / A / D: PASS
+- Pointer swipe controls: PASS
+- mobile CSS and `touch-action:none`: PASS
+- visible car lane CSS binding: PASS
 - life counter can reach zero: PASS
-- object cleanup present: PASS
 
-## Functional regression checklist
-### Security / map
-- countdown gate remains in `script.js`
-- 5-click developer gesture remains
-- code remains `1337`
-- `showQuestMap()` still enforces `isUnlocked()`
-- existing state key remains `duyguBirthdayQuestState_v1`
+## Browser QA status
+The previous GitHub run is the source of the reported failures. A fresh Browser QA run is required after this v1.3.8 package is committed. The local environment here does not have the Playwright package installed; an attempted `npm install` timed out, so a full local Playwright run is **not** claimed.
 
-### Quest I navigation
-- map -> Quest I -> intro: implemented
-- intro -> READY -> countdown -> game: implemented
-- game -> result: implemented
-- result/retry -> intro: implemented
-- back -> quest map: implemented
+## Required acceptance tests
+1. Desktop: start Quest I and press ArrowLeft/ArrowRight; the car must visibly move between lanes.
+2. Desktop: A/D must move the car and the on-screen arrows must work.
+3. Desktop: repeated left/right input must respect lane boundaries.
+4. Mobile: swipe left moves center -> left; swipe right moves left -> center/right.
+5. Mobile: game board must not scroll during swipe.
+6. READY countdown, game start, result, retry and return-to-map must remain functional.
+7. Key I persistence must remain functional.
+8. Security gate must remain functional.
 
-### Controls
-- desktop ArrowLeft / ArrowRight: implemented
-- desktop A / D: implemented
-- desktop on-screen arrow controls: implemented
-- mobile swipe left/right: implemented
-- touch scrolling disabled during game: implemented
-
-### Gameplay
-- 60 second maximum: implemented
-- 3 lives: implemented
-- collision invulnerability: implemented
-- 20 stars required for Key I: implemented
-- 43 star cap: implemented
-- Key I persisted in existing quest state: implemented
-
-## Required live deployment tests
-These cannot be claimed from static analysis alone and must be performed against GitHub Pages after upload:
-1. Open the real map on desktop and click Quest I.
-2. Confirm Quest I intro replaces the map (not layered beneath it).
-3. Click `I'M READY`; confirm only the game view is visible.
-4. Verify ArrowLeft/ArrowRight and A/D.
-5. Verify mobile swipe on 390x844 and 412x915.
-6. Verify Retry and Return to Quest Map.
-7. Verify Key I persists after reload.
-8. Verify the 5-click -> 1337 developer flow still works from the entrance.
+A release should only be considered QA-passed when Static QA and Browser QA are both green.

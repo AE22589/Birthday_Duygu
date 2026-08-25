@@ -1,4 +1,4 @@
-/* Quest I — The Road Trip v1.3.3
+/* Quest I — The Road Trip v1.3.8
    Art-first implementation based on the accepted Quest I concept artwork.
    The artwork is the visual source of truth; HTML/CSS only adds interaction.
 */
@@ -27,7 +27,7 @@ const RESULT_COPY=document.getElementById('resultCopy');
 const RESULT_KICKER=document.getElementById('resultKicker');
 const KEY_REWARD=document.getElementById('keyReward');
 const QUEST_KEY='duyguBirthdayQuestState_v1';
-const VERSION='1.3.7';
+const VERSION='1.3.8';
 const SCREEN=document.getElementById('roadTripScreen');
 const DURATION=60;
 const TARGET_STARS=20;
@@ -60,8 +60,20 @@ function onKey(e){
   if(key==='ArrowLeft'||key==='a'||key==='A'){e.preventDefault();e.stopPropagation();move(-1);return}
   if(key==='ArrowRight'||key==='d'||key==='D'){e.preventDefault();e.stopPropagation();move(1)}
 }
-function onTouchStart(e){if(!running)return;e.preventDefault();touchStart=e.changedTouches[0].clientX}
-function onTouchEnd(e){if(!running||touchStart===null)return;const dx=e.changedTouches[0].clientX-touchStart;touchStart=null;if(Math.abs(dx)>28){e.preventDefault();move(dx<0?1:-1)}}
+function onPointerDown(e){
+  if(!running||e.pointerType!=='touch')return;
+  e.preventDefault();
+  touchStart=e.clientX;
+  try{BOARD.setPointerCapture(e.pointerId)}catch{}
+}
+function onPointerUp(e){
+  if(!running||touchStart===null||e.pointerType!=='touch')return;
+  e.preventDefault();
+  const dx=e.clientX-touchStart;
+  touchStart=null;
+  try{BOARD.releasePointerCapture(e.pointerId)}catch{}
+  if(Math.abs(dx)>28)move(dx<0?1:-1);
+}
 function clearReadyTimer(){if(readyTimer){clearInterval(readyTimer);readyTimer=0}READY.disabled=false;READY.textContent="I'M READY"}
 function setView(view){
   if(view!=='intro') clearReadyTimer();
@@ -99,7 +111,7 @@ function finish(gameOver=false){stop();const finalTime=Math.min(DURATION,elapsed
 function grantKey(){try{const s=JSON.parse(localStorage.getItem(QUEST_KEY)||'{}');const c=Array.isArray(s.completed)?s.completed.filter(Number.isInteger):[];if(!c.includes(1))c.push(1);localStorage.setItem(QUEST_KEY,JSON.stringify({completed:[...new Set(c)].sort((a,b)=>a-b)}))}catch{}}
 function back(){clearReadyTimer();stop();clearObjects();setView('intro');window.showQuestMap?.()}
 function showRoadTripScreen(){clearReadyTimer();stop();clearObjects();reset();setView('intro');setDevice()}
-READY.addEventListener('click',ready);BACK.addEventListener('click',back);RETURN.addEventListener('click',back);RETRY.addEventListener('click',()=>{stop();clearObjects();reset();setView('intro');setDevice()});window.addEventListener('keydown',onKey,{passive:false,capture:true});BOARD.addEventListener('touchstart',onTouchStart,{passive:false});BOARD.addEventListener('touchend',onTouchEnd,{passive:false});window.addEventListener('resize',setDevice);window.addEventListener('orientationchange',()=>setTimeout(setDevice,60));bindControls();setDevice();
+READY.addEventListener('click',ready);BACK.addEventListener('click',back);RETURN.addEventListener('click',back);RETRY.addEventListener('click',()=>{stop();clearObjects();reset();setView('intro');setDevice()});window.addEventListener('keydown',onKey,{passive:false,capture:true});BOARD.addEventListener('pointerdown',onPointerDown,{passive:false});BOARD.addEventListener('pointerup',onPointerUp,{passive:false});BOARD.addEventListener('pointercancel',()=>{touchStart=null},{passive:true});window.addEventListener('resize',setDevice);window.addEventListener('orientationchange',()=>setTimeout(setDevice,60));bindControls();setDevice();
 window.showRoadTripScreen=showRoadTripScreen;
-window.__DUYGU_ROADTRIP_SELF_TEST__=()=>({version:VERSION,renderer:'HTML/CSS layered art',background:'assets/quest1-game-background.jpg',car:'assets/roadtrip-car.png',desktopKeyboard:true,mobileSwipe:true,lanes:LANES.length,duration:DURATION,targetStars:TARGET_STARS,maxStars:MAX_STARS,stateKey:QUEST_KEY,readyGate:!!READY,hiddenCssEnforced:getComputedStyle(GAME).display==='none'||GAME.hidden});
+window.__DUYGU_ROADTRIP_SELF_TEST__=()=>({version:VERSION,renderer:'HTML/CSS layered art',background:'assets/quest1-game-background.jpg',car:'assets/roadtrip-car.png',desktopKeyboard:true,mobileSwipe:true,pointerTouch:true,lanes:LANES.length,duration:DURATION,targetStars:TARGET_STARS,maxStars:MAX_STARS,stateKey:QUEST_KEY,readyGate:!!READY,hiddenCssEnforced:getComputedStyle(GAME).display==='none'||GAME.hidden});
 })();

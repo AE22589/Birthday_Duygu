@@ -8,7 +8,7 @@ const script = read('script.js');
 const road = read('roadtrip.js');
 const css = read('style.css');
 
-const VERSION = '1.3.7';
+const VERSION = '1.3.8';
 const requiredAssets = [
   'assets/entrance-scene.jpg',
   'assets/quest-map-desktop.webp',
@@ -46,7 +46,7 @@ if (!script.includes('window.showRoadTripScreen')) throw new Error('Quest I navi
 
 if (!road.includes("if(key==='ArrowLeft'||key==='a'||key==='A')")) throw new Error('desktop left control missing');
 if (!road.includes("if(key==='ArrowRight'||key==='d'||key==='D')")) throw new Error('desktop right control missing');
-if (!road.includes('touchstart') || !road.includes('touchend')) throw new Error('mobile swipe controls missing');
+if (!road.includes("BOARD.addEventListener('pointerdown'") || !road.includes("BOARD.addEventListener('pointerup'")) throw new Error('mobile pointer swipe controls missing');
 if (!road.includes('lives=Math.max(0,lives-1)')) throw new Error('lives must be able to reach zero');
 if (!road.includes('if(lives<=0){finish(true);return}')) throw new Error('game over condition missing');
 if (!road.includes('score>=TARGET_STARS&&!gameOver')) throw new Error('key reward condition missing');
@@ -64,7 +64,7 @@ console.log(JSON.stringify({
   requiredAssets: requiredAssets.length,
   security: '5-click + 1337 code',
   questFlow: 'map -> intro -> countdown -> game -> result',
-  controls: ['ArrowLeft','ArrowRight','A','D','swipe'],
+  controls: ['ArrowLeft','ArrowRight','A','D','swipe (pointerdown/up)','pointerTouch'],
   gameOver: 'lives can reach 0',
   mobileCss: true
 }, null, 2));
