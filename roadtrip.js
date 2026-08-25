@@ -27,7 +27,7 @@ const RESULT_COPY=document.getElementById('resultCopy');
 const RESULT_KICKER=document.getElementById('resultKicker');
 const KEY_REWARD=document.getElementById('keyReward');
 const QUEST_KEY='duyguBirthdayQuestState_v1';
-const VERSION='1.3.6';
+const VERSION='1.3.7';
 const SCREEN=document.getElementById('roadTripScreen');
 const DURATION=60;
 const TARGET_STARS=20;
@@ -37,7 +37,7 @@ let running=false,raf=0,startAt=0,lastFrame=0,elapsed=0,score=0,lives=3,lane=1,o
 function mobile(){return matchMedia('(max-width:700px)').matches || (navigator.maxTouchPoints>0 && innerWidth<900)}
 function setDevice(){device=mobile()?'mobile':'desktop';TOUCH_HINT.hidden=device!=='mobile';TOUCH_HINT.style.display=device==='mobile'?'block':'none';positionCar(false)}
 function laneX(i){return LANES[Math.max(0,Math.min(2,i))]}
-function positionCar(animate=true){CAR.style.setProperty('--car-x',laneX(lane));CAR.classList.toggle('move',animate);}
+function positionCar(animate=true){const x=laneX(lane);CAR.style.setProperty('--car-x',x);CAR.dataset.lane=String(lane);CAR.setAttribute('aria-label',`Player car, lane ${lane+1} of 3`);CAR.classList.toggle('move',animate);}
 function updateHud(){STARS.textContent=`${score} / ${MAX_STARS}`;TIME.textContent=String(Math.max(0,Math.ceil(DURATION-elapsed)));LIVES.textContent=`${'♥ '.repeat(lives).trim()}${lives<3?' '+ '♡ '.repeat(3-lives).trim():''}`}
 function clearObjects(){objects.forEach(o=>o.el.remove());objects=[];DYNAMIC.replaceChildren()}
 function reset(){stop();clearObjects();elapsed=0;score=0;lives=3;lane=1;lastMove=0;spawnStarAt=0;spawnObstacleAt=0;invulnerableUntil=0;CAR.classList.remove('hit');PULSE.classList.remove('show');positionCar(false);updateHud()}
@@ -99,7 +99,7 @@ function finish(gameOver=false){stop();const finalTime=Math.min(DURATION,elapsed
 function grantKey(){try{const s=JSON.parse(localStorage.getItem(QUEST_KEY)||'{}');const c=Array.isArray(s.completed)?s.completed.filter(Number.isInteger):[];if(!c.includes(1))c.push(1);localStorage.setItem(QUEST_KEY,JSON.stringify({completed:[...new Set(c)].sort((a,b)=>a-b)}))}catch{}}
 function back(){clearReadyTimer();stop();clearObjects();setView('intro');window.showQuestMap?.()}
 function showRoadTripScreen(){clearReadyTimer();stop();clearObjects();reset();setView('intro');setDevice()}
-READY.addEventListener('click',ready);BACK.addEventListener('click',back);RETURN.addEventListener('click',back);RETRY.addEventListener('click',()=>{stop();clearObjects();reset();setView('intro');setDevice()});document.addEventListener('keydown',onKey,{passive:false});BOARD.addEventListener('keydown',onKey,{passive:false});BOARD.addEventListener('touchstart',onTouchStart,{passive:false});BOARD.addEventListener('touchend',onTouchEnd,{passive:false});window.addEventListener('resize',setDevice);window.addEventListener('orientationchange',()=>setTimeout(setDevice,60));bindControls();setDevice();
+READY.addEventListener('click',ready);BACK.addEventListener('click',back);RETURN.addEventListener('click',back);RETRY.addEventListener('click',()=>{stop();clearObjects();reset();setView('intro');setDevice()});window.addEventListener('keydown',onKey,{passive:false,capture:true});BOARD.addEventListener('touchstart',onTouchStart,{passive:false});BOARD.addEventListener('touchend',onTouchEnd,{passive:false});window.addEventListener('resize',setDevice);window.addEventListener('orientationchange',()=>setTimeout(setDevice,60));bindControls();setDevice();
 window.showRoadTripScreen=showRoadTripScreen;
 window.__DUYGU_ROADTRIP_SELF_TEST__=()=>({version:VERSION,renderer:'HTML/CSS layered art',background:'assets/quest1-game-background.jpg',car:'assets/roadtrip-car.png',desktopKeyboard:true,mobileSwipe:true,lanes:LANES.length,duration:DURATION,targetStars:TARGET_STARS,maxStars:MAX_STARS,stateKey:QUEST_KEY,readyGate:!!READY,hiddenCssEnforced:getComputedStyle(GAME).display==='none'||GAME.hidden});
 })();

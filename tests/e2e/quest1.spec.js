@@ -42,28 +42,67 @@ test('Quest I ready gate starts a real game', async ({ page }) => {
   await expect(page.locator('#timeCount')).toHaveText(/^(5[0-9]|60)$/);
 });
 
-test('desktop keyboard changes lanes and game prevents page scrolling', async ({ page }) => {
+test('desktop keyboard visibly changes lanes and prevents page scrolling', async ({ page }) => {
   await openDeveloperQuestMap(page);
   await openQuestOne(page);
   await page.locator('#readyButton').click();
-  await page.waitForTimeout(3000);
+  await expect(page.locator('#roadTripGame')).toBeVisible({ timeout: 6000 });
   const board = page.locator('#roadBoard');
+  const car = page.locator('#playerCar');
   await expect(board).toBeVisible();
-  const before = await page.locator('#playerCar').evaluate(el => getComputedStyle(el).getPropertyValue('--car-x'));
+
+  const center = async () => {
+    const box = await car.boundingBox();
+    if (!box) throw new Error('player car has no bounding box');
+    return box.x + box.width / 2;
+  };
+
+  const initial = await center();
+  expect(await car.getAttribute('data-lane')).toBe('1');
+
   await page.keyboard.press('ArrowLeft');
+  await expect.poll(async () => await car.getAttribute('data-lane')).toBe('0');
+  await page.waitForTimeout(350);
+  const left = await center();
+  expect(left).toBeLessThan(initial - 10);
+
+  await page.keyboard.press('ArrowRight');
+  await expect.poll(async () => await car.getAttribute('data-lane')).toBe('1');
+  await page.waitForTimeout(350);
+  const backToCenter = await center();
+  expect(Math.abs(backToCenter - initial)).toBeLessThan(3);
+
+  await page.keyboard.press('ArrowRight');
+  await expect.poll(async () => await car.getAttribute('data-lane')).toBe('2');
+  await page.waitForTimeout(350);
+  const right = await center();
+  expect(right).toBeGreaterThan(initial + 10);
+
   await page.waitForTimeout(160);
-  const after = await page.locator('#playerCar').evaluate(el => getComputedStyle(el).getPropertyValue('--car-x'));
-  expect(after).not.toBe(before);
+  await page.locator('.game-control[data-move="-1"]').click();
+  await expect.poll(async () => await car.getAttribute('data-lane')).toBe('1');
+  await page.waitForTimeout(350);
+  const afterButton = await center();
+  expect(Math.abs(afterButton - initial)).toBeLessThan(3);
   expect(await page.evaluate(() => window.scrollY)).toBe(0);
 });
 
-test('mobile swipe changes lanes without browser scrolling', async ({ page }) => {
+test('mobile swipe visibly changes lanes without browser scrolling', async ({ page }) => {
   await openDeveloperQuestMap(page);
   await openQuestOne(page);
   await page.locator('#readyButton').click();
-  await page.waitForTimeout(3000);
-  const before = await page.locator('#playerCar').evaluate(el => getComputedStyle(el).getPropertyValue('--car-x'));
-  await page.locator('#roadBoard').evaluate(board => {
+  await expect(page.locator('#roadTripGame')).toBeVisible({ timeout: 6000 });
+  const board = page.locator('#roadBoard');
+  const car = page.locator('#playerCar');
+
+  const center = async () => {
+    const box = await car.boundingBox();
+    if (!box) throw new Error('player car has no bounding box');
+    return box.x + box.width / 2;
+  };
+
+  const before = await center();
+  await board.evaluate(board => {
     const fire = (type, x) => {
       const ev = new Event(type, { bubbles: true, cancelable: true });
       Object.defineProperty(ev, 'changedTouches', { value: [{ clientX: x }] });
@@ -72,8 +111,10 @@ test('mobile swipe changes lanes without browser scrolling', async ({ page }) =>
     fire('touchstart', 300);
     fire('touchend', 100);
   });
-  await page.waitForTimeout(180);
-  const after = await page.locator('#playerCar').evaluate(el => getComputedStyle(el).getPropertyValue('--car-x'));
-  expect(after).not.toBe(before);
+
+  await expect.poll(async () => await car.getAttribute('data-lane')).toBe('0');
+  await page.waitForTimeout(350);
+  const after = await center();
+  expect(after).toBeLessThan(before - 10);
   expect(await page.evaluate(() => window.scrollY)).toBe(0);
 });

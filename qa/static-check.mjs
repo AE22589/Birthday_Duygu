@@ -8,7 +8,7 @@ const script = read('script.js');
 const road = read('roadtrip.js');
 const css = read('style.css');
 
-const VERSION = '1.3.6';
+const VERSION = '1.3.7';
 const requiredAssets = [
   'assets/entrance-scene.jpg',
   'assets/quest-map-desktop.webp',
@@ -53,6 +53,10 @@ if (!road.includes('score>=TARGET_STARS&&!gameOver')) throw new Error('key rewar
 
 if (!css.includes('@media(max-width:700px)')) throw new Error('mobile CSS missing');
 if (!css.includes('touch-action:none')) throw new Error('touch-action guard missing');
+if (!css.includes('left:calc(var(--car-x) * 1%)')) throw new Error('car lane position CSS binding missing');
+if (!css.includes('left:calc(var(--pulse-x,50) * 1%)')) throw new Error('lane pulse position CSS binding missing');
+if (!road.includes('CAR.dataset.lane=String(lane)')) throw new Error('car lane state binding missing');
+if (!road.includes("window.addEventListener('keydown',onKey,{passive:false,capture:true})")) throw new Error('keyboard listener binding missing');
 
 console.log(`PASS: v${VERSION} static QA`);
 console.log(JSON.stringify({
