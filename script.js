@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '1.0.8';
+  const VERSION = '1.0.9';
   const TARGET_MS = Date.parse('2026-09-08T00:00:00+02:00');
   const ADMIN_CODE = '1337';
   const CLICK_LIMIT = 5;
@@ -139,6 +139,13 @@
     if (modal && !modal.hidden) return;
     event.preventDefault();
 
+    // Once the real unlock time has arrived, the normal door opens immediately.
+    // The developer sequence is only a pre-release bypass.
+    if (isUnlocked()) {
+      showQuestMap();
+      return;
+    }
+
     const now = performance.now();
     if (!clickWindowStart || now - clickWindowStart > CLICK_WINDOW_MS) {
       clickWindowStart = now;
@@ -195,6 +202,15 @@
       handleQuestClick(button);
     });
   });
+
+  const mapShell = document.querySelector('.map-shell');
+  const activeQuestButton = document.querySelector('.hotspot.active[data-quest]');
+  if (mapShell && activeQuestButton) {
+    activeQuestButton.addEventListener('mouseenter', () => mapShell.classList.add('is-hover'));
+    activeQuestButton.addEventListener('mouseleave', () => mapShell.classList.remove('is-hover'));
+    activeQuestButton.addEventListener('focus', () => mapShell.classList.add('is-hover'));
+    activeQuestButton.addEventListener('blur', () => mapShell.classList.remove('is-hover'));
+  }
 
   if (finalDoor) {
     finalDoor.addEventListener('pointerup', (event) => {

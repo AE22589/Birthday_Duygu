@@ -46,7 +46,67 @@
           <source media="(max-width: 700px)" srcset="assets/quest-map-mobile.png">
           <img src="assets/quest-map-desktop.png" alt="Duygu's birthday quest map">
         </picture>
-        <!-- Interaction layer. The artwork stays unchanged; hotspots sit over the matching nodes. -->
+        <!-- Visual state is rendered in an intrinsic SVG coordinate system.
+             This keeps rings and locked overlays aligned with the artwork at every viewport size. -->
+        <svg class="map-overlay overlay-desktop" viewBox="0 0 1672 941" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <defs>
+            <filter id="lockedDesktop" x="-20%" y="-20%" width="140%" height="140%">
+              <feColorMatrix type="saturate" values="0"/>
+              <feComponentTransfer>
+                <feFuncR type="linear" slope="0.48" intercept="0.04"/>
+                <feFuncG type="linear" slope="0.48" intercept="0.04"/>
+                <feFuncB type="linear" slope="0.48" intercept="0.04"/>
+              </feComponentTransfer>
+            </filter>
+            <clipPath id="clipD2"><circle cx="642" cy="212" r="61"/></clipPath>
+            <clipPath id="clipD3"><circle cx="966" cy="212" r="61"/></clipPath>
+            <clipPath id="clipD4"><circle cx="1191" cy="336" r="61"/></clipPath>
+            <clipPath id="clipD5"><circle cx="1132" cy="590" r="61"/></clipPath>
+            <clipPath id="clipD6"><circle cx="810" cy="700" r="61"/></clipPath>
+            <clipPath id="clipD7"><circle cx="456" cy="590" r="61"/></clipPath>
+          </defs>
+          <g class="locked-art locked-art-desktop" opacity="0.92" filter="url(#lockedDesktop)">
+            <image href="assets/quest-map-desktop.png" x="0" y="0" width="1672" height="941" clip-path="url(#clipD2)"/>
+            <image href="assets/quest-map-desktop.png" x="0" y="0" width="1672" height="941" clip-path="url(#clipD3)"/>
+            <image href="assets/quest-map-desktop.png" x="0" y="0" width="1672" height="941" clip-path="url(#clipD4)"/>
+            <image href="assets/quest-map-desktop.png" x="0" y="0" width="1672" height="941" clip-path="url(#clipD5)"/>
+            <image href="assets/quest-map-desktop.png" x="0" y="0" width="1672" height="941" clip-path="url(#clipD6)"/>
+            <image href="assets/quest-map-desktop.png" x="0" y="0" width="1672" height="941" clip-path="url(#clipD7)"/>
+          </g>
+          <circle class="active-ring active-ring-desktop" cx="426" cy="335" r="65"/>
+          <circle class="hover-ring active-ring-desktop" cx="426" cy="335" r="65"/>
+        </svg>
+
+        <svg class="map-overlay overlay-mobile" viewBox="0 0 322 696" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <defs>
+            <filter id="lockedMobile" x="-20%" y="-20%" width="140%" height="140%">
+              <feColorMatrix type="saturate" values="0"/>
+              <feComponentTransfer>
+                <feFuncR type="linear" slope="0.42" intercept="0.03"/>
+                <feFuncG type="linear" slope="0.42" intercept="0.03"/>
+                <feFuncB type="linear" slope="0.42" intercept="0.03"/>
+              </feComponentTransfer>
+            </filter>
+            <clipPath id="clipM2"><circle cx="46" cy="229" r="36"/></clipPath>
+            <clipPath id="clipM3"><circle cx="276" cy="229" r="36"/></clipPath>
+            <clipPath id="clipM4"><circle cx="276" cy="357" r="36"/></clipPath>
+            <clipPath id="clipM5"><circle cx="226" cy="485" r="36"/></clipPath>
+            <clipPath id="clipM6"><circle cx="111" cy="485" r="36"/></clipPath>
+            <clipPath id="clipM7"><circle cx="46" cy="357" r="36"/></clipPath>
+          </defs>
+          <g class="locked-art locked-art-mobile" opacity="0.92" filter="url(#lockedMobile)">
+            <image href="assets/quest-map-mobile.png" x="0" y="0" width="322" height="696" clip-path="url(#clipM2)"/>
+            <image href="assets/quest-map-mobile.png" x="0" y="0" width="322" height="696" clip-path="url(#clipM3)"/>
+            <image href="assets/quest-map-mobile.png" x="0" y="0" width="322" height="696" clip-path="url(#clipM4)"/>
+            <image href="assets/quest-map-mobile.png" x="0" y="0" width="322" height="696" clip-path="url(#clipM5)"/>
+            <image href="assets/quest-map-mobile.png" x="0" y="0" width="322" height="696" clip-path="url(#clipM6)"/>
+            <image href="assets/quest-map-mobile.png" x="0" y="0" width="322" height="696" clip-path="url(#clipM7)"/>
+          </g>
+          <circle class="active-ring active-ring-mobile" cx="151" cy="143" r="39"/>
+          <circle class="hover-ring active-ring-mobile" cx="151" cy="143" r="39"/>
+        </svg>
+
+        <!-- Transparent interaction layer. Buttons are sized from the same intrinsic coordinates as the SVG. -->
         <button class="hotspot quest-1 active" data-quest="1" aria-label="Quest I: The Road Trip"></button>
         <button class="hotspot quest-2 locked" data-quest="2" aria-label="Quest II: Paint It"></button>
         <button class="hotspot quest-3 locked" data-quest="3" aria-label="Quest III: Sucuk Master"></button>

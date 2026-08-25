@@ -34,3 +34,23 @@ VERSION 1.0.8
 - Locked visual treatment is limited to the icon circle.
 - Desktop and mobile node coordinates were independently calibrated to the artwork.
 - Developer preview security gate retained and regression-checked.
+
+
+v1.0.9 — STABILITY RELEASE
+
+This release does not add new gameplay. It stabilizes the quest map rendering.
+
+Map positioning:
+- Desktop and mobile artwork use intrinsic SVG coordinate systems matching the source image dimensions.
+- Active and locked visual states are aligned to the artwork's actual quest medallions.
+- Locked states use a clipped, filtered duplicate of the same artwork so only the icon/medallion is desaturated; labels and path remain untouched.
+- Desktop hover is applied to the active quest only.
+
+Core security behavior retained:
+- Before September 8, 2026: the map is inaccessible by normal clicks/taps.
+- Five rapid door clicks/taps open Developer Access.
+- Code 1337 grants the current-session preview.
+- Reload and Return to Door revoke preview access.
+- On the real unlock date, a normal door activation opens the map.
+
+No visible version badge is part of the quest map UI.
