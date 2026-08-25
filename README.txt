@@ -1,23 +1,12 @@
-Duygu's Birthday Quest - v1.0.12
+Duygu's Birthday Quest — v1.0.13
 
-Stability / Rendering Refactor
+Map rendering architecture refactor.
 
-Key changes
-- The quest artwork and interaction layer now share ONE SVG coordinate system.
-- Desktop artwork: 1672 x 941.
-- Mobile artwork: 322 x 696.
-- The map image is embedded inside the SVG instead of being a separate HTML image with a separate overlay layer.
-- Quest, final-door and return controls are transparent SVG hit areas in the same coordinate system.
-- The desktop active-quest hover effect is also rendered in the same SVG coordinate system.
-- Mobile uses the dedicated mobile artwork and does not depend on desktop geometry.
-- Fixed the duplicated / crossed ROAD TRIP title in the mobile state-0 artwork.
-- Developer access remains: 5 rapid clicks/taps on the locked door, then code 1337.
-- No visible version number is shown on the quest map.
+- One clean master map artwork per platform.
+- SVG viewBox contains the artwork and all dynamic state layers.
+- Locked quests are rendered by clipping the same master artwork to the exact quest medallion and applying an SVG filter.
+- Active glow/ring and invisible hit areas use the same coordinates as the artwork.
+- Desktop and mobile use fixed source coordinate systems and preserveAspectRatio= xMidYMid meet.
+- Countdown, door, 5-click developer access and code 1337 remain unchanged.
 
-Regression requirements
-- Countdown works on desktop and mobile.
-- Door remains locked before 08 September 2026 00:00 Europe/Berlin unless developer preview is granted.
-- 5 rapid clicks/taps -> Developer Access.
-- Wrong code is rejected; 1337 opens the quest map.
-- Return to Door returns to the entrance and clears developer preview.
-- Quest I is the only active quest in the current build.
+Developer preview: click the locked door 5 times quickly, then enter 1337.
