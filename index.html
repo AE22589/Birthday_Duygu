@@ -1,124 +1,81 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#05070a">
-  <title>Duygu's Birthday Quest</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#030508">
+<meta name="description" content="Duygu's 43rd Birthday Adventure">
+<title>Duygu's 43rd Birthday Quest</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main id="app">
-
-    <!-- ENTRANCE -->
-    <section id="entrance" class="screen entrance-screen">
-      <div class="entrance-scene" aria-hidden="true"></div>
-      <div class="entrance-vignette" aria-hidden="true"></div>
-
-      <div class="entrance-copy">
-        <div class="crown">♛</div>
-        <p class="eyebrow">A LITTLE ADVENTURE IS WAITING</p>
-        <h1>DUYGU'S</h1>
-        <div class="birthday">43<sup>rd</sup> BIRTHDAY</div>
-        <div class="quest-word">QUEST</div>
-        <div class="rule"></div>
-        <p class="count-label">THE ADVENTURE BEGINS IN</p>
-
-        <div class="countdown" aria-live="polite">
-          <div><strong id="days">00</strong><span>DAYS</span></div>
-          <i>◆</i>
-          <div><strong id="hours">00</strong><span>HOURS</span></div>
-          <i>◆</i>
-          <div><strong id="minutes">00</strong><span>MINUTES</span></div>
-          <i>◆</i>
-          <div><strong id="seconds">00</strong><span>SECONDS</span></div>
-        </div>
-
-        <p class="date-line">✦ SEPTEMBER 8, 2026 AT MIDNIGHT</p>
-
-        <div class="lock-card">
-          <div class="lock-mark">♙</div>
-          <h2 id="lockTitle">THE DOOR IS LOCKED</h2>
-          <p id="lockText">
-            The adventure can only begin when the right moment has come.
-            Come back on September 8 at midnight and open the door.
-          </p>
-        </div>
+<main id="app">
+  <section id="entrance" class="screen entrance" aria-label="Birthday countdown">
+    <div class="entrance-bg" aria-hidden="true"></div>
+    <div class="entrance-shade" aria-hidden="true"></div>
+    <div class="entrance-copy">
+      <div class="crown">♛</div>
+      <p class="eyebrow">A LITTLE ADVENTURE IS WAITING</p>
+      <h1>DUYGU'S</h1>
+      <div class="birthday">43<sup>rd</sup> BIRTHDAY</div>
+      <div class="quest-word">QUEST</div>
+      <div class="rule"></div>
+      <p class="count-label">THE ADVENTURE BEGINS IN</p>
+      <div class="countdown" aria-live="polite">
+        <div><strong id="days">00</strong><span>DAYS</span></div><i>◆</i>
+        <div><strong id="hours">00</strong><span>HOURS</span></div><i>◆</i>
+        <div><strong id="minutes">00</strong><span>MINUTES</span></div><i>◆</i>
+        <div><strong id="seconds">00</strong><span>SECONDS</span></div>
       </div>
-
-      <button id="doorButton" class="door-button" aria-label="Open the birthday door">
-        <span class="door-hotspot"></span>
-      </button>
-
-      <div id="previewModal" class="modal" hidden>
-        <div class="modal-card">
-          <p class="eyebrow">DEVELOPER ACCESS</p>
-          <h2>PREVIEW MODE</h2>
-          <p>Enter the access code.</p>
-          <input id="previewCode" inputmode="numeric" autocomplete="off" maxlength="4" aria-label="Preview code">
-          <div class="modal-actions">
-            <button id="previewCancel" type="button">CANCEL</button>
-            <button id="previewUnlock" type="button">UNLOCK</button>
-          </div>
-          <p id="previewError" class="error" aria-live="polite"></p>
-        </div>
+      <p class="date-line">✦ &nbsp;SEPTEMBER 8, 2026 AT MIDNIGHT</p>
+      <div class="lock-plaque">
+        <span class="plaque-lock">♙</span>
+        <h2 id="lockTitle">THE DOOR IS LOCKED</h2>
+        <p id="lockText">The adventure can only begin when the right moment has come.<br>Come back on September 8 at midnight and open the door.</p>
       </div>
-    </section>
+    </div>
+    <button id="doorHit" class="door-hit" type="button" aria-label="Open the locked door"></button>
+    <div class="lantern-glow left-glow" aria-hidden="true"></div>
+    <div class="lantern-glow right-glow" aria-hidden="true"></div>
+  </section>
 
-    <!-- QUEST MAP -->
-    <section id="questMap" class="screen quest-screen" hidden>
-      <div class="quest-backdrop" aria-hidden="true"></div>
-      <header class="quest-header">
-        <div class="version">v1.0.1</div>
-        <button id="returnDoor" class="return-button" type="button">← RETURN TO THE DOOR</button>
-        <div class="crown">♛</div>
-        <p class="eyebrow">DUYGU'S BIRTHDAY ADVENTURE</p>
-        <h2>THE QUEST BEGINS</h2>
-        <p>Seven keys. Seven challenges. One final door.</p>
-      </header>
-
+  <section id="questScreen" class="screen quest-screen" hidden aria-label="Quest map">
+    <div class="quest-stage">
       <div class="map-shell">
-        <div class="map-art desktop-art" aria-hidden="true"></div>
-        <div class="map-art mobile-art" aria-hidden="true"></div>
+        <picture class="map-art">
+          <source media="(max-width: 700px)" srcset="assets/quest-map-mobile.png">
+          <img src="assets/quest-map-desktop.png" alt="Duygu's birthday quest map">
+        </picture>
 
-        <div class="map-overlay">
-          <div class="quest-node node-1 active" data-quest="1" tabindex="0" role="button" aria-label="Quest 1, The Road Trip, ready">
-            <span class="node-hit"></span>
-          </div>
-          <div class="quest-node node-2 locked" data-quest="2" tabindex="0" role="button" aria-label="Quest 2, Paint It, locked"></div>
-          <div class="quest-node node-3 locked" data-quest="3" tabindex="0" role="button" aria-label="Quest 3, Sucuk Master, locked"></div>
-          <div class="quest-node node-4 locked" data-quest="4" tabindex="0" role="button" aria-label="Quest 4, Lokum's Challenge, locked"></div>
-          <div class="quest-node node-5 locked" data-quest="5" tabindex="0" role="button" aria-label="Quest 5, Memory Lane, locked"></div>
-          <div class="quest-node node-6 locked" data-quest="6" tabindex="0" role="button" aria-label="Quest 6, Our Little Puzzle, locked"></div>
-          <div class="quest-node node-7 locked" data-quest="7" tabindex="0" role="button" aria-label="Quest 7, German Word Challenge, locked"></div>
-
-          <button id="finalDoor" class="final-door-hit" type="button" aria-label="Final Door, locked">
-            <span></span>
-          </button>
-
-          <div class="map-message">
-            <div>COMPLETE EACH CHALLENGE. CLAIM EVERY KEY. CLOSE THE CIRCLE.</div>
-            <strong>ONLY THEN WILL THE FINAL DOOR OPEN.</strong>
-          </div>
-        </div>
+        <!-- Interaction layer. The artwork stays unchanged; hotspots sit over the matching nodes. -->
+        <button class="hotspot quest-1 active" data-quest="1" aria-label="Quest I: The Road Trip"></button>
+        <button class="hotspot quest-2 locked" data-quest="2" aria-label="Quest II: Paint It"></button>
+        <button class="hotspot quest-3 locked" data-quest="3" aria-label="Quest III: Sucuk Master"></button>
+        <button class="hotspot quest-4 locked" data-quest="4" aria-label="Quest IV: Lokum's Challenge"></button>
+        <button class="hotspot quest-5 locked" data-quest="5" aria-label="Quest V: Memory Lane"></button>
+        <button class="hotspot quest-6 locked" data-quest="6" aria-label="Quest VI: Our Little Puzzle"></button>
+        <button class="hotspot quest-7 locked" data-quest="7" aria-label="Quest VII: German Word Challenge"></button>
+        <button class="hotspot final-door" id="finalDoor" aria-label="The Final Door" disabled></button>
+        <button id="returnDoor" class="return-hotspot" type="button" aria-label="Return to the door"></button>
       </div>
+    </div>
+  </section>
 
-      <footer class="quest-footer">
-        <span><b id="keyCount">0</b> / 7 KEYS FOUND</span>
-        <span id="questStatus">QUEST I READY</span>
-      </footer>
-    </section>
-
-    <section id="questModal" class="modal" hidden>
-      <div class="modal-card quest-modal-card">
-        <p class="eyebrow">QUEST I</p>
-        <h2>THE ROAD TRIP</h2>
-        <p>This is where the first challenge will begin.</p>
-        <button id="questClose" type="button">BACK TO MAP</button>
+  <div id="adminModal" class="modal" hidden>
+    <div class="admin-card" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+      <p class="eyebrow">DEVELOPER ACCESS</p>
+      <h2 id="adminTitle">Unlock Preview</h2>
+      <p>Enter the administrator code to bypass the countdown.</p>
+      <input id="adminCode" type="password" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="Administrator code" placeholder="••••">
+      <div class="actions">
+        <button id="cancel" type="button" class="secondary">CANCEL</button>
+        <button id="unlock" type="button" class="primary">UNLOCK</button>
       </div>
-    </section>
-
-  </main>
-  <script src="script.js" defer></script>
+      <small id="error"></small>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</main>
+<script src="script.js" defer></script>
 </body>
 </html>

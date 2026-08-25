@@ -1,9 +1,32 @@
-Duygu's Birthday Quest v1.0.1
+Duygu's 43rd Birthday Quest
+Version 1.0.0
 
-Replace the complete contents of the GitHub Pages repository with this package.
+This version establishes the visual quest-map foundation.
 
-Versioning:
-v1.0.1 = responsive quest-map foundation and reviewed countdown/preview interaction.
+DESKTOP
+- The quest map uses the approved generated artwork exactly as supplied.
+- The map is 16:9 and uses contain sizing so the entire artwork fits a normal laptop viewport without scrolling.
 
-Preview:
-Before the birthday, tap/click the entrance door 5 times quickly, then enter 1337.
+MOBILE
+- A matching vertical/mobile artwork from the approved design is used below 700px.
+- The final door remains in the center of the circular quest route.
+
+GAME LOGIC
+- Countdown target: September 8, 2026 at 00:00 Europe/Berlin (+02:00 on that date).
+- Private preview: 5 quick clicks/taps on the entrance door, then code 1337.
+- Quest I is currently the only active quest placeholder.
+- The final door remains locked until all seven quest keys exist.
+- Progress is stored locally in localStorage.
+
+DEPLOYMENT
+Upload index.html, style.css, script.js, README.txt and the assets folder to the GitHub Pages repository root.
+
+VERSIONING
+Future releases should use semantic versions such as v1.0.1, v1.1.0, v2.0.0. Avoid names such as FINAL.
+
+VERSION 1.0.1
+- Replaced quest-map artwork with the approved dark-fantasy reference artwork.
+- Map is contained inside an aspect-ratio-locked shell so the complete artwork is visible on laptop and mobile viewports without page scrolling.
+- Mobile map uses the approved portrait artwork and is sized from dynamic viewport height, keeping all seven quests visible.
+- Active quest gets a desktop hover glow/pulse; locked quests are visually subdued.
+- Quest I is not falsely marked complete before the actual game exists.
