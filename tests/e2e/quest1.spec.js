@@ -120,3 +120,13 @@ test('mobile swipe right moves car right without scrolling', async ({ page }, te
   await expect.poll(async () => await carCenter(page)).toBeGreaterThan(initial + 10);
   expect(await page.evaluate(() => window.scrollY)).toBe(0);
 });
+
+test('mobile door taps count reliably to developer gate', async ({ page }) => {
+  await page.goto('/index.html');
+  const door = page.locator('#doorHit');
+  for (let i = 0; i < 5; i++) {
+    await door.dispatchEvent('touchend', { bubbles: true, cancelable: true });
+    await page.waitForTimeout(80);
+  }
+  await expect(page.locator('#adminModal')).toBeVisible();
+});

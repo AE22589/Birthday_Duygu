@@ -1,4 +1,4 @@
-# QA Hardening — v1.6.1
+# QA Hardening — v1.6.2
 
 ## Release gates
 

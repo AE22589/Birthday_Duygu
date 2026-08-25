@@ -1,4 +1,4 @@
-/* Quest I — The Road Trip v1.6.1
+/* Quest I — The Road Trip v1.6.2
    Art-first implementation based on the accepted Quest I concept artwork.
    The artwork is the visual source of truth; HTML/CSS only adds interaction.
 */
@@ -27,7 +27,7 @@ const RESULT_COPY=document.getElementById('resultCopy');
 const RESULT_KICKER=document.getElementById('resultKicker');
 const KEY_REWARD=document.getElementById('keyReward');
 const QUEST_KEY='duyguBirthdayQuestState_v1';
-const VERSION='1.6.1';
+const VERSION='1.6.2';
 const SCREEN=document.getElementById('roadTripScreen');
 const DURATION=60;
 const TARGET_STARS=20;
@@ -52,8 +52,25 @@ function collide(o,now){if(o.hit||now<invulnerableUntil)return;o.hit=true;o.el.c
 function flash(text){let el=document.getElementById('rtFlash');if(!el){el=document.createElement('div');el.id='rtFlash';document.getElementById('rtEffects').appendChild(el)}el.textContent=text;el.classList.remove('show');void el.offsetWidth;el.classList.add('show')}
 function update(dt,now){elapsed=Math.min(DURATION,(now-startAt)/1000);maybeSpawn();for(const o of objects){if(o.hit)continue;o.y+=o.speed*dt/1000;renderObject(o,now);const near=o.y>74&&o.y<93&&o.lane===lane;if(near){if(o.type==='star')collect(o);else if(now>=invulnerableUntil)collide(o,now)}if(o.y>115){o.hit=true;o.el.remove()}}objects=objects.filter(o=>!o.hit||o.el.isConnected);updateHud();if(elapsed>=DURATION){finish();return}if(lives<=0){finish(true);return}raf=requestAnimationFrame(tick)}
 function tick(now){if(!running)return;const dt=Math.min(50,now-lastFrame||16);lastFrame=now;update(dt,now)}
-function startLoop(){stop();running=true;startAt=performance.now();lastFrame=startAt;raf=requestAnimationFrame(tick)}
-function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=0}
+let globalListenersBound=false;
+function bindGlobalListeners(){
+  if(globalListenersBound)return;
+  window.addEventListener('keydown',onKey,{passive:false,capture:true});
+  window.addEventListener('resize',setDevice);
+  window.addEventListener('orientationchange',onOrientationChange);
+  globalListenersBound=true;
+}
+function unbindGlobalListeners(){
+  if(!globalListenersBound)return;
+  window.removeEventListener('keydown',onKey,{capture:true});
+  window.removeEventListener('resize',setDevice);
+  // orientation handler is intentionally stable via named reference below.
+  window.removeEventListener('orientationchange',onOrientationChange);
+  globalListenersBound=false;
+}
+function onOrientationChange(){setTimeout(setDevice,60)}
+function startLoop(){stop();bindGlobalListeners();running=true;startAt=performance.now();lastFrame=startAt;raf=requestAnimationFrame(tick)}
+function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=0;touchStart=null;unbindGlobalListeners()}
 function move(dir){if(!running)return;const now=performance.now();if(now-lastMove<120)return;const next=GAME_LOGIC.moveLane(lane,dir);if(next===lane)return;lane=next;lastMove=now;positionCar(true);PULSE.style.setProperty('--pulse-x',laneX(lane));PULSE.classList.remove('show');void PULSE.offsetWidth;PULSE.classList.add('show')}
 function bindControls(){document.querySelectorAll('[data-move]').forEach(btn=>{btn.addEventListener('click',()=>move(Number(btn.dataset.move)))})}
 function onKey(e){
@@ -114,7 +131,7 @@ function finish(gameOver=false){stop();const finalTime=Math.min(DURATION,elapsed
 function grantKey(){try{const s=JSON.parse(localStorage.getItem(QUEST_KEY)||'{}');const c=Array.isArray(s.completed)?s.completed.filter(Number.isInteger):[];if(!c.includes(1))c.push(1);localStorage.setItem(QUEST_KEY,JSON.stringify({completed:[...new Set(c)].sort((a,b)=>a-b)}))}catch{}}
 function back(){clearReadyTimer();stop();clearObjects();setView('intro');window.showQuestMap?.()}
 function showRoadTripScreen(){clearReadyTimer();stop();clearObjects();reset();setView('intro');setDevice()}
-READY.addEventListener('click',ready);BACK.addEventListener('click',back);RETURN.addEventListener('click',back);RETRY.addEventListener('click',()=>{stop();clearObjects();reset();setView('intro');setDevice()});window.addEventListener('keydown',onKey,{passive:false,capture:true});BOARD.addEventListener('pointerdown',onPointerDown,{passive:false});BOARD.addEventListener('pointerup',onPointerUp,{passive:false});BOARD.addEventListener('pointercancel',()=>{touchStart=null},{passive:true});window.addEventListener('resize',setDevice);window.addEventListener('orientationchange',()=>setTimeout(setDevice,60));bindControls();setDevice();
+READY.addEventListener('click',ready);BACK.addEventListener('click',back);RETURN.addEventListener('click',back);RETRY.addEventListener('click',()=>{stop();clearObjects();reset();setView('intro');setDevice()});BOARD.addEventListener('pointerdown',onPointerDown,{passive:false});BOARD.addEventListener('pointerup',onPointerUp,{passive:false});BOARD.addEventListener('pointercancel',e=>{try{BOARD.releasePointerCapture(e.pointerId)}catch{} touchStart=null},{passive:true});bindControls();setDevice();
 window.showRoadTripScreen=showRoadTripScreen;
 if(new URLSearchParams(location.search).has('qa') && navigator.webdriver===true){
   window.__DUYGU_QA__={
