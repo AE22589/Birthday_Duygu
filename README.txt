@@ -15,3 +15,14 @@ Regression checks performed:
 - Correct code opens quest map
 - Reload returns to locked entrance
 - Normal pre-birthday door click does not open quest map
+
+
+VERSION 1.0.6
+- Fixed mobile entrance background alignment so the physical door is centered.
+- Hardened 5-tap developer gate with touchend/click de-duplication.
+- Increased secret tap window to 2.5 seconds for reliable mobile use.
+- Re-ran JavaScript syntax and browser interaction checks before release.
+
+VERSION 1.0.7
+- Fixed first-click suppression in the touch/click de-duplication guard.
+- Verified desktop mouse clicks and mobile taps open Developer Access after five activations.

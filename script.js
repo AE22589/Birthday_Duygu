@@ -1,11 +1,11 @@
 (() => {
   'use strict';
 
-  const VERSION = '1.0.4';
+  const VERSION = '1.0.7';
   const TARGET_MS = Date.parse('2026-09-08T00:00:00+02:00');
   const ADMIN_CODE = '1337';
   const CLICK_LIMIT = 5;
-  const CLICK_WINDOW_MS = 1500;
+  const CLICK_WINDOW_MS = 2500;
   const STATE_KEY = 'duyguBirthdayQuestState_v1';
 
   const $ = (id) => document.getElementById(id);
@@ -130,8 +130,9 @@
   }
 
   function handleDoorActivation(event) {
-    if (!modal.hidden) return;
+    if (modal && !modal.hidden) return;
     event.preventDefault();
+
     const now = performance.now();
     if (!clickWindowStart || now - clickWindowStart > CLICK_WINDOW_MS) {
       clickWindowStart = now;
@@ -147,12 +148,11 @@
       return;
     }
 
-    if (!isUnlocked()) {
-      showToast('The door is still locked...');
-      return;
+    if (isUnlocked()) {
+      showQuestMap();
+    } else {
+      showToast(`The door remains sealed. ${CLICK_LIMIT - clickCount} more taps...`);
     }
-
-    showQuestMap();
   }
 
   function completeQuest(questNumber) {
@@ -172,7 +172,16 @@
   // Use the native click event for the secret gate. A real mouse click, a
   // touchscreen tap, and keyboard activation of the button all produce a
   // click event. This avoids maintaining separate pointer/touch counters.
-  doorHit.addEventListener('click', handleDoorActivation);
+  let lastTouchActivation = -Infinity;
+  doorHit.addEventListener('touchend', (event) => {
+    lastTouchActivation = performance.now();
+    handleDoorActivation(event);
+  }, {passive: false});
+  doorHit.addEventListener('click', (event) => {
+    // Mobile browsers may synthesize a click after touchend. Do not count it twice.
+    if (performance.now() - lastTouchActivation < 450) return;
+    handleDoorActivation(event);
+  });
 
   document.querySelectorAll('.quest-screen .hotspot[data-quest]').forEach((button) => {
     button.addEventListener('pointerup', (event) => {
