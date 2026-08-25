@@ -47,95 +47,63 @@
   <section id="questScreen" class="quest-screen" hidden>
     <div class="quest-world">
       <header class="quest-header">
-        <div class="mini-crown">♛</div>
+        <div class="map-crown">♛</div>
         <p class="eyebrow">DUYGU'S BIRTHDAY ADVENTURE</p>
         <h2>THE QUEST BEGINS</h2>
         <p class="quest-subtitle">Seven keys. Seven challenges. One final door.</p>
       </header>
 
-      <div class="adventure-map" aria-label="Birthday quest map">
-        <div class="map-mist mist-a"></div>
-        <div class="map-mist mist-b"></div>
-        <div class="map-path path-one"></div>
-        <div class="map-path path-two"></div>
-        <div class="map-path path-three"></div>
-        <div class="map-path path-four"></div>
-        <div class="map-path path-five"></div>
-        <div class="map-path path-six"></div>
+      <main class="adventure-map" aria-label="Birthday quest map">
+        <div class="stone-glow glow-a"></div><div class="stone-glow glow-b"></div>
+        <svg class="quest-route" viewBox="0 0 1000 640" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="routeGold" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#6e552e" stop-opacity=".15"/><stop offset=".5" stop-color="#e5bd72" stop-opacity=".9"/><stop offset="1" stop-color="#b9799e" stop-opacity=".28"/>
+            </linearGradient>
+            <filter id="routeGlow"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <path d="M120 120 C220 205 275 190 350 135 S500 80 555 165 S700 250 790 170 S850 295 760 360 S590 410 505 355 S340 300 250 390 S370 535 490 500 S650 450 735 535" fill="none" stroke="url(#routeGold)" stroke-width="2.4" filter="url(#routeGlow)"/>
+        </svg>
 
         <button class="quest-stop active" data-quest="1" aria-label="Quest 1: The Road Trip">
-          <span class="stop-ring"></span>
-          <span class="stop-number">I</span>
-          <span class="stop-symbol">ROAD</span>
-          <span class="stop-title">THE ROAD TRIP</span>
-          <span class="stop-state">READY</span>
+          <span class="stop-medallion"><span class="stop-number">I</span><span class="stop-icon icon-car"></span></span>
+          <span class="stop-title">THE ROAD TRIP</span><span class="stop-state">READY</span>
         </button>
-
         <button class="quest-stop locked" data-quest="2" aria-label="Quest 2: Paint It">
-          <span class="stop-ring"></span>
-          <span class="stop-number">II</span>
-          <span class="stop-symbol">PAINT</span>
-          <span class="stop-title">PAINT IT!</span>
-          <span class="stop-state">LOCKED</span>
+          <span class="stop-medallion"><span class="stop-number">II</span><span class="stop-icon icon-paint"></span></span>
+          <span class="stop-title">PAINT IT!</span><span class="stop-state">LOCKED</span>
         </button>
-
         <button class="quest-stop locked" data-quest="3" aria-label="Quest 3: Sucuk Master">
-          <span class="stop-ring"></span>
-          <span class="stop-number">III</span>
-          <span class="stop-symbol">SUCUK</span>
-          <span class="stop-title">SUCUK MASTER</span>
-          <span class="stop-state">LOCKED</span>
+          <span class="stop-medallion"><span class="stop-number">III</span><span class="stop-icon icon-grill"></span></span>
+          <span class="stop-title">SUCUK MASTER</span><span class="stop-state">LOCKED</span>
         </button>
-
         <button class="quest-stop locked" data-quest="4" aria-label="Quest 4: Lokum's Challenge">
-          <span class="stop-ring"></span>
-          <span class="stop-number">IV</span>
-          <span class="stop-symbol">LOKUM</span>
-          <span class="stop-title">LOKUM'S CHALLENGE</span>
-          <span class="stop-state">LOCKED</span>
+          <span class="stop-medallion"><span class="stop-number">IV</span><span class="stop-icon icon-cat"></span></span>
+          <span class="stop-title">LOKUM'S CHALLENGE</span><span class="stop-state">LOCKED</span>
         </button>
-
         <button class="quest-stop locked" data-quest="5" aria-label="Quest 5: Memory Lane">
-          <span class="stop-ring"></span>
-          <span class="stop-number">V</span>
-          <span class="stop-symbol">MEMORY</span>
-          <span class="stop-title">MEMORY LANE</span>
-          <span class="stop-state">LOCKED</span>
+          <span class="stop-medallion"><span class="stop-number">V</span><span class="stop-icon icon-memory"></span></span>
+          <span class="stop-title">MEMORY LANE</span><span class="stop-state">LOCKED</span>
         </button>
-
         <button class="quest-stop locked" data-quest="6" aria-label="Quest 6: Our Little Puzzle">
-          <span class="stop-ring"></span>
-          <span class="stop-number">VI</span>
-          <span class="stop-symbol">PUZZLE</span>
-          <span class="stop-title">OUR LITTLE PUZZLE</span>
-          <span class="stop-state">LOCKED</span>
+          <span class="stop-medallion"><span class="stop-number">VI</span><span class="stop-icon icon-puzzle"></span></span>
+          <span class="stop-title">OUR LITTLE PUZZLE</span><span class="stop-state">LOCKED</span>
         </button>
-
         <button class="quest-stop locked" data-quest="7" aria-label="Quest 7: German Words">
-          <span class="stop-ring"></span>
-          <span class="stop-number">VII</span>
-          <span class="stop-symbol">WORDS</span>
-          <span class="stop-title">GERMAN WORDS</span>
-          <span class="stop-state">LOCKED</span>
+          <span class="stop-medallion"><span class="stop-number">VII</span><span class="stop-icon icon-words"></span></span>
+          <span class="stop-title">GERMAN WORDS</span><span class="stop-state">LOCKED</span>
         </button>
 
-        <div class="final-door">
-          <div class="final-door-frame">
-            <div class="final-lantern left"></div>
-            <div class="final-lantern right"></div>
-            <div class="final-door-face">
-              <span class="final-lock">✦</span>
-              <strong>THE FINAL DOOR</strong>
-              <small>7 KEYS REQUIRED</small>
-            </div>
+        <div class="final-door-map" aria-label="The final door">
+          <div class="map-lantern left"></div><div class="map-lantern right"></div>
+          <div class="door-mini">
+            <div class="door-arch"></div><div class="door-paw">✦</div>
+            <strong>THE FINAL DOOR</strong><small>7 KEYS REQUIRED</small>
           </div>
         </div>
-      </div>
+      </main>
 
-      <footer class="quest-footer">
-        <span class="key-counter"><b id="keyCount">0</b> / 7 KEYS FOUND</span>
-        <button id="backToDoor" class="back-button" type="button">RETURN TO THE DOOR</button>
-      </footer>
+      <footer class="quest-footer"><span class="key-counter"><b id="keyCount">0</b> / 7 KEYS FOUND</span><button id="backToDoor" class="back-button" type="button">RETURN TO THE DOOR</button></footer>
     </div>
   </section>
 
