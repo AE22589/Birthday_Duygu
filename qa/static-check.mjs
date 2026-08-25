@@ -8,7 +8,7 @@ const script = read('script.js');
 const road = read('roadtrip.js');
 const css = read('style.css');
 
-const VERSION = '1.3.3';
+const VERSION = '1.3.5';
 const requiredAssets = [
   'assets/entrance-scene.jpg',
   'assets/quest-map-desktop.webp',

@@ -1,4 +1,4 @@
-# QA Automation — v1.3.4
+# QA Automation — v1.3.5
 
 ## Upload
 Replace the repository contents with the contents of this folder, including the hidden `.github/workflows/qa.yml` path. Commit once.
