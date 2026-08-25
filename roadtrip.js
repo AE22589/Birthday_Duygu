@@ -27,7 +27,7 @@ const RESULT_COPY=document.getElementById('resultCopy');
 const RESULT_KICKER=document.getElementById('resultKicker');
 const KEY_REWARD=document.getElementById('keyReward');
 const QUEST_KEY='duyguBirthdayQuestState_v1';
-const VERSION='1.3.3';
+const VERSION='1.3.4';
 const SCREEN=document.getElementById('roadTripScreen');
 const DURATION=60;
 const TARGET_STARS=20;
@@ -65,6 +65,7 @@ function onTouchEnd(e){if(!running||touchStart===null)return;const dx=e.changedT
 function clearReadyTimer(){if(readyTimer){clearInterval(readyTimer);readyTimer=0}READY.disabled=false;READY.textContent="I'M READY"}
 function setView(view){
   if(view!=='intro') clearReadyTimer();
+  SCREEN.hidden=false;
   INTRO.hidden=view!=='intro';
   GAME.hidden=view!=='game';
   RESULT.hidden=view!=='result';
