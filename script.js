@@ -1,5 +1,7 @@
 (()=>{'use strict';
-const VERSION='1.3.9';
+const VERSION='1.6.0';
+const QA_MODE=new URLSearchParams(location.search).has('qa') && navigator.webdriver===true;
+const QA_VISUAL_MAP=new URLSearchParams(location.search).get('qa')==='visual-map' && navigator.webdriver===true;
 const TARGET_MS=Date.parse('2026-09-08T00:00:00+02:00');
 const ADMIN_CODE='1337';
 const CLICK_LIMIT=5;
@@ -193,4 +195,11 @@ modal.addEventListener('pointerup',e=>{if(e.target===modal)closePreviewModal()})
 window.addEventListener('resize',()=>{if(!questScreen.hidden)renderMap()});
 window.addEventListener('orientationchange',()=>setTimeout(()=>{if(!questScreen.hidden)renderMap()},50));
 refreshCountdown();countdownTimer=setInterval(refreshCountdown,250);
+if(QA_VISUAL_MAP){
+  previewGranted=true;
+  entrance.hidden=true;
+  questScreen.hidden=false;
+  renderMap();
+  window.scrollTo(0,0);
+}
 })();

@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   static-qa:
-    name: Static QA
+    name: Static + Unit QA
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -23,11 +23,13 @@ jobs:
           node-version: 24
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-      - name: Run static QA
+      - name: Static QA
         run: npm run qa:static
+      - name: Game logic unit QA
+        run: npm run qa:unit
 
   browser-qa:
-    name: Browser QA
+    name: Browser + Visual QA
     needs: static-qa
     runs-on: ubuntu-latest
     steps:
@@ -41,8 +43,11 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
-      - name: Run Playwright browser QA
+      - name: Run browser + visual QA
         run: npm run qa:e2e
+      - name: Validate QA artifacts exist on failure
+        if: failure()
+        run: test -d playwright-report || true
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4

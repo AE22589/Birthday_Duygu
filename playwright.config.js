@@ -13,6 +13,7 @@ module.exports = defineConfig({
     baseURL: 'http://127.0.0.1:4173',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
+    snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{arg}{ext}',
     video: 'retain-on-failure',
   },
   webServer: {
@@ -26,5 +27,6 @@ module.exports = defineConfig({
     { name: 'desktop-1920', use: { ...devices['Desktop Chrome'], viewport: { width: 1920, height: 1080 } } },
     { name: 'mobile-390', use: { ...devices['iPhone 12'], browserName: 'chromium' } },
     { name: 'mobile-430', use: { ...devices['iPhone 14 Pro Max'], browserName: 'chromium' } },
+    { name: 'mobile-390-webkit', use: { ...devices['iPhone 12'], browserName: 'webkit' } },
   ],
 });
