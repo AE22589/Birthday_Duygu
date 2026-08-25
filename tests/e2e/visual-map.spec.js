@@ -5,7 +5,11 @@ test.describe('Quest Map visual regression', () => {
     test.skip(testInfo.project.name.includes('webkit'), 'No separate WebKit golden master; WebKit is covered by functional mobile QA.');
     await page.goto('/index.html?qa=visual-map');
     await expect(page.locator('#questScreen')).toBeVisible();
-    await expect(page.locator('#mapImage')).toHaveJSProperty('complete', true);
+    await expect.poll(async () => await page.evaluate(() => {
+      const map = document.querySelector('#mapImage');
+      if (!map) return false;
+      return !!map.getAttribute('href') && !!map.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
+    })).toBeTruthy();
     await expect(page.locator('#mapImage')).toHaveAttribute('href', /quest-map-(desktop|mobile)\.webp/);
     const overflow = await page.evaluate(() => ({
       x: document.documentElement.scrollWidth - innerWidth,

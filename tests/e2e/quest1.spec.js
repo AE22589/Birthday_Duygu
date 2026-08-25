@@ -83,6 +83,7 @@ test('desktop lane control buttons use the same movement logic', async ({ page }
   await page.locator('.game-control[data-move="-1"]').click();
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('0');
   await expect.poll(async () => await carCenter(page)).toBeLessThan(initial - 10);
+  await page.waitForTimeout(130);
   await page.locator('.game-control[data-move="1"]').click();
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('1');
 });

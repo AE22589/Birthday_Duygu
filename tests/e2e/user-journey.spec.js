@@ -13,7 +13,7 @@ async function start(page) {
     Date.now=()=>new Date('2026-09-07T23:00:00+02:00').getTime();
     localStorage.clear();
   });
-  await page.goto('/index.html');
+  await page.goto('/index.html?qa=1');
   await page.locator('#doorHit').click({clickCount:5,delay:80,force:true});
   await page.locator('#adminCode').fill('1337');
   await page.locator('#unlock').click();
