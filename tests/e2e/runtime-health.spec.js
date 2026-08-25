@@ -53,21 +53,26 @@ test('intro is complete, responsive, and uses the correct control instructions',
     await expect(page.locator('.mobile-instructions')).toBeHidden();
     await expect(page.locator('.desktop-instructions')).toBeVisible();
   }
-  const result = await page.evaluate(() => {
-    const viewport={width:innerWidth,height:innerHeight};
-    const ids=['roadTripScreen','roadTripIntro','.intro-art-panel','.intro-copy','#readyButton'];
-    const boxes=ids.map(sel=>{const e=document.querySelector(sel);const r=e?.getBoundingClientRect();return [sel,r&&{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height}]});
-    return {viewport,boxes,scrollX,scrollY,overflowX:document.documentElement.scrollWidth-innerWidth,overflowY:document.documentElement.scrollHeight-innerHeight};
-  });
-  expect(result.scrollX).toBe(0); expect(result.scrollY).toBe(0);
-  expect(result.overflowX).toBeLessThanOrEqual(1); expect(result.overflowY).toBeLessThanOrEqual(1);
-  for (const [sel,b] of result.boxes) {
-    expect(b,`${sel} must have a box`).not.toBeNull();
-    expect(b.left,`${sel} left`).toBeGreaterThanOrEqual(-1);
-    expect(b.right,`${sel} right`).toBeLessThanOrEqual(result.viewport.width+1);
-    expect(b.top,`${sel} top`).toBeGreaterThanOrEqual(-1);
-    expect(b.bottom,`${sel} bottom`).toBeLessThanOrEqual(result.viewport.height+1);
+  const viewport = { width: page.viewportSize().width, height: page.viewportSize().height };
+  const targetSelector = mobile ? '.mobile-instructions' : '.desktop-instructions';
+  const requiredSelectors = ['#roadTripScreen','#roadTripIntro','.intro-art-panel','.intro-copy','#readyButton'];
+  for (const sel of requiredSelectors) {
+    const box = await page.locator(sel).boundingBox();
+    expect(box, `${sel} must have a valid bounding box and be visible`).not.toBeNull();
+    expect(box.left, `${sel} left`).toBeGreaterThanOrEqual(-1);
+    expect(box.right, `${sel} right`).toBeLessThanOrEqual(viewport.width + 1);
+    expect(box.top, `${sel} top`).toBeGreaterThanOrEqual(-1);
+    expect(box.bottom, `${sel} bottom`).toBeLessThanOrEqual(viewport.height + 1);
   }
+  const instructionBox = await page.locator(targetSelector).boundingBox();
+  expect(instructionBox, `${targetSelector} must have a valid bounding box and be visible`).not.toBeNull();
+  expect(instructionBox.left, `${targetSelector} left`).toBeGreaterThanOrEqual(-1);
+  expect(instructionBox.right, `${targetSelector} right`).toBeLessThanOrEqual(viewport.width + 1);
+  expect(instructionBox.top, `${targetSelector} top`).toBeGreaterThanOrEqual(-1);
+  expect(instructionBox.bottom, `${targetSelector} bottom`).toBeLessThanOrEqual(viewport.height + 1);
+  const scroll = await page.evaluate(() => ({scrollX, scrollY, overflowX:document.documentElement.scrollWidth-innerWidth, overflowY:document.documentElement.scrollHeight-innerHeight}));
+  expect(scroll.scrollX).toBe(0); expect(scroll.scrollY).toBe(0);
+  expect(scroll.overflowX).toBeLessThanOrEqual(1); expect(scroll.overflowY).toBeLessThanOrEqual(1);
   expect(errors).toEqual([]);
 });
 

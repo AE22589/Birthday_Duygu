@@ -1,4 +1,4 @@
-/* Quest I — The Road Trip v1.6.2
+/* Quest I — The Road Trip v1.6.4
    Art-first implementation based on the accepted Quest I concept artwork.
    The artwork is the visual source of truth; HTML/CSS only adds interaction.
 */
@@ -27,7 +27,7 @@ const RESULT_COPY=document.getElementById('resultCopy');
 const RESULT_KICKER=document.getElementById('resultKicker');
 const KEY_REWARD=document.getElementById('keyReward');
 const QUEST_KEY='duyguBirthdayQuestState_v1';
-const VERSION='1.6.2';
+const VERSION='1.6.4';
 const SCREEN=document.getElementById('roadTripScreen');
 const DURATION=60;
 const TARGET_STARS=20;
@@ -46,7 +46,7 @@ function reset(){stop();clearObjects();elapsed=0;score=0;lives=3;lane=1;lastMove
 function asset(type){return type==='star'?'assets/game-star.png':type==='cat'?'assets/game-cat.png':'assets/game-barrel.png'}
 function spawn(type,idx){const el=document.createElement('img');el.className=`rt-object ${type}`;el.src=asset(type);el.alt='';el.draggable=false;el.style.setProperty('--x',laneX(idx));el.style.setProperty('--y',String(type==='star'?-12:-18));DYNAMIC.appendChild(el);const o={type,lane:idx,y:type==='star'?-12:-18,el,speed:type==='star'?18+Math.random()*4:15+Math.random()*3,phase:Math.random()*6.28,hit:false};objects.push(o)}
 function maybeSpawn(){if(score<MAX_STARS && elapsed*1000>=spawnStarAt){spawn('star',Math.random()<.7?lane:Math.floor(Math.random()*3));spawnStarAt=elapsed*1000+900+Math.random()*650}if(elapsed*1000>=spawnObstacleAt){const occupied=new Set(objects.filter(o=>!o.hit&&o.y<55&&o.type!=='star').map(o=>o.lane));let choices=[0,1,2].filter(i=>!occupied.has(i));if(!choices.length)choices=[0,1,2];let idx=choices[Math.floor(Math.random()*choices.length)];if(Math.random()<.58)idx=(lane+(Math.random()<.5?-1:1)+3)%3;spawn(Math.random()<.7?'barrel':'cat',idx);spawnObstacleAt=elapsed*1000+1900+Math.random()*1400}}
-function renderObject(o,now){const depth=Math.max(0,Math.min(1,(o.y+12)/112));const scale=o.type==='star'?.45+depth*.72:.42+depth*.75;const bob=o.type==='star'?Math.sin(now/300+o.phase)*.7:Math.sin(now/500+o.phase)*.25;o.el.style.transform=`translate3d(calc(${o.x}% - 50% + ${bob}px), ${o.y}%, 0) scale(${scale})`;o.el.style.opacity=o.hit?'0':String(.45+depth*.55);o.el.style.zIndex=String(10+Math.round(depth*20))}
+function renderObject(o,now){const depth=Math.max(0,Math.min(1,(o.y+12)/112));const scale=o.type==='star'?.45+depth*.72:.42+depth*.75;const bob=o.type==='star'?Math.sin(now/300+o.phase)*.7:Math.sin(now/500+o.phase)*.25;o.el.style.transform=`translate3d(calc(${laneX(o.lane)}% - 50% + ${bob}px), ${o.y}%, 0) scale(${scale})`;o.el.style.opacity=o.hit?'0':String(.45+depth*.55);o.el.style.zIndex=String(10+Math.round(depth*20))}
 function collect(o){if(o.hit)return;o.hit=true;score=Math.min(MAX_STARS,score+1);o.el.classList.add('collected');if(score===TARGET_STARS)flash('FIRST KEY WITHIN REACH')}
 function collide(o,now){if(o.hit||now<invulnerableUntil)return;o.hit=true;o.el.classList.add('hit');lives=Math.max(0,lives-1);invulnerableUntil=now+1300;CAR.classList.remove('hit');void CAR.offsetWidth;CAR.classList.add('hit');flash(lives===1?'WATCH THE ROAD':'EASY DOES IT')}
 function flash(text){let el=document.getElementById('rtFlash');if(!el){el=document.createElement('div');el.id='rtFlash';document.getElementById('rtEffects').appendChild(el)}el.textContent=text;el.classList.remove('show');void el.offsetWidth;el.classList.add('show')}
