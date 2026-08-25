@@ -26,3 +26,11 @@ VERSION 1.0.6
 VERSION 1.0.7
 - Fixed first-click suppression in the touch/click de-duplication guard.
 - Verified desktop mouse clicks and mobile taps open Developer Access after five activations.
+
+
+VERSION 1.0.8
+- Removed the visible version badge from the desktop artwork.
+- Hotspots now cover only the circular quest icons, never the labels or header text.
+- Locked visual treatment is limited to the icon circle.
+- Desktop and mobile node coordinates were independently calibrated to the artwork.
+- Developer preview security gate retained and regression-checked.

@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '1.0.7';
+  const VERSION = '1.0.8';
   const TARGET_MS = Date.parse('2026-09-08T00:00:00+02:00');
   const ADMIN_CODE = '1337';
   const CLICK_LIMIT = 5;
@@ -96,6 +96,8 @@
   }
 
   function openPreviewModal() {
+    clickCount = 0;
+    clickWindowStart = 0;
     modal.hidden = false;
     codeInput.value = '';
     error.textContent = '';
@@ -104,11 +106,14 @@
 
   function closePreviewModal() {
     modal.hidden = true;
+    clickCount = 0;
+    clickWindowStart = 0;
     codeInput.value = '';
     error.textContent = '';
   }
 
   function showQuestMap() {
+    // Security gate: only the real unlock time or the current-session developer gate may expose the map.
     // Never expose the map unless the real date has arrived or the current
     // session has explicitly passed the developer gate.
     if (!isUnlocked()) {
@@ -123,6 +128,7 @@
 
   function showEntrance() {
     questScreen.hidden = true;
+    modal.hidden = true;
     entrance.hidden = false;
     // Developer preview is intentionally revoked when returning to the gate.
     previewGranted = false;
