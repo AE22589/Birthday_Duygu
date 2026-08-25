@@ -1,4 +1,4 @@
-/* v1.1.0 — Quest I: The Road Trip */
+/* v1.1.1 — Quest I: The Road Trip */
 (() => {
   'use strict';
 
@@ -22,7 +22,7 @@
   const RESULT_KICKER = document.getElementById('resultKicker');
   const KEY_REWARD = document.getElementById('keyReward');
 
-  const QUEST_KEY = 'duyguBirthdayQuestState';
+  const QUEST_KEY = 'duyguBirthdayQuestState_v1';
   const LANES = [-1, 0, 1];
   const DURATION = 60;
   const TARGET_STARS = 20;
@@ -48,7 +48,7 @@
   let deviceType = 'desktop';
 
   function isMobile() { return window.matchMedia('(max-width:700px)').matches || 'ontouchstart' in window; }
-  function laneX(laneIndex) { return CANVAS.width * (0.5 + (laneIndex - 1) * 0.25); }
+  function laneX(laneIndex) { return CANVAS._logicalW * (0.5 + (laneIndex - 1) * 0.25); }
   function setDeviceInstructions() {
     deviceType = isMobile() ? 'mobile' : 'desktop';
     TOUCH_HINT.hidden = deviceType !== 'mobile';
@@ -76,8 +76,8 @@
     score = 0;
     lives = 3;
     lane = 1;
-    playerX = 300;
-    playerTargetX = 300;
+    playerX = CANVAS._logicalW * 0.5;
+    playerTargetX = CANVAS._logicalW * 0.5;
     objects = [];
     spawnTimer = 500;
     starTimer = 250;
@@ -146,8 +146,16 @@
       RESULT_TITLE.textContent = 'THE ROAD REMEMBERS';
       RESULT_COPY.textContent = 'You made it through the night. The journey counts.';
     }
-    KEY_REWARD.hidden = false;
-    markQuestComplete();
+    const success = score >= TARGET_STARS;
+    KEY_REWARD.hidden = !success;
+    if(success){
+      markQuestComplete();
+    }
+    if(!success){
+      RESULT_KICKER.textContent = 'JOURNEY INCOMPLETE';
+      RESULT_TITLE.textContent = 'ONE MORE RUN';
+      RESULT_COPY.textContent = `You found ${score} stars. Collect ${TARGET_STARS} to claim the first key.`;
+    }
     GAME.hidden = true;
     RESULT.hidden = false;
   }
@@ -326,5 +334,19 @@
   CANVAS.addEventListener('pointercancel',()=>{swipeStartX=null});
   window.openRoadTripIntro=()=>{setDeviceInstructions();INTRO.hidden=false;GAME.hidden=true;RESULT.hidden=true;resetGame()};
   window.showRoadTripScreen=()=>{document.getElementById('questScreen').hidden=true;document.getElementById('entrance').hidden=true;document.getElementById('roadTripScreen').hidden=false;window.openRoadTripIntro()};
+  window.__DUYGU_ROADTRIP_SELF_TEST__=()=>({
+    quest:'I',
+    version:'1.1.1',
+    duration:DURATION,
+    targetStars:TARGET_STARS,
+    maxStars:MAX_STARS,
+    controls:{desktop:['ArrowLeft','ArrowRight'],mobile:['swipe-left','swipe-right']},
+    canvas:{logicalWidth:CANVAS._logicalW,logicalHeight:CANVAS._logicalH},
+    lanePositions:[laneX(0),laneX(1),laneX(2)],
+    stateKey:QUEST_KEY,
+    readyButton:!!READY,
+    canvasReady:!!CANVAS
+  });
+
   setDeviceInstructions();resizeCanvas();resetGame();
 })();
