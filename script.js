@@ -1,204 +1,189 @@
 (() => {
-  'use strict';
+  "use strict";
 
-  const VERSION = '1.0.0';
-  const TARGET_MS = Date.parse('2026-09-08T00:00:00+02:00');
-  const ADMIN_CODE = '1337';
-  const CLICK_LIMIT = 5;
-  const CLICK_WINDOW_MS = 1500;
-  const STATE_KEY = 'duyguBirthdayQuestState_v1';
+  const BIRTHDAY = new Date("2026-09-08T00:00:00+02:00");
+  const PREVIEW_CODE = "1337";
+  const PREVIEW_LIMIT = 5;
+  const PREVIEW_WINDOW = 1500;
+  const STORAGE_KEY = "duygu-birthday-quest-v1.0.1";
 
   const $ = (id) => document.getElementById(id);
-  const entrance = $('entrance');
-  const questScreen = $('questScreen');
-  const doorHit = $('doorHit');
-  const returnDoor = $('returnDoor');
-  const finalDoor = $('finalDoor');
-  const modal = $('adminModal');
-  const codeInput = $('adminCode');
-  const unlockButton = $('unlock');
-  const cancelButton = $('cancel');
-  const error = $('error');
-  const toast = $('toast');
-  const lockTitle = $('lockTitle');
-  const lockText = $('lockText');
-  const countdown = {
-    days: $('days'), hours: $('hours'), minutes: $('minutes'), seconds: $('seconds')
-  };
+  const entrance = $("entrance");
+  const questMap = $("questMap");
+  const doorButton = $("doorButton");
+  const previewModal = $("previewModal");
+  const previewCode = $("previewCode");
+  const previewError = $("previewError");
+  const finalDoor = $("finalDoor");
+  const questModal = $("questModal");
+  const state = loadState();
 
-  if (!entrance || !questScreen || !doorHit) return;
-
-  const defaultState = { preview: false, completed: [] };
-  let state = loadState();
-  let countdownTimer = null;
-  let clickCount = 0;
-  let clickWindowStart = 0;
+  let clickTimes = [];
 
   function loadState() {
     try {
-      const raw = localStorage.getItem(STATE_KEY);
-      if (!raw) return {...defaultState};
-      const parsed = JSON.parse(raw);
-      return {
-        preview: parsed.preview === true,
-        completed: Array.isArray(parsed.completed) ? parsed.completed.filter(Number.isInteger) : []
-      };
-    } catch {
-      return {...defaultState};
-    }
+      const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (parsed && typeof parsed === "object") return parsed;
+    } catch (_) {}
+    return { preview: false, keys: 0 };
   }
 
   function saveState() {
-    try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch { /* private browsing */ }
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
   }
 
-  function showToast(message) {
-    toast.textContent = message;
-    toast.classList.add('show');
-    clearTimeout(showToast.timer);
-    showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
+  function show(screen) {
+    entrance.hidden = screen !== "entrance";
+    questMap.hidden = screen !== "map";
   }
 
-  function setCountdown(msRemaining) {
-    const total = Math.max(0, Math.floor(msRemaining / 1000));
-    const days = Math.floor(total / 86400);
-    const hours = Math.floor((total % 86400) / 3600);
-    const minutes = Math.floor((total % 3600) / 60);
-    const seconds = total % 60;
-    countdown.days.textContent = String(days).padStart(2, '0');
-    countdown.hours.textContent = String(hours).padStart(2, '0');
-    countdown.minutes.textContent = String(minutes).padStart(2, '0');
-    countdown.seconds.textContent = String(seconds).padStart(2, '0');
-  }
-
-  function isUnlocked() {
-    return state.preview || Date.now() >= TARGET_MS;
-  }
-
-  function refreshCountdown() {
-    const remaining = TARGET_MS - Date.now();
-    setCountdown(remaining);
-    if (remaining <= 0 || state.preview) {
-      unlockEntrance();
-      if (countdownTimer) {
-        clearInterval(countdownTimer);
-        countdownTimer = null;
-      }
+  function updateCountdown() {
+    const remaining = BIRTHDAY.getTime() - Date.now();
+    if (remaining <= 0) {
+      $("days").textContent = "00";
+      $("hours").textContent = "00";
+      $("minutes").textContent = "00";
+      $("seconds").textContent = "00";
+      $("lockTitle").textContent = "THE DOOR IS READY";
+      $("lockText").textContent = "The hour has come. Open the door and begin the adventure.";
+      return;
     }
+    const totalSeconds = Math.floor(remaining / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    $("days").textContent = String(days).padStart(2,"0");
+    $("hours").textContent = String(hours).padStart(2,"0");
+    $("minutes").textContent = String(minutes).padStart(2,"0");
+    $("seconds").textContent = String(seconds).padStart(2,"0");
   }
 
-  function unlockEntrance() {
-    lockTitle.textContent = 'THE DOOR IS READY';
-    lockText.innerHTML = 'The right moment has arrived.<br>Click the door and begin the adventure.';
+  function birthdayReached() {
+    return Date.now() >= BIRTHDAY.getTime();
   }
 
-  function openPreviewModal() {
-    modal.hidden = false;
-    codeInput.value = '';
-    error.textContent = '';
-    requestAnimationFrame(() => codeInput.focus());
+  function showPreviewModal() {
+    previewError.textContent = "";
+    previewCode.value = "";
+    previewModal.hidden = false;
+    setTimeout(() => previewCode.focus(), 0);
   }
 
   function closePreviewModal() {
-    modal.hidden = true;
-    codeInput.value = '';
-    error.textContent = '';
+    previewModal.hidden = true;
   }
 
-  function showQuestMap() {
-    entrance.hidden = true;
-    questScreen.hidden = false;
-    document.title = `Duygu's Birthday Quest · v${VERSION}`;
-    window.scrollTo(0, 0);
-  }
-
-  function showEntrance() {
-    questScreen.hidden = true;
-    entrance.hidden = false;
-  }
-
-  function handleDoorActivation(event) {
-    event.preventDefault();
-    if (!isUnlocked()) {
-      const now = performance.now();
-      if (!clickWindowStart || now - clickWindowStart > CLICK_WINDOW_MS) {
-        clickWindowStart = now;
-        clickCount = 1;
-      } else {
-        clickCount += 1;
-      }
-      if (clickCount >= CLICK_LIMIT) {
-        clickCount = 0;
-        clickWindowStart = 0;
-        openPreviewModal();
-      } else {
-        showToast('The door is still locked...');
-      }
-      return;
-    }
-    showQuestMap();
-  }
-
-  function completeQuest(questNumber) {
-    if (questNumber !== 1) return;
-    if (!state.completed.includes(1)) {
-      state.completed.push(1);
-      saveState();
-    }
-    showToast('Quest I is ready to build. The first key will be earned here.');
-  }
-
-  function handleQuestClick(button) {
-    const number = Number(button.dataset.quest);
-    if (number !== 1) {
-      showToast('Complete the previous challenge to unlock this quest.');
-      return;
-    }
-    completeQuest(number);
-  }
-
-  doorHit.addEventListener('pointerup', handleDoorActivation);
-  doorHit.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' || event.key === ' ') handleDoorActivation(event);
-  });
-
-  document.querySelectorAll('.quest-screen .hotspot[data-quest]').forEach((button) => {
-    button.addEventListener('pointerup', (event) => {
-      event.preventDefault();
-      handleQuestClick(button);
-    });
-  });
-
-  if (finalDoor) {
-    finalDoor.addEventListener('pointerup', (event) => {
-      event.preventDefault();
-      const allKeys = state.completed.length === 7;
-      if (!allKeys) showToast('Complete each challenge. Claim every key. Close the circle.');
-    });
-  }
-
-  returnDoor.addEventListener('click', showEntrance);
-  unlockButton.addEventListener('click', () => {
-    if (codeInput.value.trim() !== ADMIN_CODE) {
-      error.textContent = 'Wrong code.';
-      codeInput.select();
+  function unlockPreview() {
+    if (previewCode.value.trim() !== PREVIEW_CODE) {
+      previewError.textContent = "ACCESS DENIED.";
+      previewCode.select();
       return;
     }
     state.preview = true;
     saveState();
     closePreviewModal();
-    unlockEntrance();
-    showToast('Developer preview unlocked.');
-  });
-  cancelButton.addEventListener('click', closePreviewModal);
-  codeInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') unlockButton.click();
-    if (event.key === 'Escape') closePreviewModal();
-  });
-  modal.addEventListener('pointerup', (event) => {
-    if (event.target === modal) closePreviewModal();
+    openMap();
+  }
+
+  function openMap() {
+    show("map");
+    updateMap();
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }
+
+  function openDoor() {
+    if (birthdayReached() || state.preview) {
+      openMap();
+    }
+  }
+
+  function registerRapidDoorTap() {
+    const now = performance.now();
+    clickTimes = clickTimes.filter(t => now - t <= PREVIEW_WINDOW);
+    clickTimes.push(now);
+    if (clickTimes.length >= PREVIEW_LIMIT) {
+      clickTimes = [];
+      showPreviewModal();
+    }
+  }
+
+  function updateMap() {
+    const nodes = document.querySelectorAll(".quest-node");
+    nodes.forEach((node) => {
+      const quest = Number(node.dataset.quest);
+      node.classList.toggle("active", quest === state.keys + 1 && state.keys < 7);
+      node.classList.toggle("locked", quest > state.keys + 1);
+    });
+
+    $("keyCount").textContent = String(state.keys);
+    $("questStatus").textContent =
+      state.keys >= 7 ? "ALL KEYS FOUND — FINAL DOOR READY" :
+      `QUEST ${state.keys + 1} READY`;
+    finalDoor.setAttribute("aria-label",
+      state.keys >= 7 ? "Final Door, unlocked" : "Final Door, locked");
+  }
+
+  function openQuest(quest) {
+    if (quest !== state.keys + 1) {
+      if (quest > state.keys + 1) {
+        $("questStatus").textContent = "COMPLETE THE PREVIOUS CHALLENGE FIRST";
+      }
+      return;
+    }
+    if (quest !== 1) return;
+    questModal.hidden = false;
+  }
+
+  // Shared pointer event for mouse + touch.
+  doorButton.addEventListener("pointerup", (event) => {
+    event.preventDefault();
+    if (birthdayReached() || state.preview) {
+      openDoor();
+    } else {
+      registerRapidDoorTap();
+    }
   });
 
-  refreshCountdown();
-  countdownTimer = setInterval(refreshCountdown, 250);
+  doorButton.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      if (birthdayReached() || state.preview) openDoor();
+      else registerRapidDoorTap();
+    }
+  });
+
+  $("previewUnlock").addEventListener("click", unlockPreview);
+  $("previewCancel").addEventListener("click", closePreviewModal);
+  previewCode.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") unlockPreview();
+    if (event.key === "Escape") closePreviewModal();
+  });
+
+  $("returnDoor").addEventListener("click", () => show("entrance"));
+  $("questClose").addEventListener("click", () => { questModal.hidden = true; });
+
+  document.querySelectorAll(".quest-node").forEach(node => {
+    const activate = () => openQuest(Number(node.dataset.quest));
+    node.addEventListener("pointerup", activate);
+    node.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        activate();
+      }
+    });
+  });
+
+  finalDoor.addEventListener("pointerup", (event) => {
+    event.preventDefault();
+    if (state.keys >= 7) {
+      $("questStatus").textContent = "THE FINAL DOOR IS OPEN";
+    } else {
+      $("questStatus").textContent = "THE CIRCLE MUST CLOSE — 7 KEYS REQUIRED";
+    }
+  });
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+  updateMap();
 })();
