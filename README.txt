@@ -1,4 +1,4 @@
-Duygu's Birthday Quest — v1.3.2
+Duygu's Birthday Quest — v1.3.0
 
 Quest I: The Road Trip
 
@@ -16,4 +16,4 @@ IMPLEMENTATION
 - Existing 5-click -> 1337 security flow is unchanged.
 
 VERSION
-v1.3.2
+v1.3.0

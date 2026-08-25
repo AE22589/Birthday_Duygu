@@ -1,36 +1,17 @@
-# Automated QA — Duygu Birthday Quest
+# QA Automation — v1.3.3
 
-## Purpose
-This project uses three QA layers:
+## Upload
+Replace the repository contents with the contents of this folder, including the hidden `.github/workflows/qa.yml` path. Commit once.
 
-1. Static checks (`npm run test:static`)
-2. Real browser E2E checks (`npm run test:e2e`)
-3. GitHub Actions on every push / pull request
+## Automated gates
+1. Static QA: assets, version/cache consistency, security gate, navigation, controls, mobile CSS, and game-over logic.
+2. Browser QA: Chromium at 1366x768, 1920x1080, iPhone 12 and iPhone 14 Pro Max viewports.
+3. End-to-end flow: developer gate -> quest map -> Quest I intro -> READY countdown -> gameplay.
+4. Keyboard controls and mobile swipe are exercised.
+5. Console/page errors and unwanted page scrolling are treated as failures.
 
-## Browser matrix
-- Desktop 1366×768
-- Desktop 1920×1080
-- iPhone 13 viewport
-- iPhone 14 Pro Max viewport
+## GitHub
+After commit, open **Actions** and select **Quest QA**. A release is not considered QA-passed until both Static QA and Browser QA are green.
 
-## Critical flow
-Door → 5-click developer gate → 1337 → Quest Map → Quest I → Intro → I'M READY → Countdown → Game.
-
-The tests also verify that Intro and Game are never visible simultaneously, keyboard/swipe movement works, the page does not scroll during play, and the game board remains inside the viewport.
-
-## Local setup
-```bash
-npm install
-npx playwright install chromium
-npm test
-```
-
-## Release rule
-A version should not be tagged/released if Static QA or Browser QA fails.
-
-## Next QA additions
-- Visual screenshot baselines
-- Result/Key I persistence test
-- Game-over test
-- Return-to-map regression test
-- Asset 404 sweep
+## Local
+Run `npm install`, then `npm run qa:static` and `npm run qa:e2e`.

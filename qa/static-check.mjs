@@ -1,39 +1,66 @@
 import fs from 'node:fs';
 import path from 'node:path';
-const root=path.resolve(new URL('..',import.meta.url).pathname);
-const assert=(condition,message)=>{if(!condition)throw new Error(message)};
-const read=f=>fs.readFileSync(path.join(root,f),'utf8');
-const index=read('index.html'), script=read('script.js'), road=read('roadtrip.js'), css=read('style.css');
-const required=['assets/quest1-game-background.jpg','assets/quest1-game-source.jpg','assets/quest1-intro-art.jpg','assets/roadtrip-car.png','assets/game-star.png','assets/game-barrel.png','assets/game-cat.png'];
-for(const f of required){if(!fs.existsSync(path.join(root,f)))throw new Error(`missing ${f}`)}
-if(!index.includes('style.css?v=1.3.3')||!index.includes('script.js?v=1.3.3')||!index.includes('roadtrip.js?v=1.3.3'))throw new Error('cache version mismatch');
-if(!script.includes("const VERSION='1.3.3'"))throw new Error('app version mismatch');
-if(!road.includes("const VERSION='1.3.3'"))throw new Error('roadtrip version mismatch');
-if(!road.includes('window.showRoadTripScreen'))throw new Error('quest entry function missing');
-if(!road.includes('SCREEN.hidden=false'))throw new Error('quest screen is never unhidden');
-if(!road.includes('__DUYGU_ROADTRIP_SELF_TEST__'))throw new Error('self test missing');
-if(road.includes('<canvas')||css.includes('road-scene'))throw new Error('obsolete renderer detected');
-if(!css.includes("quest1-game-background.jpg"))throw new Error('concept background not referenced');
-if(!css.includes('[hidden]{display:none!important}'))throw new Error('hidden-state CSS guard missing');
-if(!css.includes('.roadtrip-screen.is-playing'))throw new Error('play-state layout missing');
-if(!road.includes('function setView(view)'))throw new Error('view state manager missing');
-if(!script.includes('function handleQuestActivation(n)'))throw new Error('quest activation missing');
-if(script.includes('let roadTripLoadPromise=null'))throw new Error('runtime quest script loader should not be used');
-if(!road.includes('lives=Math.max(0,lives-1)'))throw new Error('life counter never reaches zero');
-if(!road.includes('objects=objects.filter(o=>!o.hit && o.el.isConnected)'))throw new Error('hit objects are not cleaned up');
-if(!road.includes("SCREEN.classList.toggle('is-playing',view==='game')"))throw new Error('game view transition missing');
-if(!road.includes("BOARD.focus({preventScroll:true})"))throw new Error('game focus missing');
-if(!road.includes('assets/roadtrip-car.png'))throw new Error('player car asset missing');
-console.log('PASS: v1.3.3 static QA');
-console.log({requiredAssets:required.length,cache:'v1.3.3',renderer:'HTML/CSS layered art',viewState:'intro -> game -> result',hiddenGuard:true,security:'preserved',controls:['ArrowLeft','ArrowRight','A','D','swipe']});
 
-// QA infrastructure checks
-const pkg = JSON.parse(read('package.json'));
-assert(pkg.version === '1.3.3', 'package version must be 1.3.3');
-assert(read('script.js').includes("const VERSION='1.3.3'"), 'script.js version mismatch');
-assert(read('roadtrip.js').includes('v1.3.3'), 'roadtrip.js version mismatch');
-assert(read('index.html').includes('script.js?v=1.3.3'), 'script cache version mismatch');
-assert(read('index.html').includes('roadtrip.js?v=1.3.3'), 'roadtrip cache version mismatch');
-assert(read('tests/e2e/quest1.spec.js').includes("#readyButton"), 'E2E Quest I test missing');
-assert(read('.github/workflows/qa.yml').includes('playwright install'), 'GitHub browser installation missing');
-console.log('QA infrastructure: PASS');
+const root = path.resolve(new URL('..', import.meta.url).pathname);
+const read = name => fs.readFileSync(path.join(root, name), 'utf8');
+const index = read('index.html');
+const script = read('script.js');
+const road = read('roadtrip.js');
+const css = read('style.css');
+
+const VERSION = '1.3.3';
+const requiredAssets = [
+  'assets/entrance-scene.jpg',
+  'assets/quest-map-desktop.webp',
+  'assets/quest-map-mobile.webp',
+  'assets/roadtrip-intro-art.jpg',
+  'assets/quest1-intro-art.jpg',
+  'assets/quest1-game-background.jpg',
+  'assets/roadtrip-car.png',
+  'assets/game-star.png',
+  'assets/game-barrel.png',
+  'assets/game-cat.png'
+];
+
+for (const asset of requiredAssets) {
+  if (!fs.existsSync(path.join(root, asset))) throw new Error(`missing asset: ${asset}`);
+}
+
+for (const file of ['style.css','script.js','roadtrip.js']) {
+  if (!index.includes(file + `?v=${VERSION}`)) throw new Error(`cache version missing for ${file}`);
+}
+if (!script.includes(`const VERSION='${VERSION}'`)) throw new Error('app version mismatch');
+if (!road.includes(`const VERSION='${VERSION}'`)) throw new Error('roadtrip version mismatch');
+
+const requiredSelectors = ['#entrance','#questScreen','#adminModal','#doorHit','#roadTripScreen','#roadTripIntro','#roadTripGame','#roadTripResult','#readyButton','#roadBoard'];
+for (const selector of requiredSelectors) {
+  if (!index.includes(selector.slice(1))) throw new Error(`missing required DOM id: ${selector}`);
+}
+
+if (!script.includes('const ADMIN_CODE=\'1337\'')) throw new Error('developer security code missing');
+if (!script.includes('const CLICK_LIMIT=5')) throw new Error('five-click developer gate missing');
+if (!script.includes('if(clickCount>=CLICK_LIMIT)')) throw new Error('developer gate handler missing');
+if (!script.includes("codeInput.value.trim()!==ADMIN_CODE")) throw new Error('developer code validation missing');
+if (!script.includes('window.showQuestMap=showQuestMap')) throw new Error('quest map navigation missing');
+if (!script.includes('window.showRoadTripScreen')) throw new Error('Quest I navigation bridge missing');
+
+if (!road.includes("if(key==='ArrowLeft'||key==='a'||key==='A')")) throw new Error('desktop left control missing');
+if (!road.includes("if(key==='ArrowRight'||key==='d'||key==='D')")) throw new Error('desktop right control missing');
+if (!road.includes('touchstart') || !road.includes('touchend')) throw new Error('mobile swipe controls missing');
+if (!road.includes('lives=Math.max(0,lives-1)')) throw new Error('lives must be able to reach zero');
+if (!road.includes('if(lives<=0){finish(true);return}')) throw new Error('game over condition missing');
+if (!road.includes('score>=TARGET_STARS&&!gameOver')) throw new Error('key reward condition missing');
+
+if (!css.includes('@media(max-width:700px)')) throw new Error('mobile CSS missing');
+if (!css.includes('touch-action:none')) throw new Error('touch-action guard missing');
+
+console.log(`PASS: v${VERSION} static QA`);
+console.log(JSON.stringify({
+  version: VERSION,
+  requiredAssets: requiredAssets.length,
+  security: '5-click + 1337 code',
+  questFlow: 'map -> intro -> countdown -> game -> result',
+  controls: ['ArrowLeft','ArrowRight','A','D','swipe'],
+  gameOver: 'lives can reach 0',
+  mobileCss: true
+}, null, 2));

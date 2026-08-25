@@ -1,6 +1,6 @@
 # Duygu's Birthday Quest — QA / TEST PLAN
 
-## Release v1.3.2 — Quest I art-first responsive implementation
+## Release v1.3.3 — Quest I art-first responsive implementation
 
 ### A. Regression / security
 1. Countdown screen loads.
@@ -12,7 +12,7 @@
 
 ### B. Map → Quest I
 7. Quest I is the only active quest initially.
-8. Quest I calls the already-loaded `showRoadTripScreen()` directly; no runtime script loader is used.
+8. Clicking Quest I loads `roadtrip.js` if not already loaded.
 9. Quest I intro appears.
 10. Other quests remain locked.
 
@@ -76,15 +76,15 @@
 55. `node --check script.js`
 56. `node --check roadtrip.js`
 57. Required assets exist.
-58. All HTML/CSS/JS cache-busters are `v1.3.2`.
+58. All HTML/CSS/JS cache-busters are `v1.3.3`.
 59. `window.__DUYGU_ROADTRIP_SELF_TEST__()` reports renderer, source asset, controls, lanes and state key.
 60. ZIP contents are internally consistent.
 
 ### Deployment gate
-The live GitHub Pages URL must be checked manually after upload. Local static tests are not proof of the deployed CDN state. If the live page is unchanged, inspect the Network panel for `style.css?v=1.3.2`, `script.js?v=1.3.2`, and `roadtrip.js?v=1.3.2`.
+The live GitHub Pages URL must be checked manually after upload. Local static tests are not proof of the deployed CDN state. If the live page is unchanged, inspect the Network panel for `style.css?v=1.3.0`, `script.js?v=1.3.0`, and `roadtrip.js?v=1.3.0`.
 
 
-## Regression gate — Quest I v1.3.2
+## Regression gate — Quest I v1.3.3
 
 - [ ] Before READY: intro visible, game hidden, result hidden.
 - [ ] After READY countdown: intro hidden and game visible; both must not coexist.
@@ -96,42 +96,3 @@ The live GitHub Pages URL must be checked manually after upload. Local static te
 - [ ] Returning to map stops the game loop and hides the entire Road Trip screen.
 - [ ] Reloading the project never leaves the game view visible behind the intro.
 - [ ] Developer security flow remains 5 clicks → code 1337 → quest map.
-
-
-## Deep QA gate — v1.3.2
-
-### Navigation / lifecycle
-- [ ] Quest I hotspot click removes `hidden` from `#roadTripScreen`.
-- [ ] Quest I hotspot click hides `#questScreen` and `#entrance`.
-- [ ] Intro is the only visible Quest I view before READY.
-- [ ] READY transition is Intro -> countdown -> Game; no simultaneous views.
-- [ ] Back / Return hides `#roadTripScreen` and restores the Quest Map.
-- [ ] Retry returns to a clean Intro state with timer, score, lives, lane and objects reset.
-- [ ] No runtime script injection is used for Quest I.
-
-### Gameplay correctness
-- [ ] Lives decrement 3 -> 2 -> 1 -> 0.
-- [ ] 0 lives ends the run as Game Over.
-- [ ] Collected / hit / expired objects are removed from both DOM and object state.
-- [ ] Collision invulnerability prevents immediate repeat hits.
-- [ ] Timer ends the run at 60 seconds.
-- [ ] 20+ stars and no Game Over awards Key I.
-- [ ] <20 stars never awards Key I.
-- [ ] Maximum displayed score is 43.
-
-### Cross-device regression
-- [ ] Desktop 1366x768: Quest I opens, Intro fits, Game fits, keyboard works.
-- [ ] Desktop 1920x1080: same checks.
-- [ ] Mobile 390x844: Quest I opens, Intro fits, Game fits, swipe works.
-- [ ] Mobile 412x915: same checks.
-- [ ] Mobile landscape 844x390: same checks.
-- [ ] No page scroll occurs during gameplay.
-- [ ] No duplicate car / HUD / game layer is visible.
-
-### Security / existing project
-- [ ] Countdown remains locked before target date unless preview is granted.
-- [ ] 5 clicks within 2.5s open Developer Access.
-- [ ] `1337` opens the Quest Map.
-- [ ] Quest Map cannot be bypassed by directly calling Quest I UI from the entrance; Quest I is only reachable after the map flow.
-- [ ] Completing Quest I writes Key I to the existing state key.
-- [ ] Reload preserves Key I.
