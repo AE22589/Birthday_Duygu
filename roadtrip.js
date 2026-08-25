@@ -1,4 +1,4 @@
-/* Quest I — The Road Trip v1.3.1
+/* Quest I — The Road Trip v1.3.3
    Art-first implementation based on the accepted Quest I concept artwork.
    The artwork is the visual source of truth; HTML/CSS only adds interaction.
 */
@@ -27,7 +27,7 @@ const RESULT_COPY=document.getElementById('resultCopy');
 const RESULT_KICKER=document.getElementById('resultKicker');
 const KEY_REWARD=document.getElementById('keyReward');
 const QUEST_KEY='duyguBirthdayQuestState_v1';
-const VERSION='1.3.1';
+const VERSION='1.3.3';
 const SCREEN=document.getElementById('roadTripScreen');
 const DURATION=60;
 const TARGET_STARS=20;
@@ -45,10 +45,10 @@ function asset(type){return type==='star'?'assets/game-star.png':type==='cat'?'a
 function spawn(type,idx){const el=document.createElement('img');el.className=`rt-object ${type}`;el.src=asset(type);el.alt='';el.draggable=false;el.style.setProperty('--x',laneX(idx));el.style.setProperty('--y',String(type==='star'?-12:-18));DYNAMIC.appendChild(el);const o={type,lane:idx,y:type==='star'?-12:-18,el,speed:type==='star'?18+Math.random()*4:15+Math.random()*3,phase:Math.random()*6.28,hit:false};objects.push(o)}
 function maybeSpawn(){if(score<MAX_STARS && elapsed*1000>=spawnStarAt){spawn('star',Math.random()<.7?lane:Math.floor(Math.random()*3));spawnStarAt=elapsed*1000+900+Math.random()*650}if(elapsed*1000>=spawnObstacleAt){const occupied=new Set(objects.filter(o=>!o.hit&&o.y<55&&o.type!=='star').map(o=>o.lane));let choices=[0,1,2].filter(i=>!occupied.has(i));if(!choices.length)choices=[0,1,2];let idx=choices[Math.floor(Math.random()*choices.length)];if(Math.random()<.58)idx=(lane+(Math.random()<.5?-1:1)+3)%3;spawn(Math.random()<.7?'barrel':'cat',idx);spawnObstacleAt=elapsed*1000+1900+Math.random()*1400}}
 function renderObject(o,now){const depth=Math.max(0,Math.min(1,(o.y+12)/112));const scale=o.type==='star'?.45+depth*.72:.42+depth*.75;const bob=o.type==='star'?Math.sin(now/300+o.phase)*.7:Math.sin(now/500+o.phase)*.25;o.el.style.transform=`translate3d(calc(${o.x}% - 50% + ${bob}px), ${o.y}%, 0) scale(${scale})`;o.el.style.opacity=o.hit?'0':String(.45+depth*.55);o.el.style.zIndex=String(10+Math.round(depth*20))}
-function collect(o){if(o.hit)return;o.hit=true;score=Math.min(MAX_STARS,score+1);o.el.classList.add('collected');if(score===TARGET_STARS)flash('FIRST KEY WITHIN REACH')}
-function collide(o,now){if(o.hit||now<invulnerableUntil)return;o.hit=true;o.el.classList.add('hit');lives=Math.max(1,lives-1);invulnerableUntil=now+1300;CAR.classList.remove('hit');void CAR.offsetWidth;CAR.classList.add('hit');flash(lives===1?'WATCH THE ROAD':'EASY DOES IT')}
+function collect(o){if(o.hit)return;o.hit=true;score=Math.min(MAX_STARS,score+1);o.el.classList.add('collected');setTimeout(()=>o.el.remove(),300);if(score===TARGET_STARS)flash('FIRST KEY WITHIN REACH')}
+function collide(o,now){if(o.hit||now<invulnerableUntil)return;o.hit=true;o.el.classList.add('hit');lives=Math.max(0,lives-1);invulnerableUntil=now+1300;CAR.classList.remove('hit');void CAR.offsetWidth;CAR.classList.add('hit');flash(lives===0?'THE ROAD WINS':'EASY DOES IT');setTimeout(()=>o.el.remove(),320)}
 function flash(text){let el=document.getElementById('rtFlash');if(!el){el=document.createElement('div');el.id='rtFlash';document.getElementById('rtEffects').appendChild(el)}el.textContent=text;el.classList.remove('show');void el.offsetWidth;el.classList.add('show')}
-function update(dt,now){elapsed=Math.min(DURATION,(now-startAt)/1000);maybeSpawn();for(const o of objects){if(o.hit)continue;o.y+=o.speed*dt/1000;renderObject(o,now);const near=o.y>74&&o.y<93&&o.lane===lane;if(near){if(o.type==='star')collect(o);else if(now>=invulnerableUntil)collide(o,now)}if(o.y>115){o.hit=true;o.el.remove()}}objects=objects.filter(o=>!o.hit||o.el.isConnected);updateHud();if(elapsed>=DURATION){finish();return}if(lives<=0){finish(true);return}raf=requestAnimationFrame(tick)}
+function update(dt,now){elapsed=Math.min(DURATION,(now-startAt)/1000);maybeSpawn();for(const o of objects){if(o.hit)continue;o.y+=o.speed*dt/1000;renderObject(o,now);const near=o.y>74&&o.y<93&&o.lane===lane;if(near){if(o.type==='star')collect(o);else if(now>=invulnerableUntil)collide(o,now)}if(o.y>115){o.hit=true;o.el.remove()}}objects=objects.filter(o=>!o.hit && o.el.isConnected);updateHud();if(elapsed>=DURATION){finish();return}if(lives<=0){finish(true);return}raf=requestAnimationFrame(tick)}
 function tick(now){if(!running)return;const dt=Math.min(50,now-lastFrame||16);lastFrame=now;update(dt,now)}
 function startLoop(){stop();running=true;startAt=performance.now();lastFrame=startAt;raf=requestAnimationFrame(tick)}
 function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=0}
@@ -96,9 +96,9 @@ function ready(){
 }
 function finish(gameOver=false){stop();const finalTime=Math.min(DURATION,elapsed);RESULT_STARS.textContent=String(score);RESULT_TIME.textContent=`${Math.round(finalTime)}s`;RESULT_KICKER.textContent=gameOver?'JOURNEY ENDED':'JOURNEY COMPLETE';RESULT_TITLE.textContent=gameOver?'THE ROAD TURNED AGAINST YOU':'THE ROAD REMEMBERS';RESULT_COPY.textContent=gameOver?'The road has turned against you. Take a breath and try again.':`You collected ${score} / ${MAX_STARS} stars.`;const won=score>=TARGET_STARS&&!gameOver;KEY_REWARD.hidden=!won;if(won){grantKey();}setView('result')}
 function grantKey(){try{const s=JSON.parse(localStorage.getItem(QUEST_KEY)||'{}');const c=Array.isArray(s.completed)?s.completed.filter(Number.isInteger):[];if(!c.includes(1))c.push(1);localStorage.setItem(QUEST_KEY,JSON.stringify({completed:[...new Set(c)].sort((a,b)=>a-b)}))}catch{}}
-function back(){clearReadyTimer();stop();clearObjects();setView('intro');window.showQuestMap?.()}
-function showRoadTripScreen(){clearReadyTimer();stop();clearObjects();reset();setView('intro');setDevice()}
+function back(){clearReadyTimer();stop();clearObjects();setView('intro');SCREEN.hidden=true;window.showQuestMap?.()}
+function showRoadTripScreen(){clearReadyTimer();stop();clearObjects();document.getElementById('entrance')?.setAttribute('hidden','');document.getElementById('questScreen')?.setAttribute('hidden','');SCREEN.hidden=false;reset();setView('intro');setDevice();window.scrollTo(0,0)}
 READY.addEventListener('click',ready);BACK.addEventListener('click',back);RETURN.addEventListener('click',back);RETRY.addEventListener('click',()=>{stop();clearObjects();reset();setView('intro');setDevice()});document.addEventListener('keydown',onKey,{passive:false});BOARD.addEventListener('keydown',onKey,{passive:false});BOARD.addEventListener('touchstart',onTouchStart,{passive:false});BOARD.addEventListener('touchend',onTouchEnd,{passive:false});window.addEventListener('resize',setDevice);window.addEventListener('orientationchange',()=>setTimeout(setDevice,60));bindControls();setDevice();
 window.showRoadTripScreen=showRoadTripScreen;
-window.__DUYGU_ROADTRIP_SELF_TEST__=()=>({version:VERSION,renderer:'HTML/CSS layered art',background:'assets/quest1-game-background.jpg',car:'assets/roadtrip-car.png',desktopKeyboard:true,mobileSwipe:true,lanes:LANES.length,duration:DURATION,targetStars:TARGET_STARS,maxStars:MAX_STARS,stateKey:QUEST_KEY,readyGate:!!READY,hiddenCssEnforced:getComputedStyle(GAME).display==='none'||GAME.hidden});
+window.__DUYGU_ROADTRIP_SELF_TEST__=()=>({version:VERSION,renderer:'HTML/CSS layered art',background:'assets/quest1-game-background.jpg',car:'assets/roadtrip-car.png',desktopKeyboard:true,mobileSwipe:true,lanes:LANES.length,duration:DURATION,targetStars:TARGET_STARS,maxStars:MAX_STARS,stateKey:QUEST_KEY,readyGate:!!READY,screenElement:!!SCREEN,screenInitiallyHidden:SCREEN?.hidden===true,viewStateElements:!!INTRO&&!!GAME&&!!RESULT});
 })();

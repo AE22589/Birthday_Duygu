@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const VERSION='1.3.1';
+const VERSION='1.3.3';
 const TARGET_MS=Date.parse('2026-09-08T00:00:00+02:00');
 const ADMIN_CODE='1337';
 const CLICK_LIMIT=5;
@@ -144,26 +144,16 @@ function showQuestMap(){if(!isUnlocked()){showToast('The door is still locked...
 window.showQuestMap=showQuestMap;
 function showEntrance(){questScreen.hidden=true;modal.hidden=true;entrance.hidden=false;previewGranted=false;refreshCountdown()}
 function handleDoorActivation(e){if(!modal.hidden)return;e.preventDefault();if(isUnlocked()){showQuestMap();return}const now=performance.now();if(!clickWindowStart||now-clickWindowStart>CLICK_WINDOW_MS){clickWindowStart=now;clickCount=1}else clickCount++;if(clickCount>=CLICK_LIMIT){clickCount=0;clickWindowStart=0;openPreviewModal();return}showToast(`The door remains sealed. ${CLICK_LIMIT-clickCount} more clicks...`)}
-let roadTripLoadPromise=null;
-function ensureRoadTripLoaded(){
-  if(typeof window.showRoadTripScreen==='function')return Promise.resolve();
-  if(roadTripLoadPromise)return roadTripLoadPromise;
-  roadTripLoadPromise=new Promise((resolve,reject)=>{
-    const existing=document.querySelector('script[data-roadtrip-loader]');
-    if(existing){existing.addEventListener('load',()=>typeof window.showRoadTripScreen==='function'?resolve():reject(new Error('roadtrip.js loaded without registering the quest')),{once:true});existing.addEventListener('error',()=>reject(new Error('roadtrip.js failed to load')),{once:true});return;}
-    const script=document.createElement('script');
-    script.src=`roadtrip.js?v=${VERSION}`;script.defer=true;script.dataset.roadtripLoader='true';
-    script.onload=()=>typeof window.showRoadTripScreen==='function'?resolve():reject(new Error('roadtrip.js loaded without registering the quest'));
-    script.onerror=()=>reject(new Error('roadtrip.js failed to load'));
-    document.head.appendChild(script);
-  });
-  return roadTripLoadPromise;
-}
-async function handleQuestActivation(n){
+function handleQuestActivation(n){
   const active=currentQuest();
   if(n!==active){showToast(n<=(active||0)?'This challenge is already complete.':'Complete the previous challenge to unlock this quest.');return}
   if(n===1){
-    try{await ensureRoadTripLoaded();window.showRoadTripScreen();}
+    if(typeof window.showRoadTripScreen!=='function'){
+      console.error('[Quest I] roadtrip.js did not register showRoadTripScreen');
+      showToast('Quest I could not be loaded. Please refresh and try again.');
+      return;
+    }
+    try{window.showRoadTripScreen();}
     catch(err){console.error('[Quest I]',err);showToast('Quest I could not be loaded. Please refresh and try again.');}
   }
 }
