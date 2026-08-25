@@ -11,6 +11,11 @@ test.describe('Quest Map visual regression', () => {
       return !!map.getAttribute('href') && !!map.getAttributeNS('http://www.w3.org/1999/xlink', 'href');
     })).toBeTruthy();
     await expect(page.locator('#mapImage')).toHaveAttribute('href', /quest-map-(desktop|mobile)\.webp/);
+    await page.locator('#mapImage').evaluate(async img => {
+    if (!img.complete || img.naturalWidth === 0) await new Promise((resolve, reject) => { img.addEventListener('load', resolve, { once: true }); img.addEventListener('error', reject, { once: true }); });
+    if (typeof img.decode === 'function') await img.decode().catch(() => {});
+  });
+    await page.evaluate(async () => { if (document.fonts?.ready) await document.fonts.ready; });
     const overflow = await page.evaluate(() => ({
       x: document.documentElement.scrollWidth - innerWidth,
       y: document.documentElement.scrollHeight - innerHeight

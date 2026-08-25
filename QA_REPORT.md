@@ -1,7 +1,7 @@
-# Deep QA Report — Duygu Birthday Quest v1.6.4
+# Deep QA Report — Duygu Birthday Quest v1.6.5
 
 ## Release decision
-**HOLD until the next GitHub Browser QA run is green.** Static QA and JavaScript syntax checks pass locally. The previous v1.3.7 Browser QA run exposed test-scope errors and a mobile-input path that needed hardening; those are corrected in this release.
+**HOLD until the GitHub Browser QA run for v1.6.5 is green.** Static QA and JavaScript syntax checks pass locally. The previous v1.3.7 Browser QA run exposed test-scope errors and a mobile-input path that needed hardening; those are corrected in this release.
 
 ## Findings from the v1.3.7 Browser QA run
 The supplied GitHub Actions run executed 16 tests and finished with **10 passed / 6 failed**. The failures were:
@@ -10,7 +10,7 @@ The supplied GitHub Actions run executed 16 tests and finished with **10 passed 
 - the mobile swipe assertion remained on lane `2` instead of reaching lane `0`.
 The log explicitly shows the desktop/mobile test-matrix mismatch and the hidden desktop controls on mobile. The swipe failure also showed `Expected: "0" / Received: "2"`. 
 
-## Corrective actions in v1.6.4
+## Corrective actions in v1.6.5
 - Desktop keyboard test now runs only on desktop projects.
 - Mobile swipe test now runs only on mobile projects.
 - Mobile lane input was moved from the old synthetic `touchstart/touchend` path to Pointer Events (`pointerdown/pointerup`) with `pointerType === 'touch'`, pointer capture, and cancellation cleanup.
@@ -25,7 +25,7 @@ The log explicitly shows the desktop/mobile test-matrix mismatch and the hidden 
 - `node --check roadtrip.js`: PASS
 - `node --check tests/e2e/quest1.spec.js`: PASS
 - required assets: PASS
-- version/cache consistency v1.6.4: PASS
+- version/cache consistency v1.6.5: PASS
 - developer 5-click + 1337 gate: PASS
 - Quest I navigation bridge: PASS
 - ArrowLeft / ArrowRight / A / D: PASS
@@ -35,7 +35,7 @@ The log explicitly shows the desktop/mobile test-matrix mismatch and the hidden 
 - life counter can reach zero: PASS
 
 ## Browser QA status
-The previous GitHub run is the source of the reported failures. A fresh Browser QA run is required after this v1.6.4 package is committed. The local environment here does not have the Playwright package installed; an attempted `npm install` timed out, so a full local Playwright run is **not** claimed.
+The previous GitHub run is the source of the reported failures. A fresh Browser QA run is required after this v1.6.5 package is committed. The local environment here does not have the Playwright package installed; an attempted `npm install` timed out, so a full local Playwright run is **not** claimed.
 
 ## Required acceptance tests
 1. Desktop: start Quest I and press ArrowLeft/ArrowRight; the car must visibly move between lanes.

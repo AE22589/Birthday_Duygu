@@ -25,6 +25,11 @@ async function start(page) {
   await expect(page.locator('#roadTripGame')).toBeVisible({timeout:6000});
 }
 
+
+async function waitForInputCooldown(page) {
+  await page.waitForTimeout(140);
+}
+
 async function carCenter(page) {
   const b=await page.locator('#playerCar').boundingBox();
   if(!b) throw new Error('player car has no bounding box');
@@ -48,15 +53,20 @@ test('real user journey: desktop controls and gameplay outcomes', async ({page},
   const errors=monitorRuntime(page);
   await start(page);
   const initial=await carCenter(page);
+  await waitForInputCooldown(page);
   await page.keyboard.press('ArrowLeft');
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('0');
   await expect.poll(async()=>await carCenter(page)).toBeLessThan(initial-10);
+  await waitForInputCooldown(page);
   await page.keyboard.press('ArrowRight');
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('1');
+  await waitForInputCooldown(page);
   await page.keyboard.press('d');
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('2');
+  await waitForInputCooldown(page);
   await page.keyboard.press('a');
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('1');
+  await waitForInputCooldown(page);
   await page.locator('.game-control[data-move="1"]').click();
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('2');
   await page.evaluate(()=>window.__DUYGU_QA__.spawnTestObject('star',2));
@@ -74,11 +84,14 @@ test('real user journey: mobile swipe controls and gameplay outcomes', async ({p
   const errors=monitorRuntime(page);
   await start(page);
   const initial=await carCenter(page);
+  await waitForInputCooldown(page);
   await swipe(page,.70,.30);
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('0');
   await expect.poll(async()=>await carCenter(page)).toBeLessThan(initial-10);
+  await waitForInputCooldown(page);
   await swipe(page,.30,.70);
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('1');
+  await waitForInputCooldown(page);
   await swipe(page,.50,.53);
   await page.waitForTimeout(160);
   await expect(page.locator('#playerCar')).toHaveAttribute('data-lane','1');

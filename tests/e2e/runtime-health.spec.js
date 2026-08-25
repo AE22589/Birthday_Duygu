@@ -59,17 +59,17 @@ test('intro is complete, responsive, and uses the correct control instructions',
   for (const sel of requiredSelectors) {
     const box = await page.locator(sel).boundingBox();
     expect(box, `${sel} must have a valid bounding box and be visible`).not.toBeNull();
-    expect(box.left, `${sel} left`).toBeGreaterThanOrEqual(-1);
-    expect(box.right, `${sel} right`).toBeLessThanOrEqual(viewport.width + 1);
-    expect(box.top, `${sel} top`).toBeGreaterThanOrEqual(-1);
-    expect(box.bottom, `${sel} bottom`).toBeLessThanOrEqual(viewport.height + 1);
+    expect(box.x, `${sel} x`).toBeGreaterThanOrEqual(-1);
+    expect(box.x + box.width, `${sel} right`).toBeLessThanOrEqual(viewport.width + 1);
+    expect(box.y, `${sel} y`).toBeGreaterThanOrEqual(-1);
+    expect(box.y + box.height, `${sel} bottom`).toBeLessThanOrEqual(viewport.height + 1);
   }
   const instructionBox = await page.locator(targetSelector).boundingBox();
   expect(instructionBox, `${targetSelector} must have a valid bounding box and be visible`).not.toBeNull();
-  expect(instructionBox.left, `${targetSelector} left`).toBeGreaterThanOrEqual(-1);
-  expect(instructionBox.right, `${targetSelector} right`).toBeLessThanOrEqual(viewport.width + 1);
-  expect(instructionBox.top, `${targetSelector} top`).toBeGreaterThanOrEqual(-1);
-  expect(instructionBox.bottom, `${targetSelector} bottom`).toBeLessThanOrEqual(viewport.height + 1);
+  expect(instructionBox.x, `${targetSelector} x`).toBeGreaterThanOrEqual(-1);
+  expect(instructionBox.x + instructionBox.width, `${targetSelector} right`).toBeLessThanOrEqual(viewport.width + 1);
+  expect(instructionBox.y, `${targetSelector} y`).toBeGreaterThanOrEqual(-1);
+  expect(instructionBox.y + instructionBox.height, `${targetSelector} bottom`).toBeLessThanOrEqual(viewport.height + 1);
   const scroll = await page.evaluate(() => ({scrollX, scrollY, overflowX:document.documentElement.scrollWidth-innerWidth, overflowY:document.documentElement.scrollHeight-innerHeight}));
   expect(scroll.scrollX).toBe(0); expect(scroll.scrollY).toBe(0);
   expect(scroll.overflowX).toBeLessThanOrEqual(1); expect(scroll.overflowY).toBeLessThanOrEqual(1);
