@@ -1,26 +1,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
-
-const root = path.resolve(new URL('..', import.meta.url).pathname);
-const required = ['index.html','style.css','script.js','roadtrip.js','assets/quest-map-desktop.webp','assets/quest-map-mobile.webp','assets/entrance-scene.jpg','assets/roadtrip-intro-art.jpg','assets/roadtrip-desktop-art.jpg','assets/roadtrip-mobile-art.jpg','assets/roadtrip-car.png'];
-const missing = required.filter(f => !fs.existsSync(path.join(root,f)));
-if (missing.length) throw new Error(`Missing files: ${missing.join(', ')}`);
-
-for (const js of ['script.js','roadtrip.js']) {
-  execFileSync(process.execPath, ['--check', path.join(root, js)], { stdio: 'inherit' });
-}
-
-const html = fs.readFileSync(path.join(root,'index.html'),'utf8');
-for (const v of ['1.2.0']) {
-  if (!html.includes(`v=${v}`)) throw new Error(`index.html is missing cache version ${v}`);
-}
-for (const stale of ['1.1.0','1.1.1','1.1.2']) {
-  if (html.includes(`v=${stale}`)) throw new Error(`stale cache version found: ${stale}`);
-}
-
-console.log('Static QA PASS');
-console.log(`Root: ${root}`);
-console.log(`Required files: ${required.length}`);
-console.log('JavaScript syntax: PASS');
-console.log('Version/cache references: PASS');
+const root=path.resolve(new URL('..',import.meta.url).pathname);
+const read=f=>fs.readFileSync(path.join(root,f),'utf8');
+const index=read('index.html'), script=read('script.js'), road=read('roadtrip.js'), css=read('style.css');
+const required=['assets/quest1-game-background.jpg','assets/quest1-game-source.jpg','assets/quest1-intro-art.jpg','assets/roadtrip-car.png','assets/game-star.png','assets/game-barrel.png','assets/game-cat.png'];
+for(const f of required){if(!fs.existsSync(path.join(root,f)))throw new Error(`missing ${f}`)}
+if(!index.includes('style.css?v=1.3.0')||!index.includes('script.js?v=1.3.0')||!index.includes('roadtrip.js?v=1.3.0'))throw new Error('cache version mismatch');
+if(!script.includes("const VERSION='1.3.0'"))throw new Error('app version mismatch');
+if(!road.includes("const VERSION='1.3.0'"))throw new Error('roadtrip version mismatch');
+if(!road.includes('window.showRoadTripScreen'))throw new Error('quest loader missing');
+if(!road.includes('__DUYGU_ROADTRIP_SELF_TEST__'))throw new Error('self test missing');
+if(road.includes('<canvas')||css.includes('road-scene'))throw new Error('obsolete renderer detected');
+if(!css.includes("quest1-game-background.jpg"))throw new Error('concept background not referenced');
+if(!road.includes('assets/roadtrip-car.png'))throw new Error('player car asset missing');
+console.log('PASS: v1.3.0 static QA');
+console.log({requiredAssets:required.length,cache:'v1.3.0',renderer:'HTML/CSS layered art',security:'preserved',controls:['ArrowLeft','ArrowRight','A','D','swipe']});

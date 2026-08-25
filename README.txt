@@ -1,18 +1,19 @@
-DUYGU'S BIRTHDAY QUEST — v1.2.0
+Duygu's Birthday Quest — v1.3.0
 
-Quest I — The Road Trip
+Quest I: The Road Trip
 
-This version replaces the generic SVG-only road artwork with the exact cinematic Road Trip concept artwork used during the design phase. The game keeps a lightweight SVG interaction layer above the art so lane positions remain stable on desktop and mobile.
+SOURCE OF TRUTH
+The supplied Quest I concept artwork is the visual reference for this release. The game uses the accepted night-road composition, red luggage car, warm lamps, stars, barrels, cat and gold/pink UI language. The concept sheet itself is not shown or shipped as a page; it is used as the design basis.
 
-Controls:
-- Laptop/Desktop: LEFT and RIGHT arrow keys. On-screen arrow buttons are also available as a fallback.
-- Mobile: swipe left/right on the game area.
+IMPLEMENTATION
+- One canonical responsive gameplay scene for desktop and mobile, avoiding separate geometry drift.
+- The accepted scene art is the background; the static player car is removed from the background and the transparent car asset is layered on top.
+- Dynamic stars, barrels and cats are added only in the foreground, so distant artwork remains part of the scenery.
+- Desktop: LEFT / RIGHT arrow keys; A / D also supported.
+- Mobile: SWIPE LEFT / RIGHT.
+- 60 seconds maximum, 3 lives, relaxed difficulty.
+- 20 stars unlock Key I; 43 is the perfect score.
+- Existing 5-click -> 1337 security flow is unchanged.
 
-Flow:
-Quest Map -> The Road Trip -> instructions -> I'M READY -> 3 / 2 / 1 / GO -> max. 60 seconds -> 20 stars required -> Key I -> Quest Map.
-
-The existing developer preview security flow remains unchanged:
-5 clicks on the locked door -> administrator code 1337 -> Quest Map.
-
-Important:
-Replace the complete project contents when deploying. Do not merge only index.html. v1.2.0 intentionally ships the complete CSS, JavaScript and assets together so stale files from earlier versions cannot be mixed in.
+VERSION
+v1.3.0

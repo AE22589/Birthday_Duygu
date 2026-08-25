@@ -1,72 +1,84 @@
-# Duygu Birthday Quest — v1.2.0 QA Gate
+# Duygu's Birthday Quest — QA / TEST PLAN
 
-## A. Static integrity
-- [x] `index.html`, `style.css`, `script.js`, `roadtrip.js` are all shipped together.
-- [x] All referenced local assets exist.
-- [x] JavaScript passes `node --check`.
-- [x] No old v1.1.x asset/script references remain in the shipped files.
-- [x] Quest I uses a single fixed SVG coordinate system for the interaction layer.
+## Release v1.3.0 — Quest I art-first responsive implementation
 
-## B. Security / regression
-- [ ] Locked entrance remains locked before the release date.
-- [ ] Exactly five door clicks within the click window open Developer Access.
-- [ ] Code `1337` unlocks preview access.
-- [ ] Wrong code does not unlock access.
-- [ ] Quest Map remains inaccessible without normal unlock or Developer Access.
+### A. Regression / security
+1. Countdown screen loads.
+2. Before Sep 8 2026, normal door click does not open map.
+3. Five clicks within the configured window open Developer Access.
+4. `1337` opens the Quest Map.
+5. Fewer than five clicks never opens the map.
+6. Quest Map is not directly accessible through Quest I code.
 
-## C. Quest I flow
-- [ ] Quest I opens its instruction screen; gameplay does not start automatically.
-- [ ] Desktop instructions show LEFT / RIGHT arrow keys.
-- [ ] Mobile instructions show SWIPE LEFT / RIGHT.
-- [ ] `I'M READY` starts 3 / 2 / 1 / GO.
-- [ ] Game starts only after the countdown.
-- [ ] Game ends after 60 seconds.
-- [ ] Minimum 20 stars awards Key I.
-- [ ] Fewer than 20 stars does not award Key I.
-- [ ] Key I persists in the shared quest state.
-- [ ] Return to Quest Map works from both success and retry states.
+### B. Map → Quest I
+7. Quest I is the only active quest initially.
+8. Clicking Quest I loads `roadtrip.js` if not already loaded.
+9. Quest I intro appears.
+10. Other quests remain locked.
 
-## D. Controls
-- [ ] Desktop ArrowLeft moves exactly one lane.
-- [ ] Desktop ArrowRight moves exactly one lane.
-- [ ] Repeated key presses cannot skip outside the three lanes.
-- [ ] Mobile swipe left moves exactly one lane.
-- [ ] Mobile swipe right moves exactly one lane.
-- [ ] Small swipes do not move the car.
-- [ ] Touch gestures do not scroll the game horizontally.
-- [ ] On-screen desktop arrow controls work as a fallback.
+### C. Intro gate
+11. Desktop shows arrow-key instructions.
+12. Mobile shows swipe instructions.
+13. `I'M READY` is required.
+14. 3-2-1-GO sequence runs once.
+15. Back to map works before gameplay.
 
-## E. Gameplay
-- [ ] Three lives are shown.
-- [ ] Collision removes a life but never makes the relaxed quest impossible.
-- [ ] Temporary invulnerability prevents immediate double-hit.
-- [ ] Stars increment only once per collectible.
-- [ ] Score caps at 43.
-- [ ] Difficulty rises gradually and remains forgiving.
-- [ ] No obstacle spawns directly on top of the player.
+### D. Visual source-of-truth
+16. `assets/quest1-game-background.jpg` is derived from the accepted Quest I concept artwork.
+17. `assets/roadtrip-car.png` is layered above the background.
+18. No generic vector road is used.
+19. No opaque SVG/canvas layer covers the artwork.
+20. Desktop and mobile use the same canonical scene and responsive crop.
+21. No duplicated HUD from the concept sheet is shown; HUD is live HTML.
 
-## F. Visual QA
-Required viewport checks:
-- [ ] Desktop 1366x768
-- [ ] Desktop 1440x900
-- [ ] Desktop 1920x1080
-- [ ] Mobile 390x844
-- [ ] Mobile 412x915
-- [ ] Landscape mobile / small tablet
+### E. Desktop interaction
+22. Test 1366x768.
+23. Test 1440x900.
+24. Test 1920x1080.
+25. Arrow Left changes one lane.
+26. Arrow Right changes one lane.
+27. A/D also change lanes.
+28. Button controls work.
+29. No page scrolling from arrow keys during gameplay.
+30. Car remains visually attached to the road and never leaves the board.
 
-For each viewport:
-- [ ] Full game board is visible without horizontal overflow.
-- [ ] HUD remains readable.
-- [ ] Player stays inside the road.
-- [ ] Lane positions remain stable after resize/orientation change.
-- [ ] Concept artwork is visible and not replaced by generic fallback graphics.
-- [ ] Intro and result screens remain usable without clipping.
+### F. Mobile interaction
+31. Test 390x844.
+32. Test 393x852.
+33. Test 412x915.
+34. Swipe left changes one lane.
+35. Swipe right changes one lane.
+36. Touch does not scroll the page during gameplay.
+37. Full board is visible without horizontal overflow.
+38. Car remains centered on the chosen lane.
+39. No desktop controls appear on mobile.
+40. Mobile crop keeps the road, moon, lamps and destination readable.
 
-## G. Deployment / cache
-- [ ] Deploy complete folder, not selected files.
-- [ ] Hard reload after deployment.
-- [ ] Confirm `?v=1.2.0` is present on CSS/JS requests.
-- [ ] Confirm no stale v1.1.x JavaScript is loaded.
+### G. Gameplay
+41. Timer starts at 60.
+42. Stars can be collected.
+43. Obstacles reduce lives.
+44. All three lanes are never intentionally blocked.
+45. Collision has an invulnerability window.
+46. 20+ stars within the 60-second run awards Key I.
+47. <20 stars does not award Key I.
+48. 43 is the maximum displayed score.
+49. Retry fully resets the run.
+50. Completion returns to map.
 
-## Environment limitation
-The current execution sandbox blocks local browser navigation for automated Chromium/Playwright rendering (`ERR_BLOCKED_BY_ADMINISTRATOR`). Therefore this version is not claimed as live-browser-verified from this environment. Static checks, asset integrity, JavaScript syntax and architecture checks were performed here; the browser viewport checklist above must be run against the deployed GitHub Pages URL before calling the version production-ready.
+### H. State / regression
+51. Quest completion writes to `duyguBirthdayQuestState_v1`.
+52. Reload preserves Key I.
+53. Existing quest map security and state are untouched.
+54. No stale v1.1.x/v1.2.x Quest I renderer remains referenced.
+
+### I. Static technical checks
+55. `node --check script.js`
+56. `node --check roadtrip.js`
+57. Required assets exist.
+58. All HTML/CSS/JS cache-busters are `v1.3.0`.
+59. `window.__DUYGU_ROADTRIP_SELF_TEST__()` reports renderer, source asset, controls, lanes and state key.
+60. ZIP contents are internally consistent.
+
+### Deployment gate
+The live GitHub Pages URL must be checked manually after upload. Local static tests are not proof of the deployed CDN state. If the live page is unchanged, inspect the Network panel for `style.css?v=1.3.0`, `script.js?v=1.3.0`, and `roadtrip.js?v=1.3.0`.
