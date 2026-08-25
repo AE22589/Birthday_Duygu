@@ -62,14 +62,17 @@ test('desktop keyboard moves the car left and right and prevents scrolling', asy
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('0');
   await expect.poll(async () => await carCenter(page)).toBeLessThan(initial - 10);
 
+  await page.waitForTimeout(130);
   await page.keyboard.press('ArrowRight');
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('1');
   await expect.poll(async () => Math.abs(await carCenter(page) - initial)).toBeLessThan(3);
 
+  await page.waitForTimeout(130);
   await page.keyboard.press('ArrowRight');
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('2');
   await expect.poll(async () => await carCenter(page)).toBeGreaterThan(initial + 10);
 
+  await page.waitForTimeout(130);
   await page.keyboard.press('ArrowRight');
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('2');
   expect(await page.evaluate(() => window.scrollY)).toBe(0);

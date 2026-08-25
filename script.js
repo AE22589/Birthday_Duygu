@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const VERSION='1.6.6';
+const VERSION='1.6.7';
 const QA_MODE=new URLSearchParams(location.search).has('qa') && navigator.webdriver===true;
 const QA_VISUAL_MAP=new URLSearchParams(location.search).get('qa')==='visual-map' && navigator.webdriver===true;
 const TARGET_MS=Date.parse('2026-09-08T00:00:00+02:00');
