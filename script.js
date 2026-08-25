@@ -109,6 +109,12 @@
   }
 
   function showQuestMap() {
+    // Never expose the map unless the real date has arrived or the current
+    // session has explicitly passed the developer gate.
+    if (!isUnlocked()) {
+      showToast('The door is still locked...');
+      return;
+    }
     entrance.hidden = true;
     questScreen.hidden = false;
     document.title = `Duygu's Birthday Quest`;
@@ -124,6 +130,7 @@
   }
 
   function handleDoorActivation(event) {
+    if (!modal.hidden) return;
     event.preventDefault();
     const now = performance.now();
     if (!clickWindowStart || now - clickWindowStart > CLICK_WINDOW_MS) {
@@ -162,10 +169,10 @@
     completeQuest(number);
   }
 
-  doorHit.addEventListener('pointerup', handleDoorActivation);
-  doorHit.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' || event.key === ' ') handleDoorActivation(event);
-  });
+  // Use the native click event for the secret gate. A real mouse click, a
+  // touchscreen tap, and keyboard activation of the button all produce a
+  // click event. This avoids maintaining separate pointer/touch counters.
+  doorHit.addEventListener('click', handleDoorActivation);
 
   document.querySelectorAll('.quest-screen .hotspot[data-quest]').forEach((button) => {
     button.addEventListener('pointerup', (event) => {
