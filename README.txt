@@ -19,3 +19,6 @@ Testing checklist:
 4. Locked quests are visibly dimmed.
 5. 5 rapid clicks/taps on the entrance door opens admin code dialog.
 6. 1337 unlocks preview.
+
+
+Version 1.0.3: restored the developer access verification flow. The 5-click/tap gesture opens the administrator code dialog; preview access is session-scoped so it cannot silently persist across new browser sessions. The visible version badge was removed from the quest map.

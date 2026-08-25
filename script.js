@@ -7,6 +7,7 @@
   const CLICK_LIMIT = 5;
   const CLICK_WINDOW_MS = 1500;
   const STATE_KEY = 'duyguBirthdayQuestState_v1';
+  const PREVIEW_SESSION_KEY = 'duyguBirthdayQuestPreview_v1';
 
   const $ = (id) => document.getElementById(id);
   const entrance = $('entrance');
@@ -37,10 +38,10 @@
   function loadState() {
     try {
       const raw = localStorage.getItem(STATE_KEY);
-      if (!raw) return {...defaultState};
-      const parsed = JSON.parse(raw);
+      const parsed = raw ? JSON.parse(raw) : {};
+      const sessionPreview = sessionStorage.getItem(PREVIEW_SESSION_KEY) === '1';
       return {
-        preview: parsed.preview === true,
+        preview: sessionPreview,
         completed: Array.isArray(parsed.completed) ? parsed.completed.filter(Number.isInteger) : []
       };
     } catch {
@@ -49,7 +50,11 @@
   }
 
   function saveState() {
-    try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch { /* private browsing */ }
+    try {
+      localStorage.setItem(STATE_KEY, JSON.stringify({completed: state.completed}));
+      if (state.preview) sessionStorage.setItem(PREVIEW_SESSION_KEY, '1');
+      else sessionStorage.removeItem(PREVIEW_SESSION_KEY);
+    } catch { /* private browsing */ }
   }
 
   function showToast(message) {
@@ -119,23 +124,26 @@
 
   function handleDoorActivation(event) {
     event.preventDefault();
-    if (!isUnlocked()) {
-      const now = performance.now();
-      if (!clickWindowStart || now - clickWindowStart > CLICK_WINDOW_MS) {
-        clickWindowStart = now;
-        clickCount = 1;
-      } else {
-        clickCount += 1;
-      }
-      if (clickCount >= CLICK_LIMIT) {
-        clickCount = 0;
-        clickWindowStart = 0;
-        openPreviewModal();
-      } else {
-        showToast('The door is still locked...');
-      }
+    const now = performance.now();
+    if (!clickWindowStart || now - clickWindowStart > CLICK_WINDOW_MS) {
+      clickWindowStart = now;
+      clickCount = 1;
+    } else {
+      clickCount += 1;
+    }
+
+    if (clickCount >= CLICK_LIMIT) {
+      clickCount = 0;
+      clickWindowStart = 0;
+      openPreviewModal();
       return;
     }
+
+    if (!isUnlocked()) {
+      showToast('The door is still locked...');
+      return;
+    }
+
     showQuestMap();
   }
 

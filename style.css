@@ -50,24 +50,6 @@
   user-select:none;
   -webkit-user-drag:none;
 }
-.version-badge{
-  position:absolute;
-  z-index:8;
-  left:1.12%;
-  top:2.15%;
-  width:5.3%;
-  min-width:58px;
-  height:4.25%;
-  display:grid;
-  place-items:center;
-  border:1px solid rgba(220,170,75,.72);
-  background:rgba(5,8,12,.94);
-  color:#e8bd68;
-  font:700 clamp(7px,.75vw,12px)/1 Montserrat,Arial,sans-serif;
-  letter-spacing:.04em;
-  box-shadow:0 0 12px rgba(0,0,0,.35), inset 0 0 10px rgba(226,177,97,.04);
-  pointer-events:none;
-}
 /* Hotspots are transparent hit areas centered on the artwork's real node centers. */
 .hotspot{
   position:absolute;
@@ -157,8 +139,7 @@
 
 @media(max-width:700px){
   .map-shell{width:min(100vw, calc(100dvh * 322 / 696));aspect-ratio:322 / 696;max-height:100dvh}
-  .version-badge{left:2.2%;top:2.3%;width:17%;min-width:0;height:4.5%;font-size:8px}
-  .quest-1{left:50%;top:19.1%;width:32%;height:15%;transform:translate(-50%,-50%)}
+    .quest-1{left:50%;top:19.1%;width:32%;height:15%;transform:translate(-50%,-50%)}
   .quest-2{left:13.7%;top:32.3%;width:32%;height:15%;transform:translate(-50%,-50%)}
   .quest-3{left:86.3%;top:32.3%;width:32%;height:15%;transform:translate(-50%,-50%)}
   .quest-4{left:86.3%;top:50.1%;width:32%;height:15%;transform:translate(-50%,-50%)}
