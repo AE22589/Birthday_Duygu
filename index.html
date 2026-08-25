@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#030508">
 <meta name="description" content="Duygu's 43rd Birthday Adventure">
 <title>Duygu's 43rd Birthday Quest</title>
-<link rel="stylesheet" href="style.css?v=1.1.2">
+<link rel="stylesheet" href="style.css?v=1.2.0">
 </head>
 <body>
 <main id="app">
@@ -85,79 +85,76 @@
 </main>
 <section id="roadTripScreen" class="screen roadtrip-screen" hidden aria-label="Quest I The Road Trip">
   <div class="roadtrip-wrap">
-    <div id="roadTripIntro" class="roadtrip-panel">
-      <div class="quest-kicker">QUEST I</div>
-      <h1>THE ROAD TRIP</h1>
-      <p class="quest-intro-copy">Your journey begins tonight. Collect the stars, stay on the road, and enjoy the ride.</p>
-      <div class="instructions">
-        <div class="instruction-block desktop-instructions">
-          <div class="instruction-title">LAPTOP / DESKTOP</div>
-          <div class="key-row"><span class="keycap">←</span><span class="keycap">→</span></div>
-          <p>Use the <strong>LEFT</strong> and <strong>RIGHT</strong> arrow keys to change lanes.</p>
+    <section id="roadTripIntro" class="roadtrip-intro" aria-labelledby="roadTripTitle">
+      <div class="intro-art" aria-hidden="true"></div>
+      <div class="intro-copy">
+        <div class="quest-kicker">QUEST I</div>
+        <h1 id="roadTripTitle">THE ROAD TRIP</h1>
+        <p>Your journey begins tonight. Collect the stars, stay on the road, and enjoy the ride.</p>
+        <div class="how-to-play">
+          <div class="how-block desktop-instructions">
+            <span class="how-label">LAPTOP / DESKTOP</span>
+            <div class="key-row"><button type="button" class="control-key" data-move="-1" aria-label="Move left">←</button><button type="button" class="control-key" data-move="1" aria-label="Move right">→</button></div>
+            <span>Use the <strong>LEFT</strong> and <strong>RIGHT</strong> arrow keys to change lanes.</span>
+          </div>
+          <div class="how-block mobile-instructions">
+            <span class="how-label">MOBILE</span>
+            <div class="swipe-symbol">← <span>SWIPE</span> →</div>
+            <span>Swipe <strong>LEFT</strong> or <strong>RIGHT</strong> to change lanes.</span>
+          </div>
+          <div class="rules-line"><span>✦ Collect stars</span><span>✦ Avoid obstacles</span><span>✦ 3 lives</span></div>
         </div>
-        <div class="instruction-block mobile-instructions">
-          <div class="instruction-title">MOBILE</div>
-          <div class="swipe-icon"><span></span><b>↔</b><span></span></div>
-          <p><strong>SWIPE LEFT</strong> or <strong>SWIPE RIGHT</strong> to change lanes.</p>
-        </div>
-        <div class="rules-line"><span>✦ Collect stars</span><span>✦ Avoid obstacles</span><span>✦ 3 lives</span></div>
+        <button id="readyButton" class="game-button" type="button">I'M READY</button>
+        <button id="backToMapFromIntro" class="text-button" type="button">BACK TO QUEST MAP</button>
       </div>
-      <button id="readyButton" class="game-button" type="button">I'M READY</button>
-      <button id="backToMapFromIntro" class="text-button" type="button">BACK TO QUEST MAP</button>
-    </div>
-    <div id="roadTripGame" class="roadtrip-game" hidden>
-      <div class="game-hud">
+    </section>
+
+    <section id="roadTripGame" class="roadtrip-game" hidden aria-label="The Road Trip game">
+      <div class="game-hud" aria-live="polite">
         <div><span class="hud-label">STARS</span><strong id="starCount">0 / 43</strong></div>
         <div class="hud-center"><span class="hud-label">THE ROAD TRIP</span><strong id="timeCount">60</strong></div>
         <div><span class="hud-label">LIVES</span><strong id="lifeCount">♥ ♥ ♥</strong></div>
       </div>
-      <svg id="roadScene" class="road-scene" viewBox="0 0 600 960" preserveAspectRatio="xMidYMid meet" role="img" aria-label="The Road Trip game" tabindex="0">
-        <defs>
-          <linearGradient id="rtSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050914"/><stop offset=".5" stop-color="#11182a"/><stop offset="1" stop-color="#030507"/></linearGradient>
-          <linearGradient id="rtRoad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#252936"/><stop offset="1" stop-color="#10131a"/></linearGradient>
-          <radialGradient id="rtMoonGlow"><stop offset="0" stop-color="#ffe2a4" stop-opacity=".35"/><stop offset="1" stop-color="#ffe2a4" stop-opacity="0"/></radialGradient>
-          <radialGradient id="rtLamp"><stop offset="0" stop-color="#ffe09b" stop-opacity=".9"/><stop offset="1" stop-color="#d99c3f" stop-opacity="0"/></radialGradient>
-          <filter id="rtGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-          <filter id="rtSoft" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="12"/></filter>
-        </defs>
-        <rect width="600" height="960" fill="url(#rtSky)"/>
-        <circle cx="468" cy="145" r="105" fill="url(#rtMoonGlow)"/>
-        <circle cx="468" cy="145" r="28" fill="#f8e5bd"/>
-        <path d="M0 350 Q90 275 180 350 Q285 250 380 350 Q485 270 600 350 L600 540 L0 540Z" fill="#080d16"/>
-        <g id="rtLights" fill="#efbe64" opacity=".55"><circle cx="45" cy="390" r="3"/><circle cx="132" cy="420" r="3"/><circle cx="219" cy="390" r="3"/><circle cx="306" cy="420" r="3"/><circle cx="393" cy="390" r="3"/><circle cx="480" cy="420" r="3"/><circle cx="567" cy="390" r="3"/></g>
-        <path d="M234 375 L366 375 L625 1010 L-25 1010 Z" fill="url(#rtRoad)"/>
-        <path d="M234 375 L-25 1010 M366 375 L625 1010" fill="none" stroke="#e5be6c" stroke-opacity=".25" stroke-width="5"/>
-        <g id="rtLaneMarkers" fill="none" stroke="#e6dcc0" stroke-opacity=".34" stroke-width="3" stroke-dasharray="28 22"><path d="M278 375 L192 1010"/><path d="M322 375 L408 1010"/></g>
-        <g id="rtObjects"></g>
-        <g id="rtPlayer" transform="translate(300 787)">
-          <ellipse cx="0" cy="58" rx="62" ry="18" fill="#000" opacity=".55" filter="url(#rtSoft)"/>
-          <rect x="-39" y="8" width="78" height="58" rx="8" fill="#131820"/>
-          <rect x="-46" y="-10" width="92" height="70" rx="16" fill="#8f2635"/>
-          <rect x="-36" y="-28" width="72" height="45" rx="18" fill="#d83d50"/>
-          <path d="M-25 -18 L-15 -33 L15 -33 L25 -18Z" fill="#101927"/>
-          <rect x="-17" y="-27" width="34" height="20" rx="3" fill="#1d2a39"/>
-          <rect x="-33" y="13" width="12" height="7" rx="2" fill="#f6d27d"/><rect x="21" y="13" width="12" height="7" rx="2" fill="#f6d27d"/>
-          <circle cx="-29" cy="55" r="10" fill="#0a0d12"/><circle cx="29" cy="55" r="10" fill="#0a0d12"/>
-          <circle cx="0" cy="-42" r="9" fill="#f3b66e"/><rect x="-11" y="-48" width="22" height="5" rx="2" fill="#d8a24f"/>
-          <circle id="rtShield" cx="0" cy="12" r="63" fill="none" stroke="#ffe29f" stroke-width="3" opacity="0" filter="url(#rtGlow)"/>
-        </g>
-        <g id="rtFloating" opacity="0"></g>
-        <rect x="0" y="0" width="600" height="960" fill="none" stroke="#e8bd68" stroke-opacity=".22"/>
-      </svg>
-      <div class="game-touch-hint" id="touchHint">SWIPE LEFT / RIGHT</div>
-    </div>
-    <div id="roadTripResult" class="roadtrip-panel result-panel" hidden>
+      <div id="roadBoard" class="road-board" tabindex="0" aria-label="Road Trip game area">
+        <div class="road-background" aria-hidden="true"></div>
+        <div class="road-vignette" aria-hidden="true"></div>
+        <svg id="roadScene" class="road-scene" viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Night road with three lanes" tabindex="0">
+          <defs>
+            <filter id="gameGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="1.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <linearGradient id="roadShadow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#020307" stop-opacity=".72"/></linearGradient>
+          </defs>
+          <path d="M24 100 L40 48 L60 48 L76 100 Z" fill="url(#roadShadow)" opacity=".35"/>
+          <g id="laneGlow" opacity=".38" stroke="#f2bd64" stroke-width=".28" stroke-linecap="round" stroke-dasharray="2.8 3.8">
+            <path d="M40 48 L33 100"/><path d="M60 48 L67 100"/>
+          </g>
+          <g id="rtObjects"></g>
+          <ellipse id="playerMask" cx="50" cy="82" rx="16" ry="15" fill="#020407" opacity=".78" filter="url(#gameGlow)"/>
+          <g id="rtPlayer" transform="translate(50 82)">
+            <ellipse cx="0" cy="6.5" rx="8.6" ry="2.2" fill="#000" opacity=".65" filter="url(#gameGlow)"/>
+            <image id="playerImage" href="assets/roadtrip-car.png" x="-9.5" y="-8" width="19" height="17" preserveAspectRatio="xMidYMid meet"/>
+            <circle id="rtShield" cx="0" cy="0" r="10.5" fill="none" stroke="#ffd77f" stroke-width=".55" opacity="0" filter="url(#gameGlow)"/>
+          </g>
+          <g id="rtFloating" opacity="0"></g>
+          <g id="laneIndicator" opacity="0"><circle cx="50" cy="91" r="7.5" fill="none" stroke="#f6c873" stroke-width=".45"/><circle cx="50" cy="91" r="6.5" fill="none" stroke="#e8a6c5" stroke-width=".25" stroke-dasharray="1 2"/></g>
+        </svg>
+        <div class="desktop-game-controls" aria-label="Optional lane controls"><button type="button" class="control-key game-control" data-move="-1" aria-label="Move left">←</button><button type="button" class="control-key game-control" data-move="1" aria-label="Move right">→</button></div>
+        <div class="game-touch-hint" id="touchHint">SWIPE LEFT / RIGHT</div>
+      </div>
+      <p class="game-note">Stay calm. Watch the road. The stars will guide you.</p>
+    </section>
+
+    <section id="roadTripResult" class="roadtrip-panel result-panel" hidden>
       <div id="resultKicker" class="quest-kicker">JOURNEY COMPLETE</div>
       <h1 id="resultTitle">THE ROAD REMEMBERS</h1>
       <p id="resultCopy">You made it through the night.</p>
       <div class="result-stats"><div><span>STARS</span><strong id="resultStars">0</strong></div><div><span>TIME</span><strong id="resultTime">60s</strong></div></div>
-      <div id="keyReward" class="key-reward"><div class="key-glow"></div><div class="key-art">✦</div><strong>KEY I ACQUIRED</strong><span>THE FIRST KEY IS YOURS.</span></div>
+      <div id="keyReward" class="key-reward" hidden><div class="key-glow"></div><div class="key-art">✦</div><strong>KEY I ACQUIRED</strong><span>THE FIRST KEY IS YOURS.</span></div>
       <button id="returnToMapFromResult" class="game-button" type="button">RETURN TO QUEST MAP</button>
       <button id="retryRoadTrip" class="text-button" type="button">TRY AGAIN</button>
-    </div>
+    </section>
   </div>
 </section>
-<script src="script.js?v=1.1.2" defer></script>
-<script src="roadtrip.js?v=1.1.2" defer></script>
+<script src="script.js?v=1.2.0" defer></script>
+<script src="roadtrip.js?v=1.2.0" defer></script>
 </body>
 </html>

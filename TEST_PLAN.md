@@ -1,39 +1,72 @@
-# Duygu Birthday Quest — Test Plan v1.1.2
+# Duygu Birthday Quest — v1.2.0 QA Gate
 
-## Mandatory regression gate
-1. Entrance countdown renders and reaches the unlock date logic.
-2. Developer preview: five rapid door clicks opens the code dialog.
-3. Code `1337` opens the quest map.
-4. Quest I is the only available quest at the start.
-5. Quest I opens reliably from the map.
-6. Instruction screen is shown before gameplay.
-7. Desktop instruction uses LEFT/RIGHT arrow keys.
-8. Mobile instruction uses swipe LEFT/RIGHT.
-9. `I'M READY` runs 3–2–1–GO before gameplay.
-10. Gameplay renderer is visible immediately after GO.
-11. Game uses SVG rendering; no canvas dependency remains.
-12. Desktop keyboard input changes lanes and cannot move beyond lane 1 or 3.
-13. Mobile swipe input changes lanes with a 28px threshold.
-14. Stars increase score up to 43.
-15. Obstacles are sparse and forgiving.
-16. Three lives are displayed; a collision grants temporary invulnerability.
-17. Game ends at 60 seconds maximum.
-18. At 20+ stars, Key I is granted.
-19. At fewer than 20 stars, Key I is not granted and retry is offered.
-20. Key I is persisted in `duyguBirthdayQuestState_v1`.
-21. Returning to the map shows Quest I as completed.
-22. Reload preserves Quest I completion.
-23. No stale `v1.1.1` references remain in HTML/CSS/JS runtime assets.
-24. Cache-busting query version is `1.1.2`.
-25. JavaScript syntax checks pass with `node --check`.
-26. SVG master scene parses/renders independently at 600×960.
-27. SVG scene scales proportionally for mobile and desktop viewports.
+## A. Static integrity
+- [x] `index.html`, `style.css`, `script.js`, `roadtrip.js` are all shipped together.
+- [x] All referenced local assets exist.
+- [x] JavaScript passes `node --check`.
+- [x] No old v1.1.x asset/script references remain in the shipped files.
+- [x] Quest I uses a single fixed SVG coordinate system for the interaction layer.
 
-## Target viewport checks
-- Mobile: 390×844
-- Mobile: 412×915
-- Desktop: 1366×768
-- Desktop: 1920×1080
+## B. Security / regression
+- [ ] Locked entrance remains locked before the release date.
+- [ ] Exactly five door clicks within the click window open Developer Access.
+- [ ] Code `1337` unlocks preview access.
+- [ ] Wrong code does not unlock access.
+- [ ] Quest Map remains inaccessible without normal unlock or Developer Access.
 
-## Architecture note
-v1.1.2 replaces the previous Canvas renderer with a responsive SVG scene. This removes device-pixel-ratio and canvas-context/render-loop failure modes that could leave the game area black while the HUD remained visible.
+## C. Quest I flow
+- [ ] Quest I opens its instruction screen; gameplay does not start automatically.
+- [ ] Desktop instructions show LEFT / RIGHT arrow keys.
+- [ ] Mobile instructions show SWIPE LEFT / RIGHT.
+- [ ] `I'M READY` starts 3 / 2 / 1 / GO.
+- [ ] Game starts only after the countdown.
+- [ ] Game ends after 60 seconds.
+- [ ] Minimum 20 stars awards Key I.
+- [ ] Fewer than 20 stars does not award Key I.
+- [ ] Key I persists in the shared quest state.
+- [ ] Return to Quest Map works from both success and retry states.
+
+## D. Controls
+- [ ] Desktop ArrowLeft moves exactly one lane.
+- [ ] Desktop ArrowRight moves exactly one lane.
+- [ ] Repeated key presses cannot skip outside the three lanes.
+- [ ] Mobile swipe left moves exactly one lane.
+- [ ] Mobile swipe right moves exactly one lane.
+- [ ] Small swipes do not move the car.
+- [ ] Touch gestures do not scroll the game horizontally.
+- [ ] On-screen desktop arrow controls work as a fallback.
+
+## E. Gameplay
+- [ ] Three lives are shown.
+- [ ] Collision removes a life but never makes the relaxed quest impossible.
+- [ ] Temporary invulnerability prevents immediate double-hit.
+- [ ] Stars increment only once per collectible.
+- [ ] Score caps at 43.
+- [ ] Difficulty rises gradually and remains forgiving.
+- [ ] No obstacle spawns directly on top of the player.
+
+## F. Visual QA
+Required viewport checks:
+- [ ] Desktop 1366x768
+- [ ] Desktop 1440x900
+- [ ] Desktop 1920x1080
+- [ ] Mobile 390x844
+- [ ] Mobile 412x915
+- [ ] Landscape mobile / small tablet
+
+For each viewport:
+- [ ] Full game board is visible without horizontal overflow.
+- [ ] HUD remains readable.
+- [ ] Player stays inside the road.
+- [ ] Lane positions remain stable after resize/orientation change.
+- [ ] Concept artwork is visible and not replaced by generic fallback graphics.
+- [ ] Intro and result screens remain usable without clipping.
+
+## G. Deployment / cache
+- [ ] Deploy complete folder, not selected files.
+- [ ] Hard reload after deployment.
+- [ ] Confirm `?v=1.2.0` is present on CSS/JS requests.
+- [ ] Confirm no stale v1.1.x JavaScript is loaded.
+
+## Environment limitation
+The current execution sandbox blocks local browser navigation for automated Chromium/Playwright rendering (`ERR_BLOCKED_BY_ADMINISTRATOR`). Therefore this version is not claimed as live-browser-verified from this environment. Static checks, asset integrity, JavaScript syntax and architecture checks were performed here; the browser viewport checklist above must be run against the deployed GitHub Pages URL before calling the version production-ready.

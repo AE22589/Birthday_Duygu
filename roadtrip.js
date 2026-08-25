@@ -1,5 +1,6 @@
-/* v1.1.2 — Quest I: The Road Trip
-   Rendering: responsive SVG scene, no canvas dependency. */
+/* Quest I — The Road Trip v1.2.0
+   Art-led, responsive implementation. The gameplay layer uses a fixed 0–100 SVG
+   coordinate system so desktop and mobile use the same stable geometry. */
 (() => {
   'use strict';
 
@@ -11,10 +12,12 @@
   const RETURN_RESULT = document.getElementById('returnToMapFromResult');
   const RETRY = document.getElementById('retryRoadTrip');
   const SCENE = document.getElementById('roadScene');
+  const BOARD = document.getElementById('roadBoard');
   const OBJECTS = document.getElementById('rtObjects');
   const PLAYER = document.getElementById('rtPlayer');
+  const PLAYER_IMAGE = document.getElementById('playerImage');
   const SHIELD = document.getElementById('rtShield');
-  const LANE_MARKERS = document.getElementById('rtLaneMarkers');
+  const LANE_GLOW = document.getElementById('laneGlow');
   const FLOATING = document.getElementById('rtFloating');
   const STARS = document.getElementById('starCount');
   const TIME = document.getElementById('timeCount');
@@ -28,13 +31,13 @@
   const KEY_REWARD = document.getElementById('keyReward');
 
   const QUEST_KEY = 'duyguBirthdayQuestState_v1';
-  const VERSION = '1.1.2';
+  const VERSION = '1.2.0';
   const DURATION = 60;
   const TARGET_STARS = 20;
   const MAX_STARS = 43;
-  const WIDTH = 600;
-  const HEIGHT = 960;
-  const LANES = [150, 300, 450];
+  const LANES = [32, 50, 68];
+  const PLAYER_Y_DESKTOP = 73.5;
+  const PLAYER_Y_MOBILE = 79.5;
 
   let running = false;
   let timerId = null;
@@ -47,12 +50,15 @@
   let playerX = LANES[1];
   let playerTargetX = LANES[1];
   let objects = [];
-  let spawnTimer = 700;
-  let starTimer = 450;
+  let spawnTimer = 900;
+  let starTimer = 600;
   let invulnerableUntil = 0;
-  let shake = 0;
+  let shakeUntil = 0;
   let swipeStartX = null;
+  let floatingUntil = 0;
   let deviceType = 'desktop';
+  let lastMoveAt = 0;
+  let playerY = PLAYER_Y_DESKTOP;
 
   const NS = 'http://www.w3.org/2000/svg';
 
@@ -60,12 +66,27 @@
     return window.matchMedia('(max-width:700px)').matches || 'ontouchstart' in window;
   }
 
-  function laneX(index) { return LANES[Math.max(0, Math.min(2, index))]; }
-
   function setDeviceInstructions() {
     deviceType = isMobile() ? 'mobile' : 'desktop';
+    playerY = deviceType === 'mobile' ? PLAYER_Y_MOBILE : PLAYER_Y_DESKTOP;
     TOUCH_HINT.hidden = deviceType !== 'mobile';
+    TOUCH_HINT.style.display = deviceType === 'mobile' ? 'block' : 'none';
+    const width = deviceType === 'mobile' ? 45.5 : 29.7;
+    const height = width * 0.875;
+    PLAYER_IMAGE.setAttribute('x', String(-width / 2));
+    PLAYER_IMAGE.setAttribute('y', String(-height * .73));
+    PLAYER_IMAGE.setAttribute('width', String(width));
+    PLAYER_IMAGE.setAttribute('height', String(height));
+    const mask = document.getElementById('playerMask');
+    if (mask) {
+      mask.setAttribute('rx', deviceType === 'mobile' ? '20' : '17');
+      mask.setAttribute('ry', deviceType === 'mobile' ? '22' : '20');
+      mask.setAttribute('cy', String(playerY));
+      mask.setAttribute('opacity', deviceType === 'mobile' ? '.92' : (Math.abs(playerX - 50) > 1 ? '.9' : '0'));
+    }
   }
+
+  function laneX(index) { return LANES[Math.max(0, Math.min(2, index))]; }
 
   function resetGame() {
     stopLoop();
@@ -76,39 +97,48 @@
     playerX = LANES[1];
     playerTargetX = LANES[1];
     objects = [];
-    spawnTimer = 700;
-    starTimer = 450;
+    spawnTimer = 950;
+    starTimer = 500;
     invulnerableUntil = 0;
-    shake = 0;
+    shakeUntil = 0;
+    floatingUntil = 0;
     swipeStartX = null;
+    lastMoveAt = 0;
     OBJECTS.replaceChildren();
-    PLAYER.setAttribute('transform', `translate(${playerX} 787)`);
+    PLAYER.setAttribute('transform', `translate(${playerX} ${playerY})`);
     SHIELD.setAttribute('opacity', '0');
     FLOATING.setAttribute('opacity', '0');
+    LANE_GLOW.setAttribute('opacity', '0.38');
     updateHud();
-    renderFrame(performance.now());
   }
 
   function updateHud() {
     STARS.textContent = `${score} / ${MAX_STARS}`;
     TIME.textContent = String(Math.max(0, Math.ceil(DURATION - elapsed)));
-    LIVES.textContent = `${'♥ '.repeat(lives).trim()}${lives < 3 ? ` ${'♡ '.repeat(3 - lives).trim()}` : ''}`.trim();
+    const full = '♥ '.repeat(lives).trim();
+    const empty = '♡ '.repeat(3 - lives).trim();
+    LIVES.textContent = [full, empty].filter(Boolean).join(' ');
   }
 
   function startReadySequence() {
-    if (READY.disabled) return;
+    if (READY.disabled || running) return;
     READY.disabled = true;
     let n = 3;
     READY.textContent = String(n);
-    const timer = setInterval(() => {
+    const timer = window.setInterval(() => {
       n -= 1;
-      if (n > 0) READY.textContent = String(n);
-      else {
-        clearInterval(timer);
-        READY.textContent = "I'M READY";
-        beginGame();
+      if (n > 0) {
+        READY.textContent = String(n);
+      } else {
+        window.clearInterval(timer);
+        READY.textContent = 'GO!';
+        window.setTimeout(() => {
+          READY.disabled = false;
+          READY.textContent = "I'M READY";
+          beginGame();
+        }, 420);
       }
-    }, 700);
+    }, 650);
   }
 
   function beginGame() {
@@ -116,13 +146,13 @@
     INTRO.hidden = true;
     RESULT.hidden = true;
     GAME.hidden = false;
-    READY.disabled = false;
     setDeviceInstructions();
     running = true;
     startedAt = performance.now();
     lastTick = startedAt;
     renderFrame(startedAt);
     startLoop();
+    requestAnimationFrame(() => BOARD.focus({ preventScroll: true }));
   }
 
   function startLoop() {
@@ -139,8 +169,162 @@
 
   function stopLoop() {
     if (timerId !== null) {
-      clearInterval(timerId);
+      window.clearInterval(timerId);
       timerId = null;
+    }
+  }
+
+  function createSvgElement(tag, attrs = {}) {
+    const el = document.createElementNS(NS, tag);
+    Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, String(value)));
+    return el;
+  }
+
+  function makeStar() {
+    const g = createSvgElement('g', { class: 'game-object star-object', filter: 'url(#gameGlow)' });
+    g.appendChild(createSvgElement('path', {
+      d: 'M0,-5 L1.6,-1.6 L5,0 L1.6,1.6 L0,5 L-1.6,1.6 L-5,0 L-1.6,-1.6 Z',
+      fill: '#ffd978', stroke: '#fff0bd', 'stroke-width': '.45'
+    }));
+    g.appendChild(createSvgElement('circle', { cx: 0, cy: 0, r: 7, fill: 'none', stroke: '#f0bd64', 'stroke-opacity': '.22', 'stroke-width': '.5' }));
+    return g;
+  }
+
+  function makeBarrel() {
+    const g = createSvgElement('g', { class: 'game-object barrel-object' });
+    g.appendChild(createSvgElement('ellipse', { cx: 0, cy: -4.8, rx: 3.6, ry: 1.2, fill: '#2a1d16', stroke: '#e0ae63', 'stroke-width': '.35' }));
+    g.appendChild(createSvgElement('path', { d: 'M-3.6,-4.8 L-3.2,5.2 Q0,6.4 3.2,5.2 L3.6,-4.8 Q0,-3.3 -3.6,-4.8Z', fill: '#3b2a23', stroke: '#b27a43', 'stroke-width': '.35' }));
+    g.appendChild(createSvgElement('path', { d: 'M-2.9,-1.8 L2.9,-1.8 M-3.1,2.8 L3.1,2.8', stroke: '#17141a', 'stroke-width': '.7' }));
+    g.appendChild(createSvgElement('path', { d: 'M-1.7,-.3 Q0,-1.8 1.7,-.3 L1.1,2.0 L-1.1,2.0Z', fill: '#b07a43', opacity: '.7' }));
+    return g;
+  }
+
+  function makeCat() {
+    const g = createSvgElement('g', { class: 'game-object cat-object' });
+    g.appendChild(createSvgElement('ellipse', { cx: 0, cy: 1.5, rx: 5.4, ry: 3.1, fill: '#705047', stroke: '#2a1c1b', 'stroke-width': '.35' }));
+    g.appendChild(createSvgElement('circle', { cx: 4.1, cy: -1.8, r: 2.6, fill: '#9b6d5a', stroke: '#2a1c1b', 'stroke-width': '.35' }));
+    g.appendChild(createSvgElement('path', { d: 'M2.4,-3 L2.8,-6 L4.2,-3.7 M5.1,-3.8 L6.3,-6 L6.7,-2.8', fill: '#9b6d5a', stroke: '#2a1c1b', 'stroke-width': '.3' }));
+    g.appendChild(createSvgElement('circle', { cx: 3.4, cy: -2.1, r: .32, fill: '#f4c86d' }));
+    g.appendChild(createSvgElement('circle', { cx: 4.9, cy: -2.1, r: .32, fill: '#f4c86d' }));
+    g.appendChild(createSvgElement('path', { d: 'M-4.5,1 Q-8,-1 -8,-4', fill: 'none', stroke: '#705047', 'stroke-width': '1.2', 'stroke-linecap': 'round' }));
+    return g;
+  }
+
+  function spawn(type, laneIndex = Math.floor(Math.random() * 3)) {
+    const factory = type === 'star' ? makeStar : type === 'cat' ? makeCat : makeBarrel;
+    const group = factory();
+    const x = laneX(laneIndex);
+    const y = 8;
+    group.setAttribute('transform', `translate(${x} ${y}) scale(.65)`);
+    OBJECTS.appendChild(group);
+    objects.push({
+      type, lane: laneIndex, x, y, group, hit: false,
+      speed: type === 'star' ? 15.5 + Math.random() * 1.5 : 14.2 + Math.random() * 1.2,
+      scale: .65,
+      phase: Math.random() * Math.PI * 2
+    });
+  }
+
+  function moveLane(direction) {
+    if (!running) return;
+    const now = performance.now();
+    if (now - lastMoveAt < 120) return;
+    const next = Math.max(0, Math.min(2, lane + direction));
+    if (next === lane) return;
+    lane = next;
+    playerTargetX = laneX(lane);
+    lastMoveAt = now;
+  }
+
+  function update(dt, now) {
+    elapsed = Math.min(DURATION, (now - startedAt) / 1000);
+    const progress = elapsed / DURATION;
+    const speedBoost = progress * 2.7;
+
+    spawnTimer -= dt * 1000;
+    starTimer -= dt * 1000;
+
+    if (starTimer <= 0 && score < MAX_STARS) {
+      // Favor the current lane occasionally so the relaxed difficulty feels generous.
+      const targetLane = Math.random() < .58 ? lane : Math.floor(Math.random() * 3);
+      spawn('star', targetLane);
+      starTimer = 1250 + Math.random() * 350 - progress * 120;
+    }
+
+    if (spawnTimer <= 0) {
+      // Never create two adjacent dangerous objects in the same lane.
+      const dangerousLanes = objects.filter(o => o.type !== 'star' && o.y > 8 && o.y < 42).map(o => o.lane);
+      let candidate = Math.floor(Math.random() * 3);
+      if (dangerousLanes.includes(candidate)) candidate = (candidate + 1) % 3;
+      const type = Math.random() < .78 ? 'barrel' : 'cat';
+      spawn(type, candidate);
+      spawnTimer = 2500 + Math.random() * 900 - progress * 220;
+    }
+
+    playerX += (playerTargetX - playerX) * Math.min(1, dt * 9);
+
+    for (const o of objects) {
+      o.y += o.speed * (1 + speedBoost * .12) * dt;
+      o.scale = .58 + Math.max(0, o.y - 8) / 92 * .62;
+      const wobble = o.type === 'star' ? Math.sin(o.phase + now / 420) * .35 : Math.sin(o.phase + now / 650) * .15;
+      o.group.setAttribute('transform', `translate(${o.x + wobble} ${o.y}) scale(${o.scale})`);
+
+      const nearPlayer = o.y > 74 && o.y < 87;
+      const xDistance = Math.abs(o.x - playerX);
+      if (!o.hit && nearPlayer && xDistance < 8.2) {
+        o.hit = true;
+        if (o.type === 'star') {
+          score = Math.min(MAX_STARS, score + 1);
+          showFloatingMessage('+1 STAR', '#f7cd78');
+          o.group.setAttribute('opacity', '0');
+        } else if (now > invulnerableUntil) {
+          lives = Math.max(1, lives - 1);
+          invulnerableUntil = now + 1350;
+          shakeUntil = now + 260;
+          showFloatingMessage(lives === 1 ? 'EASY DOES IT' : 'WATCH THE ROAD', '#e7a5c6');
+        }
+      }
+    }
+
+    objects = objects.filter(o => {
+      const keep = o.y < 106 && !(o.hit && o.type === 'star');
+      if (!keep && o.group.parentNode) o.group.parentNode.removeChild(o.group);
+      return keep;
+    });
+
+    updateHud();
+    if (elapsed >= DURATION) finishGame();
+  }
+
+  function showFloatingMessage(text, color) {
+    FLOATING.replaceChildren();
+    const t = createSvgElement('text', { x: 50, y: 63, 'text-anchor': 'middle', fill: color, 'font-family': 'Montserrat, Arial, sans-serif', 'font-size': 2.3, 'font-weight': 700, 'letter-spacing': '.18em', filter: 'url(#gameGlow)' });
+    t.textContent = text;
+    FLOATING.appendChild(t);
+    FLOATING.setAttribute('opacity', '1');
+    floatingUntil = performance.now() + 800;
+  }
+
+  function renderFrame(now) {
+    const ease = Math.min(1, 0.18);
+    playerX += (playerTargetX - playerX) * ease;
+    const shake = now < shakeUntil ? Math.sin(now / 18) * .7 : 0;
+    PLAYER.setAttribute('transform', `translate(${playerX + shake} ${playerY})`);
+    const mask = document.getElementById('playerMask');
+    if (mask) {
+      const showMask = deviceType === 'mobile' || Math.abs(playerX - 50) > 1.2;
+      mask.setAttribute('opacity', showMask ? (deviceType === 'mobile' ? '.92' : '.9') : '0');
+      mask.setAttribute('cy', String(playerY));
+    }
+    SHIELD.setAttribute('opacity', now < invulnerableUntil ? '.85' : '0');
+    if (floatingUntil && now >= floatingUntil) {
+      FLOATING.setAttribute('opacity', '0');
+      floatingUntil = 0;
+    }
+    const indicator = document.getElementById('laneIndicator');
+    if (indicator) {
+      indicator.setAttribute('transform', `translate(${playerX - 50} 0)`);
+      indicator.setAttribute('opacity', running ? '.22' : '0');
     }
   }
 
@@ -167,9 +351,9 @@
       RESULT_TITLE.textContent = 'THE ROAD REMEMBERS';
       RESULT_COPY.textContent = 'You collected enough stars and made it home.';
     } else {
-      RESULT_KICKER.textContent = 'JOURNEY INCOMPLETE';
-      RESULT_TITLE.textContent = 'ONE MORE RUN';
-      RESULT_COPY.textContent = `You found ${score} stars. Collect ${TARGET_STARS} to claim the first key.`;
+      RESULT_KICKER.textContent = 'ONE MORE RUN';
+      RESULT_TITLE.textContent = 'THE ROAD AWAITS';
+      RESULT_COPY.textContent = `You found ${score} stars. ${TARGET_STARS - score} more will unlock the first key.`;
     }
 
     if (success) markQuestComplete();
@@ -185,173 +369,62 @@
       completed.sort((a, b) => a - b);
       localStorage.setItem(QUEST_KEY, JSON.stringify({ completed }));
     } catch (err) {
-      console.error('[Road Trip] Could not persist quest state', err);
+      console.error('[Road Trip] state persistence failed', err);
     }
   }
 
-  function moveLane(direction) {
-    if (!running) return;
-    const next = Math.max(0, Math.min(2, lane + direction));
-    if (next === lane) return;
-    lane = next;
-    playerTargetX = laneX(lane);
+  function handlePointerDown(e) {
+    if (!running || deviceType !== 'mobile') return;
+    swipeStartX = e.clientX;
   }
 
-  function makeStar(x, y, scale) {
-    const g = document.createElementNS(NS, 'g');
-    g.setAttribute('transform', `translate(${x} ${y}) scale(${scale})`);
-    g.setAttribute('filter', 'url(#rtGlow)');
-    const p = document.createElementNS(NS, 'path');
-    p.setAttribute('d', 'M0,-20 L5,-6 L20,0 L5,6 L0,20 L-5,6 L-20,0 L-5,-6 Z');
-    p.setAttribute('fill', '#f8cf76');
-    g.appendChild(p);
-    return g;
+  function handlePointerUp(e) {
+    if (!running || deviceType !== 'mobile' || swipeStartX === null) return;
+    const dx = e.clientX - swipeStartX;
+    if (Math.abs(dx) >= 26) moveLane(dx > 0 ? 1 : -1);
+    swipeStartX = null;
   }
 
-  function makeBarrel(x, y, scale) {
-    const g = document.createElementNS(NS, 'g');
-    g.setAttribute('transform', `translate(${x} ${y}) scale(${scale})`);
-    const body = document.createElementNS(NS, 'rect');
-    body.setAttribute('x', '-22'); body.setAttribute('y', '-28'); body.setAttribute('width', '44'); body.setAttribute('height', '56'); body.setAttribute('rx', '8');
-    body.setAttribute('fill', '#765039'); body.setAttribute('stroke', '#d2a15f'); body.setAttribute('stroke-width', '3');
-    g.appendChild(body);
-    for (const yy of [-18, 11]) {
-      const band = document.createElementNS(NS, 'rect');
-      band.setAttribute('x', '-24'); band.setAttribute('y', yy); band.setAttribute('width', '48'); band.setAttribute('height', '7'); band.setAttribute('fill', '#1b2028');
-      g.appendChild(band);
-    }
-    return g;
-  }
-
-  function makeAnimal(x, y, scale) {
-    const g = document.createElementNS(NS, 'g');
-    g.setAttribute('transform', `translate(${x} ${y}) scale(${scale})`);
-    const body = document.createElementNS(NS, 'ellipse');
-    body.setAttribute('cx', '0'); body.setAttribute('cy', '4'); body.setAttribute('rx', '27'); body.setAttribute('ry', '19'); body.setAttribute('fill', '#c48b70'); body.setAttribute('stroke', '#4a2d27'); body.setAttribute('stroke-width', '3');
-    g.appendChild(body);
-    const head = document.createElementNS(NS, 'circle');
-    head.setAttribute('cx', '0'); head.setAttribute('cy', '-12'); head.setAttribute('r', '21'); head.setAttribute('fill', '#f3d0b5'); head.setAttribute('stroke', '#4a2d27'); head.setAttribute('stroke-width', '3');
-    g.appendChild(head);
-    for (const sx of [-1, 1]) {
-      const ear = document.createElementNS(NS, 'path');
-      ear.setAttribute('d', sx < 0 ? 'M-20,-7 L-28,-27 L-8,-17 Z' : 'M20,-7 L28,-27 L8,-17 Z');
-      ear.setAttribute('fill', '#c48b70'); ear.setAttribute('stroke', '#4a2d27'); ear.setAttribute('stroke-width', '3');
-      g.appendChild(ear);
-      const eye = document.createElementNS(NS, 'circle'); eye.setAttribute('cx', String(sx * 7)); eye.setAttribute('cy', '-15'); eye.setAttribute('r', '2.5'); eye.setAttribute('fill', '#222'); g.appendChild(eye);
-    }
-    const nose = document.createElementNS(NS, 'circle'); nose.setAttribute('cx', '0'); nose.setAttribute('cy', '-8'); nose.setAttribute('r', '3'); nose.setAttribute('fill', '#d68d98'); g.appendChild(nose);
-    return g;
-  }
-
-  function spawn(type) {
-    const laneIndex = Math.floor(Math.random() * 3);
-    const y = -60;
-    const scale = 0.65;
-    const group = type === 'star' ? makeStar(laneX(laneIndex), y, scale) : type === 'barrel' ? makeBarrel(laneX(laneIndex), y, scale) : makeAnimal(laneX(laneIndex), y, scale);
-    OBJECTS.appendChild(group);
-    objects.push({ type, lane: laneIndex, x: laneX(laneIndex), y, group, hit: false, scale, wobble: Math.random() * Math.PI * 2, speed: 0.92 + Math.random() * 0.1 });
-  }
-
-  function difficulty() { return Math.min(1, elapsed / DURATION); }
-
-  function update(dt, now) {
-    elapsed = Math.min(DURATION, (now - startedAt) / 1000);
-    const d = difficulty();
-    const speed = 285 + d * 65;
-    spawnTimer -= dt * 1000;
-    starTimer -= dt * 1000;
-
-    if (spawnTimer <= 0) {
-      if (Math.random() < 0.36) spawn(Math.random() < 0.58 ? 'barrel' : 'animal');
-      spawnTimer = 1150 - d * 120 + Math.random() * 350;
-    }
-    if (starTimer <= 0 && score < MAX_STARS) {
-      spawn('star');
-      starTimer = 650 - d * 50;
-    }
-
-    playerX += (playerTargetX - playerX) * Math.min(1, dt * 9);
-    if (shake > 0) shake = Math.max(0, shake - dt * 20);
-
-    for (const o of objects) {
-      o.y += speed * o.speed * dt;
-      o.wobble += dt * 2;
-      o.scale = Math.max(0.62, Math.min(1.15, o.y / HEIGHT + 0.25));
-      const xOffset = shake > 0 ? Math.sin(o.wobble) * 0 : 0;
-      o.group.setAttribute('transform', `translate(${o.x + xOffset} ${o.y}) scale(${o.scale})`);
-
-      const nearPlayer = o.y > HEIGHT * 0.72 && o.y < HEIGHT * 0.88;
-      const xDistance = Math.abs(o.x - playerX);
-      if (!o.hit && nearPlayer && xDistance < 58) {
-        o.hit = true;
-        if (o.type === 'star') {
-          score = Math.min(MAX_STARS, score + 1);
-          o.group.setAttribute('opacity', '0');
-        } else if (now > invulnerableUntil) {
-          lives -= 1;
-          invulnerableUntil = now + 1300;
-          shake = 8;
-          showFloatingMessage(lives > 0 ? 'EASY DOES IT' : 'THE ROAD GIVES YOU ANOTHER CHANCE');
-          if (lives <= 0) lives = 1;
-        }
-      }
-    }
-
-    objects = objects.filter(o => {
-      const keep = o.y < HEIGHT + 100 && !(o.hit && o.type === 'star');
-      if (!keep && o.group.parentNode) o.group.parentNode.removeChild(o.group);
-      return keep;
+  function bindControls() {
+    document.querySelectorAll('[data-move]').forEach(button => {
+      button.addEventListener('click', () => moveLane(Number(button.dataset.move)));
     });
 
-    updateHud();
-    if (elapsed >= DURATION) finishGame();
-  }
+    window.addEventListener('keydown', event => {
+      if (!running) return;
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.preventDefault();
+        moveLane(event.key === 'ArrowLeft' ? -1 : 1);
+      }
+    }, { passive: false });
 
-  let floatingUntil = 0;
-  function showFloatingMessage(text) {
-    FLOATING.replaceChildren();
-    const t = document.createElementNS(NS, 'text');
-    t.setAttribute('x', '300'); t.setAttribute('y', '460'); t.setAttribute('text-anchor', 'middle'); t.setAttribute('fill', '#f2cb77'); t.setAttribute('font-family', 'Montserrat, Arial, sans-serif'); t.setAttribute('font-size', '15'); t.setAttribute('font-weight', '700'); t.textContent = text;
-    FLOATING.appendChild(t); FLOATING.setAttribute('opacity', '1'); floatingUntil = performance.now() + 900;
-  }
-
-  function renderFrame(now) {
-    playerX += (playerTargetX - playerX) * 0.08;
-    const jitter = shake > 0 ? Math.sin(now / 25) * shake * 0.45 : 0;
-    PLAYER.setAttribute('transform', `translate(${playerX + jitter} 787)`);
-    SHIELD.setAttribute('opacity', now < invulnerableUntil ? '0.9' : '0');
-    if (floatingUntil && now >= floatingUntil) { FLOATING.setAttribute('opacity', '0'); floatingUntil = 0; }
-    const dash = -((now - startedAt) / 1000 * 80) % 80;
-    LANE_MARKERS.querySelectorAll('path').forEach(p => p.setAttribute('stroke-dashoffset', String(dash)));
+    BOARD.addEventListener('pointerdown', handlePointerDown, { passive: true });
+    BOARD.addEventListener('pointerup', handlePointerUp, { passive: true });
+    BOARD.addEventListener('pointercancel', () => { swipeStartX = null; }, { passive: true });
   }
 
   READY.addEventListener('click', startReadySequence);
   BACK_INTRO.addEventListener('click', () => window.showQuestMap?.());
   RETURN_RESULT.addEventListener('click', () => window.showQuestMap?.());
-  RETRY.addEventListener('click', () => { RESULT.hidden = true; INTRO.hidden = false; setDeviceInstructions(); resetGame(); });
+  RETRY.addEventListener('click', () => {
+    RESULT.hidden = true;
+    INTRO.hidden = false;
+    resetGame();
+    setDeviceInstructions();
+  });
+
   window.addEventListener('resize', setDeviceInstructions);
   window.addEventListener('orientationchange', () => setTimeout(setDeviceInstructions, 80));
 
-  window.addEventListener('keydown', e => {
-    if (!running) return;
-    if (e.key === 'ArrowLeft') { e.preventDefault(); moveLane(-1); }
-    if (e.key === 'ArrowRight') { e.preventDefault(); moveLane(1); }
-  }, { passive: false });
-
-  SCENE.addEventListener('pointerdown', e => { if (deviceType === 'mobile') swipeStartX = e.clientX; });
-  SCENE.addEventListener('pointerup', e => {
-    if (deviceType !== 'mobile' || swipeStartX === null) return;
-    const dx = e.clientX - swipeStartX;
-    if (Math.abs(dx) > 28) moveLane(dx > 0 ? 1 : -1);
-    swipeStartX = null;
-  });
-  SCENE.addEventListener('pointercancel', () => { swipeStartX = null; });
-
   window.openRoadTripIntro = () => {
+    running = false;
+    stopLoop();
     setDeviceInstructions();
     INTRO.hidden = false;
     GAME.hidden = true;
     RESULT.hidden = true;
+    READY.disabled = false;
+    READY.textContent = "I'M READY";
     resetGame();
   };
 
@@ -363,11 +436,14 @@
   };
 
   window.__DUYGU_ROADTRIP_SELF_TEST__ = () => ({
-    quest: 'I', version: VERSION, duration: DURATION, targetStars: TARGET_STARS, maxStars: MAX_STARS,
-    renderer: 'svg', controls: { desktop: ['ArrowLeft', 'ArrowRight'], mobile: ['swipe-left', 'swipe-right'] },
-    scene: !!SCENE, readyButton: !!READY, stateKey: QUEST_KEY, lanePositions: LANES.slice()
+    quest: 'I', version: VERSION, duration: DURATION, targetStars: TARGET_STARS,
+    maxStars: MAX_STARS, renderer: 'svg-overlay-on-concept-art',
+    controls: { desktop: ['ArrowLeft', 'ArrowRight'], mobile: ['swipe-left', 'swipe-right'] },
+    intro: !!INTRO, game: !!GAME, scene: !!SCENE, board: !!BOARD, readyButton: !!READY,
+    stateKey: QUEST_KEY, lanes: LANES.slice()
   });
 
   setDeviceInstructions();
+  bindControls();
   resetGame();
 })();
