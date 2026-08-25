@@ -1,29 +1,31 @@
-DUYGU'S 43RD BIRTHDAY QUEST – CLEAN START PAGE
+DUYGU'S 43RD BIRTHDAY QUEST — REVIEWED BUILD
 
-This package uses a single continuous fantasy background across the whole landing page.
-The lower "For Duygu Only" admin strip from the source artwork is removed.
-All visible copy is English.
-No public admin hint is shown.
-Lanterns have a subtle animated glow.
-Countdown unlock: September 8, 2026 at 00:00 Europe/Berlin.
-Private preview: click the door 5 times quickly, then enter 1337.
+Files:
+- index.html
+- style.css
+- script.js
+- assets/scene.jpg
 
-Upload the complete contents of this package to the GitHub Pages repository root.
+Unlock:
+- Birthday unlock: September 8, 2026 at 00:00 Europe/Berlin (UTC+2 on that date)
+- Private preview: 5 rapid pointer taps/clicks on the door, then code 1337
+- No public hint for the preview exists on the page.
 
+Quest map:
+- Seven quests form a complete circle around the Final Door.
+- The Final Door is intentionally central on desktop AND mobile.
+- The story text explicitly explains that the door opens only when the circle is closed and all seven keys are collected.
+- Quest state is prepared with localStorage but no quest is falsely marked complete yet.
 
-MOBILE UPDATE:
-The portrait layout is intentionally different from desktop.
-The title/countdown are compact at the top, the door is the main visual focus,
-and the large lock text becomes a small decorative lock plaque.
-
-MOBILE V2:
-The full locked-door message is visible again on mobile.
-The header and lock plaque are compact so the door remains unobstructed.
-
-
-QUEST MAP V1:
-The placeholder box grid has been replaced with a fantasy adventure map.
-Desktop uses a winding path and atmospheric quest stations.
-Mobile uses a dedicated vertical quest route instead of shrinking the desktop map.
-Quest 1 is the only active station for now; the other quests are intentionally locked.
-The final door is a visual endpoint and is not yet interactive.
+Code review performed:
+- Countdown has one source of truth and one timer.
+- Desktop and mobile use the same pointer-based door interaction.
+- No duplicate touch/click handlers.
+- DOM references are resolved once and checked by the page structure.
+- Admin preview state is isolated from quest progress.
+- localStorage parsing is guarded by try/catch and validated.
+- No eval(), Function(), innerHTML with user input, or external script dependencies.
+- Event handlers use addEventListener.
+- Quest navigation is keyboard accessible.
+- Reduced-motion preference is respected for decorative animation.
+- Responsive layout has dedicated desktop/mobile geometry; mobile does not shrink the desktop circle into a unusable layout.

@@ -3,124 +3,143 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#05070b">
+<meta name="theme-color" content="#05070a">
 <title>Duygu's 43rd Birthday Quest</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main class="page">
-  <div class="background"></div>
-  <div class="vignette"></div>
+<main class="app" id="app">
+  <div class="scene" aria-hidden="true"></div>
+  <div class="scene-shade" aria-hidden="true"></div>
 
-  <div class="lantern-glow glow-left"></div>
-  <div class="lantern-glow glow-right"></div>
-
-  <section class="intro">
-    <div class="crown">♛</div>
-    <div class="ornament"></div>
-    <p class="eyebrow">A LITTLE ADVENTURE IS WAITING</p>
-    <h1>DUYGU'S</h1>
-    <div class="birthday">43<sup>rd</sup> BIRTHDAY</div>
-    <div class="quest-title">QUEST</div>
-    <div class="ornament short"></div>
-
-    <p class="lead">THE ADVENTURE BEGINS IN</p>
-    <div class="countdown" aria-live="polite">
-      <div><strong id="days">00</strong><span>DAYS</span></div><i>◆</i>
-      <div><strong id="hours">00</strong><span>HOURS</span></div><i>◆</i>
-      <div><strong id="minutes">00</strong><span>MINUTES</span></div><i>◆</i>
-      <div><strong id="seconds">00</strong><span>SECONDS</span></div>
+  <section class="entrance" id="entrance">
+    <div class="entrance-copy">
+      <div class="crown">♛</div>
+      <p class="eyebrow">A LITTLE ADVENTURE IS WAITING</p>
+      <h1>DUYGU'S</h1>
+      <div class="birthday">43<sup>rd</sup> BIRTHDAY</div>
+      <div class="quest-word">QUEST</div>
+      <div class="rule"></div>
+      <p class="count-label">THE ADVENTURE BEGINS IN</p>
+      <div class="countdown" aria-live="polite">
+        <div><strong id="days">00</strong><span>DAYS</span></div><i>◆</i>
+        <div><strong id="hours">00</strong><span>HOURS</span></div><i>◆</i>
+        <div><strong id="minutes">00</strong><span>MINUTES</span></div><i>◆</i>
+        <div><strong id="seconds">00</strong><span>SECONDS</span></div>
+      </div>
+      <p class="date-line">✦ &nbsp;SEPTEMBER 8, 2026 AT MIDNIGHT</p>
+      <div class="lock-plaque">
+        <span class="plaque-lock">♙</span>
+        <h2 id="lockTitle">THE DOOR IS LOCKED</h2>
+        <p id="lockText">The adventure can only begin when the right moment has come.<br>Come back on September 8 at midnight and open the door.</p>
+      </div>
     </div>
-
-    <p class="date">✦ &nbsp;SEPTEMBER 8, 2026 AT MIDNIGHT</p>
-
-    <div class="lock-card">
-      <div class="lock-icon">♙</div>
-      <h2 id="lockTitle">THE DOOR IS LOCKED</h2>
-      <p id="lockText">The adventure can only begin<br>when the right moment has come.<br>Come back on September 8 at midnight<br>and open the door.</p>
-    </div>
+    <button class="door-hit" id="doorHit" type="button" aria-label="Open the locked door"></button>
+    <div class="lantern-glow left-glow" aria-hidden="true"></div>
+    <div class="lantern-glow right-glow" aria-hidden="true"></div>
   </section>
 
-  <button id="door" class="door-hit" aria-label="Locked door"></button>
-  <div id="toast" class="toast" role="status"></div>
-
-  <section id="questScreen" class="quest-screen" hidden>
-    <div class="quest-world">
+  <section class="quest-screen" id="questScreen" hidden>
+    <div class="quest-shell">
       <header class="quest-header">
-        <div class="map-crown">♛</div>
+        <div class="mini-crown">♛</div>
         <p class="eyebrow">DUYGU'S BIRTHDAY ADVENTURE</p>
         <h2>THE QUEST BEGINS</h2>
         <p class="quest-subtitle">Seven keys. Seven challenges. One final door.</p>
       </header>
 
-      <main class="adventure-map" aria-label="Birthday quest map">
-        <div class="stone-glow glow-a"></div><div class="stone-glow glow-b"></div>
-        <svg class="quest-route" viewBox="0 0 1000 640" preserveAspectRatio="none" aria-hidden="true">
+      <div class="circle-map" id="circleMap">
+        <div class="map-rune rune-a">✦</div><div class="map-rune rune-b">◆</div><div class="map-rune rune-c">✦</div>
+        <svg class="quest-path" viewBox="0 0 1000 720" preserveAspectRatio="none" aria-hidden="true">
           <defs>
-            <linearGradient id="routeGold" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#6e552e" stop-opacity=".15"/><stop offset=".5" stop-color="#e5bd72" stop-opacity=".9"/><stop offset="1" stop-color="#b9799e" stop-opacity=".28"/>
+            <linearGradient id="pathGold" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#9c7337"/><stop offset=".5" stop-color="#f0c66f"/><stop offset="1" stop-color="#b9854b"/>
             </linearGradient>
-            <filter id="routeGlow"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="pathGlow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
           </defs>
-          <path d="M120 120 C220 205 275 190 350 135 S500 80 555 165 S700 250 790 170 S850 295 760 360 S590 410 505 355 S340 300 250 390 S370 535 490 500 S650 450 735 535" fill="none" stroke="url(#routeGold)" stroke-width="2.4" filter="url(#routeGlow)"/>
+          <ellipse cx="500" cy="360" rx="365" ry="275" fill="none" stroke="url(#pathGold)" stroke-width="4" stroke-linecap="round" filter="url(#pathGlow)"/>
+          <ellipse class="path-inner" cx="500" cy="360" rx="365" ry="275" fill="none" stroke="#e8a9c6" stroke-opacity=".14" stroke-width="2"/>
         </svg>
 
-        <button class="quest-stop active" data-quest="1" aria-label="Quest 1: The Road Trip">
-          <span class="stop-medallion"><span class="stop-number">I</span><span class="stop-icon icon-car"></span></span>
-          <span class="stop-title">THE ROAD TRIP</span><span class="stop-state">READY</span>
-        </button>
-        <button class="quest-stop locked" data-quest="2" aria-label="Quest 2: Paint It">
-          <span class="stop-medallion"><span class="stop-number">II</span><span class="stop-icon icon-paint"></span></span>
-          <span class="stop-title">PAINT IT!</span><span class="stop-state">LOCKED</span>
-        </button>
-        <button class="quest-stop locked" data-quest="3" aria-label="Quest 3: Sucuk Master">
-          <span class="stop-medallion"><span class="stop-number">III</span><span class="stop-icon icon-grill"></span></span>
-          <span class="stop-title">SUCUK MASTER</span><span class="stop-state">LOCKED</span>
-        </button>
-        <button class="quest-stop locked" data-quest="4" aria-label="Quest 4: Lokum's Challenge">
-          <span class="stop-medallion"><span class="stop-number">IV</span><span class="stop-icon icon-cat"></span></span>
-          <span class="stop-title">LOKUM'S CHALLENGE</span><span class="stop-state">LOCKED</span>
-        </button>
-        <button class="quest-stop locked" data-quest="5" aria-label="Quest 5: Memory Lane">
-          <span class="stop-medallion"><span class="stop-number">V</span><span class="stop-icon icon-memory"></span></span>
-          <span class="stop-title">MEMORY LANE</span><span class="stop-state">LOCKED</span>
-        </button>
-        <button class="quest-stop locked" data-quest="6" aria-label="Quest 6: Our Little Puzzle">
-          <span class="stop-medallion"><span class="stop-number">VI</span><span class="stop-icon icon-puzzle"></span></span>
-          <span class="stop-title">OUR LITTLE PUZZLE</span><span class="stop-state">LOCKED</span>
-        </button>
-        <button class="quest-stop locked" data-quest="7" aria-label="Quest 7: German Words">
-          <span class="stop-medallion"><span class="stop-number">VII</span><span class="stop-icon icon-words"></span></span>
-          <span class="stop-title">GERMAN WORDS</span><span class="stop-state">LOCKED</span>
-        </button>
-
-        <div class="final-door-map" aria-label="The final door">
-          <div class="map-lantern left"></div><div class="map-lantern right"></div>
-          <div class="door-mini">
-            <div class="door-arch"></div><div class="door-paw">✦</div>
-            <strong>THE FINAL DOOR</strong><small>7 KEYS REQUIRED</small>
-          </div>
+        <div class="quest-node node-1 active" data-quest="1" tabindex="0">
+          <div class="node-art" aria-hidden="true"><svg viewBox="0 0 100 76"><use href="#icon-car"/></svg></div>
+          <span class="roman">I</span><strong>THE ROAD TRIP</strong><small>READY</small>
         </div>
-      </main>
+        <div class="quest-node node-2 locked" data-quest="2" tabindex="0">
+          <div class="node-art"><svg viewBox="0 0 100 76"><use href="#icon-paint"/></svg></div>
+          <span class="roman">II</span><strong>PAINT IT!</strong><small>LOCKED</small>
+        </div>
+        <div class="quest-node node-3 locked" data-quest="3" tabindex="0">
+          <div class="node-art"><svg viewBox="0 0 100 76"><use href="#icon-sucuk"/></svg></div>
+          <span class="roman">III</span><strong>SUCUK MASTER</strong><small>LOCKED</small>
+        </div>
+        <div class="quest-node node-4 locked" data-quest="4" tabindex="0">
+          <div class="node-art"><svg viewBox="0 0 100 76"><use href="#icon-cat"/></svg></div>
+          <span class="roman">IV</span><strong>LOKUM'S CHALLENGE</strong><small>LOCKED</small>
+        </div>
+        <div class="quest-node node-5 locked" data-quest="5" tabindex="0">
+          <div class="node-art"><svg viewBox="0 0 100 76"><use href="#icon-memory"/></svg></div>
+          <span class="roman">V</span><strong>MEMORY LANE</strong><small>LOCKED</small>
+        </div>
+        <div class="quest-node node-6 locked" data-quest="6" tabindex="0">
+          <div class="node-art"><svg viewBox="0 0 100 76"><use href="#icon-puzzle"/></svg></div>
+          <span class="roman">VI</span><strong>OUR LITTLE PUZZLE</strong><small>LOCKED</small>
+        </div>
+        <div class="quest-node node-7 locked" data-quest="7" tabindex="0">
+          <div class="node-art"><svg viewBox="0 0 100 76"><use href="#icon-words"/></svg></div>
+          <span class="roman">VII</span><strong>GERMAN WORDS</strong><small>LOCKED</small>
+        </div>
 
-      <footer class="quest-footer"><span class="key-counter"><b id="keyCount">0</b> / 7 KEYS FOUND</span><button id="backToDoor" class="back-button" type="button">RETURN TO THE DOOR</button></footer>
+        <div class="final-door" id="finalDoor" aria-label="The Final Door">
+          <div class="door-crown">✦</div>
+          <div class="mini-door-art"><span></span></div>
+          <h3>THE FINAL DOOR</h3>
+          <p>THE CIRCLE MUST CLOSE</p>
+          <small>7 KEYS REQUIRED</small>
+          <div class="final-lock">♙</div>
+        </div>
+
+        <div class="circle-message">
+          <span class="message-rune">◆</span>
+          <p>Complete each challenge. Claim every key. Close the circle.<br><b>Only then will the Final Door open.</b></p>
+          <span class="message-rune">◆</span>
+        </div>
+      </div>
+
+      <footer class="quest-footer">
+        <div class="key-counter"><b id="keyCount">0</b><span>/ 7 KEYS FOUND</span></div>
+        <button id="backToDoor" type="button">RETURN TO THE DOOR</button>
+      </footer>
     </div>
   </section>
 
-  <div id="adminModal" class="modal" hidden>
-    <div class="admin-card">
-      <p class="eyebrow">DEVELOPER ACCESS</p>
-      <h2>Unlock Preview</h2>
+  <div class="modal" id="adminModal" hidden>
+    <div class="admin-card" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+      <p class="eyebrow">DEVELOPER ACCESS</p><h2 id="adminTitle">Unlock Preview</h2>
       <p>Enter the administrator code to bypass the countdown.</p>
-      <input id="adminCode" type="password" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••">
-      <div class="actions">
-        <button id="cancel" class="secondary">CANCEL</button>
-        <button id="unlock" class="primary">UNLOCK</button>
-      </div>
+      <input id="adminCode" type="password" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="Administrator code" placeholder="••••">
+      <div class="actions"><button id="cancel" type="button" class="secondary">CANCEL</button><button id="unlock" type="button" class="primary">UNLOCK</button></div>
       <small id="error"></small>
     </div>
   </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f1c66e"/><stop offset=".45" stop-color="#9a6d33"/><stop offset="1" stop-color="#f0b85c"/></linearGradient>
+      <linearGradient id="red" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9d3028"/><stop offset="1" stop-color="#4e1517"/></linearGradient>
+      <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9a6a3e"/><stop offset="1" stop-color="#3e2418"/></linearGradient>
+      <symbol id="icon-car" viewBox="0 0 100 76"><path d="M18 47l7-22q2-7 10-7h29q7 0 11 7l8 22v12H18z" fill="url(#red)" stroke="url(#metal)" stroke-width="3"/><path d="M29 23h32l8 15H24z" fill="#18212a" stroke="#d7aa5d" stroke-width="2"/><path d="M21 48h61M27 55h12M61 55h12" stroke="#efc56e" stroke-width="3"/><circle cx="30" cy="59" r="8" fill="#121418" stroke="#c9954c" stroke-width="3"/><circle cx="72" cy="59" r="8" fill="#121418" stroke="#c9954c" stroke-width="3"/><circle cx="30" cy="59" r="3" fill="#e8c16c"/><circle cx="72" cy="59" r="3" fill="#e8c16c"/></symbol>
+      <symbol id="icon-paint" viewBox="0 0 100 76"><path d="M16 50q0-28 34-32 24-2 34 12 7 10-2 18-7 5-18 3l-11-2q-9-2-11 7H26q-10 0-10-6z" fill="#304252" stroke="url(#metal)" stroke-width="3"/><circle cx="32" cy="33" r="5" fill="#e36b76"/><circle cx="48" cy="26" r="5" fill="#e8b65d"/><circle cx="64" cy="31" r="5" fill="#78a7c8"/><circle cx="70" cy="44" r="5" fill="#d79ac1"/><path d="M69 55l17-17M82 34l7 7" stroke="#d8b16a" stroke-width="4" stroke-linecap="round"/></symbol>
+      <symbol id="icon-sucuk" viewBox="0 0 100 76"><path d="M18 52q6-24 32-27 20-2 32 13 8 10 1 17-7 8-22 3-17-6-25 6H22q-6-5-4-12z" fill="#5d1f19" stroke="url(#metal)" stroke-width="3"/><path d="M25 50q14-14 31-14 13 0 23 9" fill="none" stroke="#d86b3e" stroke-width="5"/><circle cx="35" cy="44" r="3" fill="#f3c46e"/><circle cx="50" cy="40" r="3" fill="#f3c46e"/><circle cx="65" cy="44" r="3" fill="#f3c46e"/><path d="M27 25q5-9 14-10M55 20q8-7 15-2" stroke="#e6b966" stroke-width="3" stroke-linecap="round"/><path d="M25 15q-2-8 4-11M58 12q1-8 7-11" stroke="#9ca8ad" stroke-width="2"/></symbol>
+      <symbol id="icon-cat" viewBox="0 0 100 76"><path d="M24 61V29l11-14 15 9 15-9 11 14v32z" fill="#493c35" stroke="url(#metal)" stroke-width="3"/><path d="M29 30l6-9 9 6M71 30l-6-9-9 6" fill="#8a6554" stroke="#d7aa5d" stroke-width="2"/><ellipse cx="42" cy="43" rx="5" ry="7" fill="#d8b25f"/><ellipse cx="62" cy="43" rx="5" ry="7" fill="#d8b25f"/><circle cx="42" cy="44" r="2"/><circle cx="62" cy="44" r="2"/><path d="M50 49l-5 4 5 3 5-3zM50 56q-8 8-15 1M50 56q8 8 15 1" fill="none" stroke="#d7aa5d" stroke-width="2"/></symbol>
+      <symbol id="icon-memory" viewBox="0 0 100 76"><rect x="22" y="18" width="43" height="42" rx="2" fill="#18202a" stroke="url(#metal)" stroke-width="3" transform="rotate(-8 22 18)"/><rect x="35" y="24" width="43" height="42" rx="2" fill="#30241f" stroke="#c99955" stroke-width="3" transform="rotate(8 35 24)"/><circle cx="50" cy="45" r="12" fill="#4e3430" stroke="#d9b064" stroke-width="2"/><path d="M43 45h14M50 38v14" stroke="#e7bd6a" stroke-width="2"/></symbol>
+      <symbol id="icon-puzzle" viewBox="0 0 100 76"><path d="M22 22h20q-2 9 7 9t7-9h20v18q-9-2-9 7t9 7v16H58q2-9-7-9t-7 9H22V52q9 2 9-7t-9-7z" fill="#3b4e58" stroke="url(#metal)" stroke-width="3"/><path d="M49 31v21M31 45h38" stroke="#cda45e" stroke-width="2"/><path d="M22 22h20q-2 9 7 9" fill="none" stroke="#d9a5c4" stroke-width="2"/></symbol>
+      <symbol id="icon-words" viewBox="0 0 100 76"><rect x="22" y="12" width="56" height="54" rx="3" fill="#2b1d18" stroke="url(#metal)" stroke-width="3"/><path d="M30 23h40M30 56h25" stroke="#9e7643" stroke-width="2"/><text x="31" y="49" fill="#edc477" font-size="25" font-family="Georgia,serif" font-weight="bold">Ä</text><path d="M59 31l5 5 10-11" fill="none" stroke="#dca2c2" stroke-width="3"/></symbol>
+    </defs>
+  </svg>
 </main>
-<script src="script.js"></script>
+<script src="script.js" defer></script>
 </body>
 </html>
