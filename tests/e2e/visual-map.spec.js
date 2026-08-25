@@ -3,6 +3,8 @@ const { test, expect } = require('@playwright/test');
 test.describe('Quest Map visual regression', () => {
   test('quest map matches approved visual baseline', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name.includes('webkit'), 'No separate WebKit golden master; WebKit is covered by functional mobile QA.');
+    if (testInfo.project.name === 'mobile-390') await page.setViewportSize({ width: 390, height: 844 });
+    if (testInfo.project.name === 'mobile-430') await page.setViewportSize({ width: 430, height: 932 });
     await page.goto('/index.html?qa=visual-map');
     await expect(page.locator('#questScreen')).toBeVisible();
     await expect.poll(async () => await page.evaluate(() => {

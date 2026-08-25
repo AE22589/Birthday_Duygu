@@ -1,4 +1,4 @@
-/* Quest I input/state primitives v1.6.5 */
+/* Quest I input/state primitives v1.6.6 */
 (function(root, factory){
   if(typeof module === 'object' && module.exports) module.exports = factory();
   else root.DuyguGameLogic = factory();

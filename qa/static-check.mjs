@@ -9,7 +9,7 @@ const road = read('roadtrip.js');
 const css = read('style.css');
 const logic = read('game-logic.js');
 
-const VERSION = '1.6.5';
+const VERSION = '1.6.6';
 if (!fs.existsSync(path.join(root, 'game-logic.js'))) throw new Error('missing game logic module');
 
 const requiredAssets = [
@@ -34,8 +34,8 @@ if (!index.includes(`game-logic.js?v=${VERSION}`)) throw new Error('cache versio
 for (const file of ['style.css','script.js','roadtrip.js']) {
   if (!index.includes(file + `?v=${VERSION}`)) throw new Error(`cache version missing for ${file}`);
 }
-if (!script.includes(`const VERSION='1.6.5'`)) throw new Error('app version mismatch');
-if (!road.includes(`const VERSION='1.6.5'`)) throw new Error('roadtrip version mismatch');
+if (!script.includes(`const VERSION='1.6.6'`)) throw new Error('app version mismatch');
+if (!road.includes(`const VERSION='1.6.6'`)) throw new Error('roadtrip version mismatch');
 
 const requiredSelectors = ['#entrance','#questScreen','#adminModal','#doorHit','#roadTripScreen','#roadTripIntro','#roadTripGame','#roadTripResult','#readyButton','#roadBoard'];
 for (const selector of requiredSelectors) {
