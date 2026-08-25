@@ -1,13 +1,12 @@
 (() => {
   'use strict';
 
-  const VERSION = '1.0.2';
+  const VERSION = '1.0.4';
   const TARGET_MS = Date.parse('2026-09-08T00:00:00+02:00');
   const ADMIN_CODE = '1337';
   const CLICK_LIMIT = 5;
   const CLICK_WINDOW_MS = 1500;
   const STATE_KEY = 'duyguBirthdayQuestState_v1';
-  const PREVIEW_SESSION_KEY = 'duyguBirthdayQuestPreview_v1';
 
   const $ = (id) => document.getElementById(id);
   const entrance = $('entrance');
@@ -29,7 +28,10 @@
 
   if (!entrance || !questScreen || !doorHit) return;
 
-  const defaultState = { preview: false, completed: [] };
+  const defaultState = { completed: [] };
+  // Preview access is deliberately ephemeral. It must never survive a reload.
+  let previewGranted = false;
+  try { sessionStorage.removeItem('duyguBirthdayQuestPreview_v1'); } catch { /* private browsing */ }
   let state = loadState();
   let countdownTimer = null;
   let clickCount = 0;
@@ -39,9 +41,7 @@
     try {
       const raw = localStorage.getItem(STATE_KEY);
       const parsed = raw ? JSON.parse(raw) : {};
-      const sessionPreview = sessionStorage.getItem(PREVIEW_SESSION_KEY) === '1';
       return {
-        preview: sessionPreview,
         completed: Array.isArray(parsed.completed) ? parsed.completed.filter(Number.isInteger) : []
       };
     } catch {
@@ -52,8 +52,6 @@
   function saveState() {
     try {
       localStorage.setItem(STATE_KEY, JSON.stringify({completed: state.completed}));
-      if (state.preview) sessionStorage.setItem(PREVIEW_SESSION_KEY, '1');
-      else sessionStorage.removeItem(PREVIEW_SESSION_KEY);
     } catch { /* private browsing */ }
   }
 
@@ -77,13 +75,13 @@
   }
 
   function isUnlocked() {
-    return state.preview || Date.now() >= TARGET_MS;
+    return previewGranted || Date.now() >= TARGET_MS;
   }
 
   function refreshCountdown() {
     const remaining = TARGET_MS - Date.now();
     setCountdown(remaining);
-    if (remaining <= 0 || state.preview) {
+    if (remaining <= 0 || previewGranted) {
       unlockEntrance();
       if (countdownTimer) {
         clearInterval(countdownTimer);
@@ -113,13 +111,16 @@
   function showQuestMap() {
     entrance.hidden = true;
     questScreen.hidden = false;
-    document.title = `Duygu's Birthday Quest · v${VERSION}`;
+    document.title = `Duygu's Birthday Quest`;
     window.scrollTo(0, 0);
   }
 
   function showEntrance() {
     questScreen.hidden = true;
     entrance.hidden = false;
+    // Developer preview is intentionally revoked when returning to the gate.
+    previewGranted = false;
+    refreshCountdown();
   }
 
   function handleDoorActivation(event) {
@@ -188,10 +189,10 @@
       codeInput.select();
       return;
     }
-    state.preview = true;
-    saveState();
+    previewGranted = true;
     closePreviewModal();
     unlockEntrance();
+    showQuestMap();
     showToast('Developer preview unlocked.');
   });
   cancelButton.addEventListener('click', closePreviewModal);

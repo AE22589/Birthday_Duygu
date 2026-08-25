@@ -22,3 +22,12 @@ Testing checklist:
 
 
 Version 1.0.3: restored the developer access verification flow. The 5-click/tap gesture opens the administrator code dialog; preview access is session-scoped so it cannot silently persist across new browser sessions. The visible version badge was removed from the quest map.
+
+
+VERSION 1.0.4
+Security gate regression fix:
+- Developer preview is never persisted in localStorage or sessionStorage.
+- Legacy preview session keys are cleared on startup.
+- Before the birthday, the quest map cannot be reached without the 5-click developer gate and code 1337.
+- Returning from the quest map revokes the temporary preview access.
+- The visible version badge remains removed from the quest map.
