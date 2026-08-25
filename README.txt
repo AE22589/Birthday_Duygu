@@ -1,20 +1,23 @@
-Duygu's Birthday Quest — v1.0.11
+Duygu's Birthday Quest - v1.0.12
 
-Stability release: state-artwork map architecture.
+Stability / Rendering Refactor
 
-Core behavior:
-- Birthday unlock: 08 September 2026 at 00:00 Europe/Berlin.
-- Before unlock, the entrance door is gated.
-- Developer preview: five rapid clicks/taps on the door, then code 1337.
-- Developer preview is session-only and is revoked by Return to the Door.
-- Normal quest progress is kept separately in localStorage.
+Key changes
+- The quest artwork and interaction layer now share ONE SVG coordinate system.
+- Desktop artwork: 1672 x 941.
+- Mobile artwork: 322 x 696.
+- The map image is embedded inside the SVG instead of being a separate HTML image with a separate overlay layer.
+- Quest, final-door and return controls are transparent SVG hit areas in the same coordinate system.
+- The desktop active-quest hover effect is also rendered in the same SVG coordinate system.
+- Mobile uses the dedicated mobile artwork and does not depend on desktop geometry.
+- Fixed the duplicated / crossed ROAD TRIP title in the mobile state-0 artwork.
+- Developer access remains: 5 rapid clicks/taps on the locked door, then code 1337.
+- No visible version number is shown on the quest map.
 
-Map architecture:
-- Desktop and mobile use their own intrinsic artwork dimensions.
-- Eight pre-rendered visual states exist for each platform (state 0..7).
-- Locked quest appearance is part of the artwork itself; no grayscale image overlays are positioned over quest icons.
-- A single intrinsic SVG layer handles only the active/hover ring, quest hit areas and Final Door hit area.
-- The Return to the Door control is an HTML button anchored to the map shell, so it scales with the exact artwork aspect ratio.
-
-Versioning:
-- v1.0.11 is a technical release number only and is not displayed on the game map.
+Regression requirements
+- Countdown works on desktop and mobile.
+- Door remains locked before 08 September 2026 00:00 Europe/Berlin unless developer preview is granted.
+- 5 rapid clicks/taps -> Developer Access.
+- Wrong code is rejected; 1337 opens the quest map.
+- Return to Door returns to the entrance and clears developer preview.
+- Quest I is the only active quest in the current build.

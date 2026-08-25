@@ -1,21 +1,76 @@
 (()=>{'use strict';
-const VERSION='1.0.11',TARGET_MS=Date.parse('2026-09-08T00:00:00+02:00'),ADMIN_CODE='1337',CLICK_LIMIT=5,CLICK_WINDOW_MS=2500,STATE_KEY='duyguBirthdayQuestState_v1';
-const $=id=>document.getElementById(id);const entrance=$('entrance'),questScreen=$('questScreen'),doorHit=$('doorHit'),modal=$('adminModal'),codeInput=$('adminCode'),unlockButton=$('unlock'),cancelButton=$('cancel'),error=$('error'),toast=$('toast'),lockTitle=$('lockTitle'),lockText=$('lockText'),mapShell=$('mapShell'),mapImage=$('questMapImage'),svg=$('mapInteraction'),controlsGroup=$('questControls'),hoverRing=$('hoverRing'),finalDoorHotspot=$('finalDoorHotspot'),returnHotspot=$('returnHotspot'),countdown={days:$('days'),hours:$('hours'),minutes:$('minutes'),seconds:$('seconds')};
-if(!entrance||!questScreen||!doorHit||!mapImage||!svg)return;
-const GEOMETRY={desktop:{width:1672,height:941,quests:[{x:424,y:337,r:69},{x:646,y:214,r:66},{x:971,y:214,r:66},{x:1192,y:339,r:66},{x:1127,y:590,r:66},{x:809,y:689,r:66},{x:456,y:590,r:66}],finalDoor:{x:806,y:573,r:78}},mobile:{width:322,height:696,quests:[{x:151,y:157,r:41},{x:46,y:230,r:39},{x:275,y:230,r:39},{x:276,y:365,r:39},{x:225,y:478,r:39},{x:111,y:478,r:39},{x:46,y:365,r:39}],finalDoor:{x:161,y:358,r:59}}};
-const ROMAN=['I','II','III','IV','V','VI','VII'],NAMES=['The Road Trip','Paint It!','Sucuk Master',"Lokum's Challenge",'Memory Lane','Our Little Puzzle','German Word Challenge'];let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,state=loadState();
+const VERSION='1.0.12';
+const TARGET_MS=Date.parse('2026-09-08T00:00:00+02:00');
+const ADMIN_CODE='1337';
+const CLICK_LIMIT=5;
+const CLICK_WINDOW_MS=2500;
+const STATE_KEY='duyguBirthdayQuestState_v1';
+
+const $=id=>document.getElementById(id);
+const entrance=$('entrance'),questScreen=$('questScreen'),doorHit=$('doorHit'),modal=$('adminModal'),codeInput=$('adminCode'),unlockButton=$('unlock'),cancelButton=$('cancel'),error=$('error'),toast=$('toast'),lockTitle=$('lockTitle'),lockText=$('lockText'),mapShell=$('mapShell'),mapImage=$('mapImage'),svg=$('mapInteraction'),controlsGroup=$('questControls'),hoverRing=$('hoverRing'),finalDoorHotspot=$('finalDoorHotspot'),returnHotspot=$('returnHotspot'),countdown={days:$('days'),hours:$('hours'),minutes:$('minutes'),seconds:$('seconds')};
+if(!entrance||!questScreen||!doorHit||!mapImage||!svg||!controlsGroup||!hoverRing||!finalDoorHotspot||!returnHotspot)return;
+
+const NS='http://www.w3.org/2000/svg';
+const GEOMETRY={
+  desktop:{
+    width:1672,height:941,
+    quests:[
+      {x:424,y:337,r:69},{x:646,y:214,r:66},{x:971,y:214,r:66},{x:1192,y:339,r:66},
+      {x:1127,y:590,r:66},{x:809,y:689,r:66},{x:456,y:590,r:66}
+    ],
+    finalDoor:{x:806,y:573,r:82},
+    return:{x:1372,y:16,w:284,h:49}
+  },
+  mobile:{
+    width:322,height:696,
+    quests:[
+      {x:151,y:157,r:42},{x:46,y:230,r:40},{x:275,y:230,r:40},{x:276,y:365,r:40},
+      {x:225,y:478,r:40},{x:111,y:478,r:40},{x:46,y:365,r:40}
+    ],
+    finalDoor:{x:161,y:358,r:60},
+    return:{x:26,y:657,w:190,h:36}
+  }
+};
+const ROMAN=['I','II','III','IV','V','VI','VII'];
+const NAMES=['The Road Trip','Paint It!','Sucuk Master',"Lokum's Challenge",'Memory Lane','Our Little Puzzle','German Word Challenge'];
+let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,state=loadState();
+
 function loadState(){try{const p=JSON.parse(localStorage.getItem(STATE_KEY)||'{}');const c=Array.isArray(p.completed)?p.completed.filter(n=>Number.isInteger(n)&&n>=1&&n<=7):[];return{completed:[...new Set(c)].sort((a,b)=>a-b)}}catch{return{completed:[]}}}
 function saveState(){try{localStorage.setItem(STATE_KEY,JSON.stringify({completed:state.completed}))}catch{}}
-function isMobile(){return window.matchMedia('(max-width:700px)').matches}function geometry(){return isMobile()?GEOMETRY.mobile:GEOMETRY.desktop}function mapState(){let n=0;while(state.completed.includes(n+1))n++;return n}function currentQuest(){const n=mapState();return n<7?n+1:null}function mapAsset(){return`assets/quest-map-${isMobile()?'mobile':'desktop'}-state-${mapState()}.webp`}
-function showToast(m){toast.textContent=m;toast.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove('show'),2200)}
+function isMobile(){return window.matchMedia('(max-width:700px)').matches}
+function geometry(){return isMobile()?GEOMETRY.mobile:GEOMETRY.desktop}
+function mapState(){let n=0;while(state.completed.includes(n+1))n++;return n}
+function currentQuest(){const n=mapState();return n<7?n+1:null}
+function mapAsset(){const g=geometry();return`assets/quest-map-${g===GEOMETRY.mobile?'mobile':'desktop'}-state-${mapState()}.webp`}
+function showToast(message){toast.textContent=message;toast.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove('show'),2200)}
 function setCountdown(ms){const t=Math.max(0,Math.floor(ms/1000));const d=Math.floor(t/86400),h=Math.floor(t%86400/3600),m=Math.floor(t%3600/60),s=t%60;countdown.days.textContent=String(d).padStart(2,'0');countdown.hours.textContent=String(h).padStart(2,'0');countdown.minutes.textContent=String(m).padStart(2,'0');countdown.seconds.textContent=String(s).padStart(2,'0')}
-function isUnlocked(){return previewGranted||Date.now()>=TARGET_MS}function unlockEntrance(){lockTitle.textContent='THE DOOR IS READY';lockText.innerHTML='The right moment has arrived.<br>Click the door and begin the adventure.'}function refreshCountdown(){const r=TARGET_MS-Date.now();setCountdown(r);if(r<=0||previewGranted){unlockEntrance();if(countdownTimer){clearInterval(countdownTimer);countdownTimer=null}}}
-function openPreviewModal(){clickCount=0;clickWindowStart=0;modal.hidden=false;codeInput.value='';error.textContent='';requestAnimationFrame(()=>codeInput.focus())}function closePreviewModal(){modal.hidden=true;clickCount=0;clickWindowStart=0;codeInput.value='';error.textContent=''}
-function renderMap(){const g=geometry();svg.setAttribute('viewBox',`0 0 ${g.width} ${g.height}`);mapImage.src=mapAsset();controlsGroup.replaceChildren();mapShell.classList.remove('is-hover');const active=currentQuest();g.quests.forEach((q,i)=>{const n=i+1,c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.classList.add('quest-control',n===active?'active':'locked');c.setAttribute('cx',q.x);c.setAttribute('cy',q.y);c.setAttribute('r',q.r);c.setAttribute('role','button');c.setAttribute('tabindex',n===active?'0':'-1');c.setAttribute('aria-label',`Quest ${ROMAN[i]}: ${NAMES[i]}${n===active?', ready':', locked'}`);c.dataset.quest=n;controlsGroup.appendChild(c);c.addEventListener('click',()=>handleQuestActivation(n));c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleQuestActivation(n)}});if(n===active){c.addEventListener('mouseenter',()=>mapShell.classList.add('is-hover'));c.addEventListener('mouseleave',()=>mapShell.classList.remove('is-hover'));c.addEventListener('focus',()=>mapShell.classList.add('is-hover'));c.addEventListener('blur',()=>mapShell.classList.remove('is-hover'))}});const d=g.finalDoor;finalDoorHotspot.setAttribute('x',String(d.x-d.r));finalDoorHotspot.setAttribute('y',String(d.y-d.r*.65));finalDoorHotspot.setAttribute('width',String(d.r*2));finalDoorHotspot.setAttribute('height',String(d.r*1.3));const finalUnlocked=state.completed.length===7;finalDoorHotspot.setAttribute('aria-label',finalUnlocked?'The Final Door, unlocked':'The Final Door, locked');const target=active?g.quests[active-1]:g.finalDoor;const ringRadius=Math.max(1,target.r-2);hoverRing.setAttribute('cx',target.x);hoverRing.setAttribute('cy',target.y);hoverRing.setAttribute('r',ringRadius);mapImage.alt=`Duygu's birthday quest map, ${active?`quest ${active} ready`:'all quests complete'}`}
-function showQuestMap(){if(!isUnlocked()){showToast('The door is still locked...');return}entrance.hidden=true;questScreen.hidden=false;renderMap();window.scrollTo(0,0)}function showEntrance(){questScreen.hidden=true;modal.hidden=true;entrance.hidden=false;previewGranted=false;refreshCountdown()}
+function isUnlocked(){return previewGranted||Date.now()>=TARGET_MS}
+function unlockEntrance(){lockTitle.textContent='THE DOOR IS READY';lockText.innerHTML='The right moment has arrived.<br>Click the door and begin the adventure.'}
+function refreshCountdown(){const remaining=TARGET_MS-Date.now();setCountdown(remaining);if(remaining<=0||previewGranted){unlockEntrance();if(countdownTimer){clearInterval(countdownTimer);countdownTimer=null}}}
+function openPreviewModal(){clickCount=0;clickWindowStart=0;modal.hidden=false;codeInput.value='';error.textContent='';requestAnimationFrame(()=>codeInput.focus())}
+function closePreviewModal(){modal.hidden=true;clickCount=0;clickWindowStart=0;codeInput.value='';error.textContent=''}
+function setSvgGeometry(g){svg.setAttribute('viewBox',`0 0 ${g.width} ${g.height}`);svg.setAttribute('preserveAspectRatio','xMidYMid meet');mapImage.setAttribute('width',String(g.width));mapImage.setAttribute('height',String(g.height));mapImage.setAttribute('href',mapAsset());mapImage.setAttributeNS('http://www.w3.org/1999/xlink','href',mapAsset());}
+function createHotspot(questNumber,q,active){const circle=document.createElementNS(NS,'circle');circle.classList.add('svg-hotspot','quest-hotspot');circle.setAttribute('cx',q.x);circle.setAttribute('cy',q.y);circle.setAttribute('r',q.r);circle.setAttribute('role','button');circle.setAttribute('tabindex',active?'0':'-1');circle.setAttribute('aria-label',`Quest ${ROMAN[questNumber-1]}: ${NAMES[questNumber-1]}${active?', ready':', locked'}`);circle.dataset.quest=String(questNumber);circle.addEventListener('click',()=>handleQuestActivation(questNumber));circle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleQuestActivation(questNumber)}});if(active){circle.addEventListener('mouseenter',()=>setHover(true));circle.addEventListener('mouseleave',()=>setHover(false));circle.addEventListener('focus',()=>setHover(true));circle.addEventListener('blur',()=>setHover(false));}return circle}
+function setHover(on){mapShell.classList.toggle('is-hover',on)}
+function renderMap(){const g=geometry();const active=currentQuest();setSvgGeometry(g);setHover(false);controlsGroup.replaceChildren();g.quests.forEach((q,index)=>{const n=index+1;controlsGroup.appendChild(createHotspot(n,q,n===active))});const target=active?g.quests[active-1]:g.finalDoor;hoverRing.setAttribute('cx',String(target.x));hoverRing.setAttribute('cy',String(target.y));hoverRing.setAttribute('r',String(Math.max(1,target.r-2)));hoverRing.style.display=active?'block':'none';const d=g.finalDoor;finalDoorHotspot.setAttribute('x',String(d.x-d.r));finalDoorHotspot.setAttribute('y',String(d.y-d.r*.72));finalDoorHotspot.setAttribute('width',String(d.r*2));finalDoorHotspot.setAttribute('height',String(d.r*1.44));finalDoorHotspot.setAttribute('aria-label',state.completed.length===7?'The Final Door, unlocked':'The Final Door, locked');const r=g.return;returnHotspot.setAttribute('x',String(r.x));returnHotspot.setAttribute('y',String(r.y));returnHotspot.setAttribute('width',String(r.w));returnHotspot.setAttribute('height',String(r.h));mapImage.alt=`Duygu's birthday quest map, ${active?`quest ${active} ready`:'all quests complete'}`;}
+function showQuestMap(){if(!isUnlocked()){showToast('The door is still locked...');return}entrance.hidden=true;questScreen.hidden=false;renderMap();window.scrollTo(0,0)}
+function showEntrance(){questScreen.hidden=true;modal.hidden=true;entrance.hidden=false;previewGranted=false;refreshCountdown()}
 function handleDoorActivation(e){if(!modal.hidden)return;e.preventDefault();if(isUnlocked()){showQuestMap();return}const now=performance.now();if(!clickWindowStart||now-clickWindowStart>CLICK_WINDOW_MS){clickWindowStart=now;clickCount=1}else clickCount++;if(clickCount>=CLICK_LIMIT){clickCount=0;clickWindowStart=0;openPreviewModal();return}showToast(`The door remains sealed. ${CLICK_LIMIT-clickCount} more clicks...`)}
 function handleQuestActivation(n){const active=currentQuest();if(n!==active){showToast(n<=(active||0)?'This challenge is already complete.':'Complete the previous challenge to unlock this quest.');return}if(n===1)showToast('Quest I is ready. The first challenge will be added in v1.1.0.')}
-doorHit.addEventListener('touchend',e=>{lastTouchActivation=performance.now();handleDoorActivation(e)},{passive:false});doorHit.addEventListener('click',e=>{if(performance.now()-lastTouchActivation<450)return;handleDoorActivation(e)});
-finalDoorHotspot.addEventListener('click',e=>{e.preventDefault();showToast(state.completed.length===7?'The Final Door is ready to open.':'Complete each challenge. Claim every key. Close the circle.')});finalDoorHotspot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();finalDoorHotspot.click()}});returnHotspot.onclick=showEntrance;returnHotspot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showEntrance()}});
-unlockButton.addEventListener('click',()=>{if(codeInput.value.trim()!==ADMIN_CODE){error.textContent='Wrong code.';codeInput.select();return}previewGranted=true;closePreviewModal();unlockEntrance();showQuestMap();showToast('Developer preview unlocked.')});cancelButton.addEventListener('click',closePreviewModal);codeInput.addEventListener('keydown',e=>{if(e.key==='Enter')unlockButton.click();if(e.key==='Escape')closePreviewModal()});modal.addEventListener('pointerup',e=>{if(e.target===modal)closePreviewModal()});window.addEventListener('resize',()=>{if(!questScreen.hidden)renderMap()});window.addEventListener('orientationchange',()=>setTimeout(()=>{if(!questScreen.hidden)renderMap()},50));refreshCountdown();countdownTimer=setInterval(refreshCountdown,250);
+function handleFinalDoor(){showToast(state.completed.length===7?'The Final Door is ready to open.':'Complete each challenge. Claim every key. Close the circle.')}
+function handleReturn(){showEntrance()}
+
+doorHit.addEventListener('touchend',e=>{lastTouchActivation=performance.now();handleDoorActivation(e)},{passive:false});
+doorHit.addEventListener('click',e=>{if(performance.now()-lastTouchActivation<450)return;handleDoorActivation(e)});
+finalDoorHotspot.addEventListener('click',e=>{e.preventDefault();handleFinalDoor()});
+finalDoorHotspot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleFinalDoor()}});
+returnHotspot.addEventListener('click',e=>{e.preventDefault();handleReturn()});
+returnHotspot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleReturn()}});
+unlockButton.addEventListener('click',()=>{if(codeInput.value.trim()!==ADMIN_CODE){error.textContent='Wrong code.';codeInput.select();return}previewGranted=true;closePreviewModal();unlockEntrance();showQuestMap();showToast('Developer preview unlocked.')});
+cancelButton.addEventListener('click',closePreviewModal);
+codeInput.addEventListener('keydown',e=>{if(e.key==='Enter')unlockButton.click();if(e.key==='Escape')closePreviewModal()});
+modal.addEventListener('pointerup',e=>{if(e.target===modal)closePreviewModal()});
+window.addEventListener('resize',()=>{if(!questScreen.hidden)renderMap()});
+window.addEventListener('orientationchange',()=>setTimeout(()=>{if(!questScreen.hidden)renderMap()},50));
+refreshCountdown();countdownTimer=setInterval(refreshCountdown,250);
 })();
