@@ -9,7 +9,7 @@ const road = read('roadtrip.js');
 const css = read('style.css');
 const logic = read('game-logic.js');
 
-const VERSION = '1.3.9';
+const VERSION = '1.6.1';
 if (!fs.existsSync(path.join(root, 'game-logic.js'))) throw new Error('missing game logic module');
 
 const requiredAssets = [
@@ -34,8 +34,8 @@ if (!index.includes(`game-logic.js?v=${VERSION}`)) throw new Error('cache versio
 for (const file of ['style.css','script.js','roadtrip.js']) {
   if (!index.includes(file + `?v=${VERSION}`)) throw new Error(`cache version missing for ${file}`);
 }
-if (!script.includes(`const VERSION='${VERSION}'`)) throw new Error('app version mismatch');
-if (!road.includes(`const VERSION='${VERSION}'`)) throw new Error('roadtrip version mismatch');
+if (!script.includes(`const VERSION='1.6.1'`)) throw new Error('app version mismatch');
+if (!road.includes(`const VERSION='1.6.1'`)) throw new Error('roadtrip version mismatch');
 
 const requiredSelectors = ['#entrance','#questScreen','#adminModal','#doorHit','#roadTripScreen','#roadTripIntro','#roadTripGame','#roadTripResult','#readyButton','#roadBoard'];
 for (const selector of requiredSelectors) {
@@ -62,10 +62,26 @@ if (!css.includes('left:calc(var(--car-x) * 1%)')) throw new Error('car lane pos
 if (!css.includes('left:calc(var(--pulse-x,50) * 1%)')) throw new Error('lane pulse position CSS binding missing');
 if (!logic.includes('dx < 0 ? -1 : 1')) throw new Error('swipe direction primitive missing');
 if (!logic.includes('return clampLane(Number(currentLane) + dir)')) throw new Error('lane movement primitive missing');
+if (!road.includes('spawnTestObject:(type,testLane)=>')) throw new Error('deterministic object QA hook missing');
+if (!road.includes('setElapsed:(seconds)=>')) throw new Error('deterministic timer QA hook missing');
+if (!road.includes('runtime:()=>({running,rafActive:!!raf')) throw new Error('runtime QA diagnostics missing');
 if (!road.includes('GAME_LOGIC.moveLane(lane,dir)')) throw new Error('central lane movement not used');
 if (!road.includes('GAME_LOGIC.swipeDirection(startX,e.clientX)')) throw new Error('swipe direction primitive not used');
 if (!road.includes('CAR.dataset.lane=String(lane)')) throw new Error('car lane state binding missing');
 if (!road.includes("window.addEventListener('keydown',onKey,{passive:false,capture:true})")) throw new Error('keyboard listener binding missing');
+
+
+for (const file of ['tests/e2e/security-map.spec.js','tests/e2e/roadtrip-regression.spec.js','tests/e2e/visual-map.spec.js','tests/e2e/runtime-health.spec.js','tests/e2e/user-journey.spec.js','tests/game-logic.test.cjs']) {
+  if (!fs.existsSync(path.join(root,file))) throw new Error(`missing QA test: ${file}`);
+}
+for (const project of ['desktop-1366','desktop-1920','mobile-390','mobile-430']) {
+  const snap=path.join(root,'tests/e2e/__screenshots__',project,'quest-map.png');
+  if (!fs.existsSync(snap)) throw new Error(`missing visual baseline: ${project}`);
+  if (fs.statSync(snap).size < 10000) throw new Error(`visual baseline looks invalid: ${project}`);
+}
+if (!script.includes('function isUnlocked()')) throw new Error('security unlock function missing');
+if (!script.includes("if(!isUnlocked()){showToast('The door is still locked...');return}")) throw new Error('locked map guard missing');
+if (!road.includes("new URLSearchParams(location.search).has('qa')")) throw new Error('deterministic QA mode missing');
 
 console.log(`PASS: v${VERSION} static QA`);
 console.log(JSON.stringify({
@@ -77,3 +93,7 @@ console.log(JSON.stringify({
   gameOver: 'lives can reach 0',
   mobileCss: true
 }, null, 2));
+
+if (!script.includes('navigator.webdriver===true')) throw new Error('QA mode must be browser-test-only');
+if (!script.includes('QA_VISUAL_MAP')) throw new Error('visual QA mode missing');
+if (!road.includes('navigator.webdriver===true')) throw new Error('roadtrip QA API must be browser-test-only');
