@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const VERSION='1.0.13';
+const VERSION='1.0.14';
 const TARGET_MS=Date.parse('2026-09-08T00:00:00+02:00');
 const ADMIN_CODE='1337';
 const CLICK_LIMIT=5;
@@ -25,7 +25,7 @@ const GEOMETRY={
     width:322,height:696,
     quests:[
       {x:151,y:157,r:42},{x:46,y:230,r:40},{x:275,y:230,r:40},{x:276,y:365,r:40},
-      {x:225,y:478,r:40},{x:111,y:478,r:40},{x:46,y:365,r:40}
+      {x:225,y:478,r:40},{x:78,y:487,r:36},{x:46,y:365,r:40}
     ],
     finalDoor:{x:161,y:358,r:60},
     return:{x:26,y:657,w:190,h:36}
@@ -79,24 +79,42 @@ function setHover(on){mapShell.classList.toggle('is-hover',on)}
 function buildLockedLayer(g,active){
   lockedLayers.replaceChildren();
   svg.querySelectorAll('clipPath[id^=\"questClip-\"]').forEach(node=>node.remove());
+  const defs=svg.querySelector('defs');
+
   g.quests.forEach((q,index)=>{
     const n=index+1;
     if(n===active)return;
-    const lockedImage=document.createElementNS(NS,'use');
-    lockedImage.setAttribute('href','#mapImage');
-    lockedImage.setAttributeNS('http://www.w3.org/1999/xlink','href','#mapImage');
+
+    // Use a real SVG image instance rather than <use>. Both the master image
+    // and the locked image occupy the exact same user-space coordinates.
+    const lockedImage=document.createElementNS(NS,'image');
+    lockedImage.setAttribute('x','0');
+    lockedImage.setAttribute('y','0');
+    lockedImage.setAttribute('width',String(g.width));
+    lockedImage.setAttribute('height',String(g.height));
+    lockedImage.setAttribute('preserveAspectRatio','none');
+    lockedImage.setAttribute('href',mapAsset());
+    lockedImage.setAttributeNS('http://www.w3.org/1999/xlink','href',mapAsset());
+
     const clip=document.createElementNS(NS,'clipPath');
     clip.id=`questClip-${n}`;
+    clip.setAttribute('clipPathUnits','userSpaceOnUse');
+
+    // q.r is the measured outer medallion radius. Do not enlarge it.
     const c=document.createElementNS(NS,'circle');
-    c.setAttribute('cx',q.x);c.setAttribute('cy',q.y);c.setAttribute('r',q.r+3);
+    c.setAttribute('cx',String(q.x));
+    c.setAttribute('cy',String(q.y));
+    c.setAttribute('r',String(q.r));
     clip.appendChild(c);
-    svg.querySelector('defs').appendChild(clip);
+    defs.appendChild(clip);
+
     lockedImage.setAttribute('clip-path',`url(#${clip.id})`);
     lockedImage.setAttribute('filter','url(#lockedFilter)');
     lockedImage.setAttribute('aria-hidden','true');
     lockedLayers.appendChild(lockedImage);
   });
 }
+
 function renderMap(){
   const g=geometry();
   const active=currentQuest();
@@ -106,9 +124,13 @@ function renderMap(){
   buildLockedLayer(g,active);
   g.quests.forEach((q,index)=>{const n=index+1;controlsGroup.appendChild(createHotspot(n,q,n===active))});
   const target=active?g.quests[active-1]:g.finalDoor;
-  activeRing.setAttribute('cx',String(target.x));activeRing.setAttribute('cy',String(target.y));const ringRadius=Math.max(1,target.r-7);
+  activeRing.setAttribute('cx',String(target.x));
+  activeRing.setAttribute('cy',String(target.y));
+  const ringRadius=Math.max(1,target.r-4);
   activeRing.setAttribute('r',String(ringRadius));
-  activeRingGlow.setAttribute('cx',String(target.x));activeRingGlow.setAttribute('cy',String(target.y));activeRingGlow.setAttribute('r',String(ringRadius));
+  activeRingGlow.setAttribute('cx',String(target.x));
+  activeRingGlow.setAttribute('cy',String(target.y));
+  activeRingGlow.setAttribute('r',String(ringRadius));
   activeLayer.style.display=active?'block':'none';
   const d=g.finalDoor;
   finalDoorHotspot.setAttribute('x',String(d.x-d.r));finalDoorHotspot.setAttribute('y',String(d.y-d.r*.72));
