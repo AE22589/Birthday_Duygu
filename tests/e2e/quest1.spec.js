@@ -1,7 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
 async function openDeveloperQuestMap(page) {
-  // Keep the test deterministic even after the birthday date has passed.
   await page.addInitScript(() => {
     const fixed = new Date('2026-09-07T23:00:00+02:00').getTime();
     Date.now = () => fixed;
@@ -23,6 +22,22 @@ async function openQuestOne(page) {
   await expect(page.locator('#roadTripResult')).toBeHidden();
 }
 
+async function startGame(page) {
+  await openDeveloperQuestMap(page);
+  await openQuestOne(page);
+  await page.locator('#readyButton').click();
+  await expect(page.locator('#roadTripGame')).toBeVisible({ timeout: 6000 });
+  await expect(page.locator('#roadBoard')).toBeVisible();
+  await expect(page.locator('#playerCar')).toBeVisible();
+  await expect.poll(async () => await page.locator('#playerCar').getAttribute('data-lane')).toBe('1');
+}
+
+async function carCenter(page) {
+  const box = await page.locator('#playerCar').boundingBox();
+  if (!box) throw new Error('player car has no bounding box');
+  return box.x + box.width / 2;
+}
+
 test('security gate -> quest map -> Quest I intro', async ({ page }) => {
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
@@ -33,95 +48,75 @@ test('security gate -> quest map -> Quest I intro', async ({ page }) => {
 });
 
 test('Quest I ready gate starts a real game', async ({ page }) => {
-  await openDeveloperQuestMap(page);
-  await openQuestOne(page);
-  await page.locator('#readyButton').click();
-  await expect(page.locator('#readyButton')).toHaveText(/3|2|1|GO|I'M READY/);
-  await expect(page.locator('#roadTripGame')).toBeVisible({ timeout: 6000 });
-  await expect(page.locator('#roadBoard')).toBeVisible();
+  await startGame(page);
   await expect(page.locator('#timeCount')).toHaveText(/^(5[0-9]|60)$/);
 });
 
-test('desktop keyboard visibly changes lanes and prevents page scrolling', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name.startsWith('mobile-'), 'desktop keyboard test is not run on mobile projects');
-  await openDeveloperQuestMap(page);
-  await openQuestOne(page);
-  await page.locator('#readyButton').click();
-  await expect(page.locator('#roadTripGame')).toBeVisible({ timeout: 6000 });
-  const board = page.locator('#roadBoard');
+test('desktop keyboard moves the car left and right and prevents scrolling', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.startsWith('mobile-'));
+  await startGame(page);
   const car = page.locator('#playerCar');
-  await expect(board).toBeVisible();
-
-  const center = async () => {
-    const box = await car.boundingBox();
-    if (!box) throw new Error('player car has no bounding box');
-    return box.x + box.width / 2;
-  };
-
-  const initial = await center();
-  expect(await car.getAttribute('data-lane')).toBe('1');
+  const initial = await carCenter(page);
 
   await page.keyboard.press('ArrowLeft');
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('0');
-  await page.waitForTimeout(350);
-  const left = await center();
-  expect(left).toBeLessThan(initial - 10);
+  await expect.poll(async () => await carCenter(page)).toBeLessThan(initial - 10);
 
   await page.keyboard.press('ArrowRight');
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('1');
-  await page.waitForTimeout(350);
-  const backToCenter = await center();
-  expect(Math.abs(backToCenter - initial)).toBeLessThan(3);
+  await expect.poll(async () => Math.abs(await carCenter(page) - initial)).toBeLessThan(3);
 
   await page.keyboard.press('ArrowRight');
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('2');
-  await page.waitForTimeout(350);
-  const right = await center();
-  expect(right).toBeGreaterThan(initial + 10);
+  await expect.poll(async () => await carCenter(page)).toBeGreaterThan(initial + 10);
 
-  await page.waitForTimeout(160);
-  await page.locator('.game-control[data-move="-1"]').click();
-  await expect.poll(async () => await car.getAttribute('data-lane')).toBe('1');
-  await page.waitForTimeout(350);
-  const afterButton = await center();
-  expect(Math.abs(afterButton - initial)).toBeLessThan(3);
+  await page.keyboard.press('ArrowRight');
+  await expect.poll(async () => await car.getAttribute('data-lane')).toBe('2');
   expect(await page.evaluate(() => window.scrollY)).toBe(0);
 });
 
-test('mobile swipe visibly changes lanes without browser scrolling', async ({ page }, testInfo) => {
-  test.skip(!testInfo.project.name.startsWith('mobile-'), 'swipe test is run only on mobile projects');
-  await openDeveloperQuestMap(page);
-  await openQuestOne(page);
-  await page.locator('#readyButton').click();
-  await expect(page.locator('#roadTripGame')).toBeVisible({ timeout: 6000 });
-  const board = page.locator('#roadBoard');
+test('desktop lane control buttons use the same movement logic', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.startsWith('mobile-'));
+  await startGame(page);
   const car = page.locator('#playerCar');
-
-  const center = async () => {
-    const box = await car.boundingBox();
-    if (!box) throw new Error('player car has no bounding box');
-    return box.x + box.width / 2;
-  };
-
+  const initial = await carCenter(page);
+  await page.locator('.game-control[data-move="-1"]').click();
+  await expect.poll(async () => await car.getAttribute('data-lane')).toBe('0');
+  await expect.poll(async () => await carCenter(page)).toBeLessThan(initial - 10);
+  await page.locator('.game-control[data-move="1"]').click();
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('1');
-  const before = await center();
+});
+
+async function swipe(page, startRatio, endRatio) {
+  const board = page.locator('#roadBoard');
   const box = await board.boundingBox();
   if (!box) throw new Error('road board has no bounding box');
   const y = box.y + box.height / 2;
-  const xStart = box.x + box.width * 0.70;
-  const xEnd = box.x + box.width * 0.30;
-
-  await page.evaluate(({xStart, xEnd, y}) => {
+  await page.evaluate(({xStart,xEnd,y}) => {
     const board = document.querySelector('#roadBoard');
-    const down = new PointerEvent('pointerdown', {bubbles:true, cancelable:true, pointerId:7, pointerType:'touch', clientX:xStart, clientY:y});
-    const up = new PointerEvent('pointerup', {bubbles:true, cancelable:true, pointerId:7, pointerType:'touch', clientX:xEnd, clientY:y});
-    board.dispatchEvent(down);
-    board.dispatchEvent(up);
-  }, {xStart, xEnd, y});
+    board.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,cancelable:true,pointerId:9,pointerType:'touch',clientX:xStart,clientY:y}));
+    board.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,cancelable:true,pointerId:9,pointerType:'touch',clientX:xEnd,clientY:y}));
+  }, {xStart:box.x+box.width*startRatio,xEnd:box.x+box.width*endRatio,y});
+}
 
+test('mobile swipe left moves car left without scrolling', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith('mobile-'));
+  await startGame(page);
+  const car = page.locator('#playerCar');
+  const initial = await carCenter(page);
+  await swipe(page, .70, .30);
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('0');
-  await page.waitForTimeout(350);
-  const after = await center();
-  expect(after).toBeLessThan(before - 10);
+  await expect.poll(async () => await carCenter(page)).toBeLessThan(initial - 10);
+  expect(await page.evaluate(() => window.scrollY)).toBe(0);
+});
+
+test('mobile swipe right moves car right without scrolling', async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith('mobile-'));
+  await startGame(page);
+  const car = page.locator('#playerCar');
+  const initial = await carCenter(page);
+  await swipe(page, .30, .70);
+  await expect.poll(async () => await car.getAttribute('data-lane')).toBe('2');
+  await expect.poll(async () => await carCenter(page)).toBeGreaterThan(initial + 10);
   expect(await page.evaluate(() => window.scrollY)).toBe(0);
 });

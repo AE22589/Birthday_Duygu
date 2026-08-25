@@ -1,4 +1,4 @@
-# QA Automation — v1.3.8
+# QA Automation — v1.3.9
 
 ## Upload
 Replace the repository contents with the contents of this folder, including `.github/workflows/qa.yml`. Commit once.

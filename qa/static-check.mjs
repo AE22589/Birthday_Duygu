@@ -7,8 +7,11 @@ const index = read('index.html');
 const script = read('script.js');
 const road = read('roadtrip.js');
 const css = read('style.css');
+const logic = read('game-logic.js');
 
-const VERSION = '1.3.8';
+const VERSION = '1.3.9';
+if (!fs.existsSync(path.join(root, 'game-logic.js'))) throw new Error('missing game logic module');
+
 const requiredAssets = [
   'assets/entrance-scene.jpg',
   'assets/quest-map-desktop.webp',
@@ -25,6 +28,8 @@ const requiredAssets = [
 for (const asset of requiredAssets) {
   if (!fs.existsSync(path.join(root, asset))) throw new Error(`missing asset: ${asset}`);
 }
+
+if (!index.includes(`game-logic.js?v=${VERSION}`)) throw new Error('cache version missing for game-logic.js');
 
 for (const file of ['style.css','script.js','roadtrip.js']) {
   if (!index.includes(file + `?v=${VERSION}`)) throw new Error(`cache version missing for ${file}`);
@@ -55,6 +60,10 @@ if (!css.includes('@media(max-width:700px)')) throw new Error('mobile CSS missin
 if (!css.includes('touch-action:none')) throw new Error('touch-action guard missing');
 if (!css.includes('left:calc(var(--car-x) * 1%)')) throw new Error('car lane position CSS binding missing');
 if (!css.includes('left:calc(var(--pulse-x,50) * 1%)')) throw new Error('lane pulse position CSS binding missing');
+if (!logic.includes('dx < 0 ? -1 : 1')) throw new Error('swipe direction primitive missing');
+if (!logic.includes('return clampLane(Number(currentLane) + dir)')) throw new Error('lane movement primitive missing');
+if (!road.includes('GAME_LOGIC.moveLane(lane,dir)')) throw new Error('central lane movement not used');
+if (!road.includes('GAME_LOGIC.swipeDirection(startX,e.clientX)')) throw new Error('swipe direction primitive not used');
 if (!road.includes('CAR.dataset.lane=String(lane)')) throw new Error('car lane state binding missing');
 if (!road.includes("window.addEventListener('keydown',onKey,{passive:false,capture:true})")) throw new Error('keyboard listener binding missing');
 

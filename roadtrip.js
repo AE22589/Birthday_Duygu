@@ -1,4 +1,4 @@
-/* Quest I — The Road Trip v1.3.8
+/* Quest I — The Road Trip v1.3.9
    Art-first implementation based on the accepted Quest I concept artwork.
    The artwork is the visual source of truth; HTML/CSS only adds interaction.
 */
@@ -27,12 +27,14 @@ const RESULT_COPY=document.getElementById('resultCopy');
 const RESULT_KICKER=document.getElementById('resultKicker');
 const KEY_REWARD=document.getElementById('keyReward');
 const QUEST_KEY='duyguBirthdayQuestState_v1';
-const VERSION='1.3.8';
+const VERSION='1.3.9';
 const SCREEN=document.getElementById('roadTripScreen');
 const DURATION=60;
 const TARGET_STARS=20;
 const MAX_STARS=43;
-const LANES=[25,50,75];
+const GAME_LOGIC=window.DuyguGameLogic;
+if(!GAME_LOGIC) throw new Error('Game logic module failed to load');
+const LANES=GAME_LOGIC.LANES;
 let running=false,raf=0,startAt=0,lastFrame=0,elapsed=0,score=0,lives=3,lane=1,objects=[],device='desktop',touchStart=null,lastMove=0,readyTimer=0,spawnStarAt=0,spawnObstacleAt=0,invulnerableUntil=0;
 function mobile(){return matchMedia('(max-width:700px)').matches || (navigator.maxTouchPoints>0 && innerWidth<900)}
 function setDevice(){device=mobile()?'mobile':'desktop';TOUCH_HINT.hidden=device!=='mobile';TOUCH_HINT.style.display=device==='mobile'?'block':'none';positionCar(false)}
@@ -52,7 +54,7 @@ function update(dt,now){elapsed=Math.min(DURATION,(now-startAt)/1000);maybeSpawn
 function tick(now){if(!running)return;const dt=Math.min(50,now-lastFrame||16);lastFrame=now;update(dt,now)}
 function startLoop(){stop();running=true;startAt=performance.now();lastFrame=startAt;raf=requestAnimationFrame(tick)}
 function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=0}
-function move(dir){if(!running)return;const now=performance.now();if(now-lastMove<120)return;const next=Math.max(0,Math.min(2,lane+dir));if(next===lane)return;lane=next;lastMove=now;positionCar(true);PULSE.style.setProperty('--pulse-x',laneX(lane));PULSE.classList.remove('show');void PULSE.offsetWidth;PULSE.classList.add('show')}
+function move(dir){if(!running)return;const now=performance.now();if(now-lastMove<120)return;const next=GAME_LOGIC.moveLane(lane,dir);if(next===lane)return;lane=next;lastMove=now;positionCar(true);PULSE.style.setProperty('--pulse-x',laneX(lane));PULSE.classList.remove('show');void PULSE.offsetWidth;PULSE.classList.add('show')}
 function bindControls(){document.querySelectorAll('[data-move]').forEach(btn=>{btn.addEventListener('click',()=>move(Number(btn.dataset.move)))})}
 function onKey(e){
   if(!running)return;
@@ -69,10 +71,11 @@ function onPointerDown(e){
 function onPointerUp(e){
   if(!running||touchStart===null||e.pointerType!=='touch')return;
   e.preventDefault();
-  const dx=e.clientX-touchStart;
+  const startX=touchStart;
   touchStart=null;
   try{BOARD.releasePointerCapture(e.pointerId)}catch{}
-  if(Math.abs(dx)>28)move(dx<0?1:-1);
+  const direction=GAME_LOGIC.swipeDirection(startX,e.clientX);
+  if(direction)move(direction);
 }
 function clearReadyTimer(){if(readyTimer){clearInterval(readyTimer);readyTimer=0}READY.disabled=false;READY.textContent="I'M READY"}
 function setView(view){
@@ -113,5 +116,5 @@ function back(){clearReadyTimer();stop();clearObjects();setView('intro');window.
 function showRoadTripScreen(){clearReadyTimer();stop();clearObjects();reset();setView('intro');setDevice()}
 READY.addEventListener('click',ready);BACK.addEventListener('click',back);RETURN.addEventListener('click',back);RETRY.addEventListener('click',()=>{stop();clearObjects();reset();setView('intro');setDevice()});window.addEventListener('keydown',onKey,{passive:false,capture:true});BOARD.addEventListener('pointerdown',onPointerDown,{passive:false});BOARD.addEventListener('pointerup',onPointerUp,{passive:false});BOARD.addEventListener('pointercancel',()=>{touchStart=null},{passive:true});window.addEventListener('resize',setDevice);window.addEventListener('orientationchange',()=>setTimeout(setDevice,60));bindControls();setDevice();
 window.showRoadTripScreen=showRoadTripScreen;
-window.__DUYGU_ROADTRIP_SELF_TEST__=()=>({version:VERSION,renderer:'HTML/CSS layered art',background:'assets/quest1-game-background.jpg',car:'assets/roadtrip-car.png',desktopKeyboard:true,mobileSwipe:true,pointerTouch:true,lanes:LANES.length,duration:DURATION,targetStars:TARGET_STARS,maxStars:MAX_STARS,stateKey:QUEST_KEY,readyGate:!!READY,hiddenCssEnforced:getComputedStyle(GAME).display==='none'||GAME.hidden});
+window.__DUYGU_ROADTRIP_SELF_TEST__=()=>({version:VERSION,renderer:'HTML/CSS layered art',background:'assets/quest1-game-background.jpg',car:'assets/roadtrip-car.png',desktopKeyboard:true,mobileSwipe:true,pointerTouch:true,lanes:LANES.length, logicModule:true,duration:DURATION,targetStars:TARGET_STARS,maxStars:MAX_STARS,stateKey:QUEST_KEY,readyGate:!!READY,hiddenCssEnforced:getComputedStyle(GAME).display==='none'||GAME.hidden});
 })();
