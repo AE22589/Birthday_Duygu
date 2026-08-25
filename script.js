@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const VERSION='1.1.1';
+const VERSION='1.1.2';
 const TARGET_MS=Date.parse('2026-09-08T00:00:00+02:00');
 const ADMIN_CODE='1337';
 const CLICK_LIMIT=5;

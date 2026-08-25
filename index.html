@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#030508">
 <meta name="description" content="Duygu's 43rd Birthday Adventure">
 <title>Duygu's 43rd Birthday Quest</title>
-<link rel="stylesheet" href="style.css?v=1.1.1">
+<link rel="stylesheet" href="style.css?v=1.1.2">
 </head>
 <body>
 <main id="app">
@@ -111,7 +111,39 @@
         <div class="hud-center"><span class="hud-label">THE ROAD TRIP</span><strong id="timeCount">60</strong></div>
         <div><span class="hud-label">LIVES</span><strong id="lifeCount">♥ ♥ ♥</strong></div>
       </div>
-      <canvas id="roadCanvas" aria-label="The Road Trip game"></canvas>
+      <svg id="roadScene" class="road-scene" viewBox="0 0 600 960" preserveAspectRatio="xMidYMid meet" role="img" aria-label="The Road Trip game" tabindex="0">
+        <defs>
+          <linearGradient id="rtSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050914"/><stop offset=".5" stop-color="#11182a"/><stop offset="1" stop-color="#030507"/></linearGradient>
+          <linearGradient id="rtRoad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#252936"/><stop offset="1" stop-color="#10131a"/></linearGradient>
+          <radialGradient id="rtMoonGlow"><stop offset="0" stop-color="#ffe2a4" stop-opacity=".35"/><stop offset="1" stop-color="#ffe2a4" stop-opacity="0"/></radialGradient>
+          <radialGradient id="rtLamp"><stop offset="0" stop-color="#ffe09b" stop-opacity=".9"/><stop offset="1" stop-color="#d99c3f" stop-opacity="0"/></radialGradient>
+          <filter id="rtGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="rtSoft" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="12"/></filter>
+        </defs>
+        <rect width="600" height="960" fill="url(#rtSky)"/>
+        <circle cx="468" cy="145" r="105" fill="url(#rtMoonGlow)"/>
+        <circle cx="468" cy="145" r="28" fill="#f8e5bd"/>
+        <path d="M0 350 Q90 275 180 350 Q285 250 380 350 Q485 270 600 350 L600 540 L0 540Z" fill="#080d16"/>
+        <g id="rtLights" fill="#efbe64" opacity=".55"><circle cx="45" cy="390" r="3"/><circle cx="132" cy="420" r="3"/><circle cx="219" cy="390" r="3"/><circle cx="306" cy="420" r="3"/><circle cx="393" cy="390" r="3"/><circle cx="480" cy="420" r="3"/><circle cx="567" cy="390" r="3"/></g>
+        <path d="M234 375 L366 375 L625 1010 L-25 1010 Z" fill="url(#rtRoad)"/>
+        <path d="M234 375 L-25 1010 M366 375 L625 1010" fill="none" stroke="#e5be6c" stroke-opacity=".25" stroke-width="5"/>
+        <g id="rtLaneMarkers" fill="none" stroke="#e6dcc0" stroke-opacity=".34" stroke-width="3" stroke-dasharray="28 22"><path d="M278 375 L192 1010"/><path d="M322 375 L408 1010"/></g>
+        <g id="rtObjects"></g>
+        <g id="rtPlayer" transform="translate(300 787)">
+          <ellipse cx="0" cy="58" rx="62" ry="18" fill="#000" opacity=".55" filter="url(#rtSoft)"/>
+          <rect x="-39" y="8" width="78" height="58" rx="8" fill="#131820"/>
+          <rect x="-46" y="-10" width="92" height="70" rx="16" fill="#8f2635"/>
+          <rect x="-36" y="-28" width="72" height="45" rx="18" fill="#d83d50"/>
+          <path d="M-25 -18 L-15 -33 L15 -33 L25 -18Z" fill="#101927"/>
+          <rect x="-17" y="-27" width="34" height="20" rx="3" fill="#1d2a39"/>
+          <rect x="-33" y="13" width="12" height="7" rx="2" fill="#f6d27d"/><rect x="21" y="13" width="12" height="7" rx="2" fill="#f6d27d"/>
+          <circle cx="-29" cy="55" r="10" fill="#0a0d12"/><circle cx="29" cy="55" r="10" fill="#0a0d12"/>
+          <circle cx="0" cy="-42" r="9" fill="#f3b66e"/><rect x="-11" y="-48" width="22" height="5" rx="2" fill="#d8a24f"/>
+          <circle id="rtShield" cx="0" cy="12" r="63" fill="none" stroke="#ffe29f" stroke-width="3" opacity="0" filter="url(#rtGlow)"/>
+        </g>
+        <g id="rtFloating" opacity="0"></g>
+        <rect x="0" y="0" width="600" height="960" fill="none" stroke="#e8bd68" stroke-opacity=".22"/>
+      </svg>
       <div class="game-touch-hint" id="touchHint">SWIPE LEFT / RIGHT</div>
     </div>
     <div id="roadTripResult" class="roadtrip-panel result-panel" hidden>
@@ -125,7 +157,7 @@
     </div>
   </div>
 </section>
-<script src="script.js?v=1.1.1" defer></script>
-<script src="roadtrip.js?v=1.1.1" defer></script>
+<script src="script.js?v=1.1.2" defer></script>
+<script src="roadtrip.js?v=1.1.2" defer></script>
 </body>
 </html>

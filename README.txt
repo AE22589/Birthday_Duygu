@@ -1,19 +1,15 @@
-Duygu's Birthday Quest — v1.1.0
+# Duygu's Birthday Quest — v1.1.2
 
-Quest I: The Road Trip
+Quest I — The Road Trip is playable for testing.
 
-New in v1.1.0:
-- 60-second relaxed arcade quest
-- Desktop controls: LEFT/RIGHT arrow keys
-- Mobile controls: swipe left/right
-- Device-specific instructions before start
-- I'M READY -> 3-2-1-GO sequence
-- 3 lives with forgiving recovery
-- Star collection, up to 43 stars
-- Quest I completion persists to the existing quest state
-- Key I reward and return to quest map
-- Existing 5-click / 1337 developer preview remains unchanged
-- Cache-busting query strings for CSS/JS
+Controls:
+- Desktop/Laptop: LEFT and RIGHT arrow keys
+- Mobile: swipe LEFT / RIGHT
 
-Deployment:
-Upload/replace all files in the repository root, including the assets folder.
+Flow:
+Quest Map -> The Road Trip -> Instructions -> I'M READY -> 3-2-1-GO -> 60 second relaxed game -> Key I -> Quest Map
+
+v1.1.2 replaces the previous Canvas renderer with a responsive SVG game scene to make rendering stable across desktop and mobile browsers.
+
+Developer preview remains:
+5 rapid clicks on the locked door -> enter 1337 -> Quest Map.
