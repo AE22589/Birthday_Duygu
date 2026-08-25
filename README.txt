@@ -1,31 +1,25 @@
-DUYGU'S 43RD BIRTHDAY QUEST — REVIEWED BUILD
+Duygu's 43rd Birthday Quest
+Version 1.0.0
 
-Files:
-- index.html
-- style.css
-- script.js
-- assets/scene.jpg
+This version establishes the visual quest-map foundation.
 
-Unlock:
-- Birthday unlock: September 8, 2026 at 00:00 Europe/Berlin (UTC+2 on that date)
-- Private preview: 5 rapid pointer taps/clicks on the door, then code 1337
-- No public hint for the preview exists on the page.
+DESKTOP
+- The quest map uses the approved generated artwork exactly as supplied.
+- The map is 16:9 and uses contain sizing so the entire artwork fits a normal laptop viewport without scrolling.
 
-Quest map:
-- Seven quests form a complete circle around the Final Door.
-- The Final Door is intentionally central on desktop AND mobile.
-- The story text explicitly explains that the door opens only when the circle is closed and all seven keys are collected.
-- Quest state is prepared with localStorage but no quest is falsely marked complete yet.
+MOBILE
+- A matching vertical/mobile artwork from the approved design is used below 700px.
+- The final door remains in the center of the circular quest route.
 
-Code review performed:
-- Countdown has one source of truth and one timer.
-- Desktop and mobile use the same pointer-based door interaction.
-- No duplicate touch/click handlers.
-- DOM references are resolved once and checked by the page structure.
-- Admin preview state is isolated from quest progress.
-- localStorage parsing is guarded by try/catch and validated.
-- No eval(), Function(), innerHTML with user input, or external script dependencies.
-- Event handlers use addEventListener.
-- Quest navigation is keyboard accessible.
-- Reduced-motion preference is respected for decorative animation.
-- Responsive layout has dedicated desktop/mobile geometry; mobile does not shrink the desktop circle into a unusable layout.
+GAME LOGIC
+- Countdown target: September 8, 2026 at 00:00 Europe/Berlin (+02:00 on that date).
+- Private preview: 5 quick clicks/taps on the entrance door, then code 1337.
+- Quest I is currently the only active quest placeholder.
+- The final door remains locked until all seven quest keys exist.
+- Progress is stored locally in localStorage.
+
+DEPLOYMENT
+Upload index.html, style.css, script.js, README.txt and the assets folder to the GitHub Pages repository root.
+
+VERSIONING
+Future releases should use semantic versions such as v1.0.1, v1.1.0, v2.0.0. Avoid names such as FINAL.

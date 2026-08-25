@@ -1,193 +1,204 @@
 (() => {
   'use strict';
 
-  const CONFIG = Object.freeze({
-    birthdayAt: '2026-09-08T00:00:00+02:00',
-    adminCode: '1337',
-    adminClicks: 5,
-    adminWindowMs: 1500,
-    stateKey: 'duyguBirthdayQuestStateV1'
-  });
+  const VERSION = '1.0.0';
+  const TARGET_MS = Date.parse('2026-09-08T00:00:00+02:00');
+  const ADMIN_CODE = '1337';
+  const CLICK_LIMIT = 5;
+  const CLICK_WINDOW_MS = 1500;
+  const STATE_KEY = 'duyguBirthdayQuestState_v1';
 
-  const $ = id => document.getElementById(id);
-  const els = {
-    days: $('days'), hours: $('hours'), minutes: $('minutes'), seconds: $('seconds'),
-    door: $('doorHit'), entrance: $('entrance'), questScreen: $('questScreen'),
-    lockTitle: $('lockTitle'), lockText: $('lockText'), modal: $('adminModal'),
-    adminCode: $('adminCode'), unlock: $('unlock'), cancel: $('cancel'), error: $('error'),
-    toast: $('toast'), back: $('backToDoor'), keyCount: $('keyCount'), finalDoor: $('finalDoor')
+  const $ = (id) => document.getElementById(id);
+  const entrance = $('entrance');
+  const questScreen = $('questScreen');
+  const doorHit = $('doorHit');
+  const returnDoor = $('returnDoor');
+  const finalDoor = $('finalDoor');
+  const modal = $('adminModal');
+  const codeInput = $('adminCode');
+  const unlockButton = $('unlock');
+  const cancelButton = $('cancel');
+  const error = $('error');
+  const toast = $('toast');
+  const lockTitle = $('lockTitle');
+  const lockText = $('lockText');
+  const countdown = {
+    days: $('days'), hours: $('hours'), minutes: $('minutes'), seconds: $('seconds')
   };
 
-  const questNodes = [...document.querySelectorAll('.quest-node')];
-  const targetTime = new Date(CONFIG.birthdayAt).getTime();
+  if (!entrance || !questScreen || !doorHit) return;
+
+  const defaultState = { preview: false, completed: [] };
+  let state = loadState();
   let countdownTimer = null;
-  let previewUnlocked = false;
-  let rapidClicks = 0;
-  let rapidStart = 0;
-  let toastTimer = null;
+  let clickCount = 0;
+  let clickWindowStart = 0;
 
-  function pad(value) { return String(Math.max(0, Math.floor(value))).padStart(2, '0'); }
-
-  function renderCountdown() {
-    const remaining = targetTime - Date.now();
-    if (remaining <= 0) {
-      unlockDoor('birthday');
-      return;
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STATE_KEY);
+      if (!raw) return {...defaultState};
+      const parsed = JSON.parse(raw);
+      return {
+        preview: parsed.preview === true,
+        completed: Array.isArray(parsed.completed) ? parsed.completed.filter(Number.isInteger) : []
+      };
+    } catch {
+      return {...defaultState};
     }
-    const total = Math.floor(remaining / 1000);
+  }
+
+  function saveState() {
+    try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch { /* private browsing */ }
+  }
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  function setCountdown(msRemaining) {
+    const total = Math.max(0, Math.floor(msRemaining / 1000));
     const days = Math.floor(total / 86400);
     const hours = Math.floor((total % 86400) / 3600);
     const minutes = Math.floor((total % 3600) / 60);
     const seconds = total % 60;
-    els.days.textContent = pad(days);
-    els.hours.textContent = pad(hours);
-    els.minutes.textContent = pad(minutes);
-    els.seconds.textContent = pad(seconds);
+    countdown.days.textContent = String(days).padStart(2, '0');
+    countdown.hours.textContent = String(hours).padStart(2, '0');
+    countdown.minutes.textContent = String(minutes).padStart(2, '0');
+    countdown.seconds.textContent = String(seconds).padStart(2, '0');
   }
 
-  function unlockDoor(reason) {
-    previewUnlocked = true;
-    if (countdownTimer) clearInterval(countdownTimer);
-    els.days.textContent = '00'; els.hours.textContent = '00'; els.minutes.textContent = '00'; els.seconds.textContent = '00';
-    els.lockTitle.textContent = 'THE DOOR IS READY';
-    els.lockText.innerHTML = reason === 'admin'
-      ? 'Preview mode is active.<br>Click the door to enter the adventure.'
-      : 'The appointed hour has arrived.<br>Click the door and begin the adventure.';
+  function isUnlocked() {
+    return state.preview || Date.now() >= TARGET_MS;
   }
 
-  function showToast(message) {
-    els.toast.textContent = message;
-    els.toast.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => els.toast.classList.remove('show'), 2100);
+  function refreshCountdown() {
+    const remaining = TARGET_MS - Date.now();
+    setCountdown(remaining);
+    if (remaining <= 0 || state.preview) {
+      unlockEntrance();
+      if (countdownTimer) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+      }
+    }
   }
 
-  function openAdmin() {
-    els.modal.hidden = false;
-    els.adminCode.value = '';
-    els.error.textContent = '';
-    setTimeout(() => els.adminCode.focus(), 30);
+  function unlockEntrance() {
+    lockTitle.textContent = 'THE DOOR IS READY';
+    lockText.innerHTML = 'The right moment has arrived.<br>Click the door and begin the adventure.';
   }
 
-  function closeAdmin() {
-    els.modal.hidden = true;
-    els.adminCode.value = '';
-    els.error.textContent = '';
-    rapidClicks = 0;
-    rapidStart = 0;
+  function openPreviewModal() {
+    modal.hidden = false;
+    codeInput.value = '';
+    error.textContent = '';
+    requestAnimationFrame(() => codeInput.focus());
   }
 
-  function handleDoorPress(event) {
+  function closePreviewModal() {
+    modal.hidden = true;
+    codeInput.value = '';
+    error.textContent = '';
+  }
+
+  function showQuestMap() {
+    entrance.hidden = true;
+    questScreen.hidden = false;
+    document.title = `Duygu's Birthday Quest · v${VERSION}`;
+    window.scrollTo(0, 0);
+  }
+
+  function showEntrance() {
+    questScreen.hidden = true;
+    entrance.hidden = false;
+  }
+
+  function handleDoorActivation(event) {
     event.preventDefault();
-    if (els.modal.hidden === false) return;
-
-    if (!previewUnlocked) {
+    if (!isUnlocked()) {
       const now = performance.now();
-      if (!rapidStart || now - rapidStart > CONFIG.adminWindowMs) {
-        rapidStart = now;
-        rapidClicks = 1;
+      if (!clickWindowStart || now - clickWindowStart > CLICK_WINDOW_MS) {
+        clickWindowStart = now;
+        clickCount = 1;
       } else {
-        rapidClicks += 1;
+        clickCount += 1;
       }
-      if (rapidClicks >= CONFIG.adminClicks) {
-        openAdmin();
+      if (clickCount >= CLICK_LIMIT) {
+        clickCount = 0;
+        clickWindowStart = 0;
+        openPreviewModal();
       } else {
-        showToast('The door remains sealed.');
+        showToast('The door is still locked...');
       }
       return;
     }
-
-    els.questScreen.hidden = false;
-    document.body.classList.add('quest-open');
+    showQuestMap();
   }
 
-  function loadState() {
-    try {
-      const raw = localStorage.getItem(CONFIG.stateKey);
-      if (!raw) return { keys: [] };
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed.keys)) return { keys: [] };
-      return { keys: parsed.keys.filter(n => Number.isInteger(n) && n >= 1 && n <= 7) };
-    } catch {
-      return { keys: [] };
+  function completeQuest(questNumber) {
+    if (questNumber !== 1) return;
+    if (!state.completed.includes(1)) {
+      state.completed.push(1);
+      saveState();
     }
+    showToast('Quest I is ready to build. The first key will be earned here.');
   }
 
-  function saveState(state) {
-    try { localStorage.setItem(CONFIG.stateKey, JSON.stringify(state)); } catch { /* storage may be disabled */ }
-  }
-
-  function renderQuestState() {
-    const state = loadState();
-    els.keyCount.textContent = state.keys.length;
-    questNodes.forEach(node => {
-      const n = Number(node.dataset.quest);
-      const completed = state.keys.includes(n);
-      const available = n === 1 || state.keys.includes(n - 1);
-      node.classList.toggle('active', available && !completed);
-      node.classList.toggle('locked', !available && !completed);
-      node.classList.toggle('complete', completed);
-      const small = node.querySelector('small');
-      if (small) small.textContent = completed ? 'KEY FOUND' : available ? 'READY' : 'LOCKED';
-    });
-
-    const complete = state.keys.length === 7;
-    els.finalDoor.classList.toggle('openable', complete);
-    els.finalDoor.setAttribute('aria-disabled', String(!complete));
-  }
-
-  function handleQuestNode(node) {
-    const n = Number(node.dataset.quest);
-    const state = loadState();
-    const available = n === 1 || state.keys.includes(n - 1);
-    if (!available) {
-      showToast('The path is sealed. Complete the previous challenge.');
+  function handleQuestClick(button) {
+    const number = Number(button.dataset.quest);
+    if (number !== 1) {
+      showToast('Complete the previous challenge to unlock this quest.');
       return;
     }
-    if (state.keys.includes(n)) {
-      showToast(`Key ${n} is already yours.`);
-      return;
-    }
-    if (n === 1) {
-      showToast('Quest I is ready. The first challenge awaits.');
-    } else {
-      showToast(`Quest ${n} is ready.`);
-    }
+    completeQuest(number);
   }
 
-  els.door.addEventListener('pointerup', handleDoorPress);
-  els.unlock.addEventListener('click', () => {
-    if (els.adminCode.value.trim() === CONFIG.adminCode) {
-      closeAdmin();
-      unlockDoor('admin');
-      showToast('Developer preview unlocked.');
-    } else {
-      els.error.textContent = 'Wrong code.';
-      els.adminCode.select();
-    }
+  doorHit.addEventListener('pointerup', handleDoorActivation);
+  doorHit.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') handleDoorActivation(event);
   });
-  els.cancel.addEventListener('click', closeAdmin);
-  els.adminCode.addEventListener('keydown', event => {
-    if (event.key === 'Enter') els.unlock.click();
-    if (event.key === 'Escape') closeAdmin();
-  });
-  els.modal.addEventListener('click', event => { if (event.target === els.modal) closeAdmin(); });
-  els.back.addEventListener('click', () => {
-    els.questScreen.hidden = true;
-    document.body.classList.remove('quest-open');
-  });
-  questNodes.forEach(node => {
-    node.addEventListener('click', () => handleQuestNode(node));
-    node.addEventListener('keydown', event => {
-      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); handleQuestNode(node); }
+
+  document.querySelectorAll('.quest-screen .hotspot[data-quest]').forEach((button) => {
+    button.addEventListener('pointerup', (event) => {
+      event.preventDefault();
+      handleQuestClick(button);
     });
   });
-  els.finalDoor.addEventListener('click', () => {
-    const state = loadState();
-    if (state.keys.length < 7) showToast('The circle is not closed. Seven keys are required.');
+
+  if (finalDoor) {
+    finalDoor.addEventListener('pointerup', (event) => {
+      event.preventDefault();
+      const allKeys = state.completed.length === 7;
+      if (!allKeys) showToast('Complete each challenge. Claim every key. Close the circle.');
+    });
+  }
+
+  returnDoor.addEventListener('click', showEntrance);
+  unlockButton.addEventListener('click', () => {
+    if (codeInput.value.trim() !== ADMIN_CODE) {
+      error.textContent = 'Wrong code.';
+      codeInput.select();
+      return;
+    }
+    state.preview = true;
+    saveState();
+    closePreviewModal();
+    unlockEntrance();
+    showToast('Developer preview unlocked.');
+  });
+  cancelButton.addEventListener('click', closePreviewModal);
+  codeInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') unlockButton.click();
+    if (event.key === 'Escape') closePreviewModal();
+  });
+  modal.addEventListener('pointerup', (event) => {
+    if (event.target === modal) closePreviewModal();
   });
 
-  renderQuestState();
-  renderCountdown();
-  countdownTimer = setInterval(renderCountdown, 250);
+  refreshCountdown();
+  countdownTimer = setInterval(refreshCountdown, 250);
 })();
