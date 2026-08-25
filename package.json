@@ -9,6 +9,6 @@
     "qa": "npm run qa:static && npm run qa:e2e"
   },
   "devDependencies": {
-    "playwright": "1.55.0"
+    "@playwright/test": "1.55.0"
   }
 }
