@@ -24,7 +24,7 @@ module.exports = defineConfig({
   projects: [
     { name: 'desktop-1366', use: { ...devices['Desktop Chrome'], viewport: { width: 1366, height: 768 } } },
     { name: 'desktop-1920', use: { ...devices['Desktop Chrome'], viewport: { width: 1920, height: 1080 } } },
-    { name: 'mobile-390', use: { ...devices['iPhone 12'] } },
-    { name: 'mobile-430', use: { ...devices['iPhone 14 Pro Max'] } },
+    { name: 'mobile-390', use: { ...devices['iPhone 12'], browserName: 'chromium' } },
+    { name: 'mobile-430', use: { ...devices['iPhone 14 Pro Max'], browserName: 'chromium' } },
   ],
 });
