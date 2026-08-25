@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const VERSION='1.0.14';
+const VERSION='1.1.0';
 const TARGET_MS=Date.parse('2026-09-08T00:00:00+02:00');
 const ADMIN_CODE='1337';
 const CLICK_LIMIT=5;
@@ -140,12 +140,13 @@ function renderMap(){
   returnHotspot.setAttribute('x',String(r.x));returnHotspot.setAttribute('y',String(r.y));returnHotspot.setAttribute('width',String(r.w));returnHotspot.setAttribute('height',String(r.h));
   mapImage.setAttribute('aria-label',`Duygu's birthday quest map, ${active?`quest ${active} ready`:'all quests complete'}`);
 }
-function showQuestMap(){if(!isUnlocked()){showToast('The door is still locked...');return}entrance.hidden=true;questScreen.hidden=false;renderMap();window.scrollTo(0,0)}
+function showQuestMap(){if(!isUnlocked()){showToast('The door is still locked...');return}state=loadState();entrance.hidden=true;document.getElementById('roadTripScreen')?.setAttribute('hidden','');questScreen.hidden=false;renderMap();window.scrollTo(0,0)}
+window.showQuestMap=showQuestMap;
 function showEntrance(){questScreen.hidden=true;modal.hidden=true;entrance.hidden=false;previewGranted=false;refreshCountdown()}
 function handleDoorActivation(e){if(!modal.hidden)return;e.preventDefault();if(isUnlocked()){showQuestMap();return}const now=performance.now();if(!clickWindowStart||now-clickWindowStart>CLICK_WINDOW_MS){clickWindowStart=now;clickCount=1}else clickCount++;if(clickCount>=CLICK_LIMIT){clickCount=0;clickWindowStart=0;openPreviewModal();return}showToast(`The door remains sealed. ${CLICK_LIMIT-clickCount} more clicks...`)}
-function handleQuestActivation(n){const active=currentQuest();if(n!==active){showToast(n<=(active||0)?'This challenge is already complete.':'Complete the previous challenge to unlock this quest.');return}if(n===1)showToast('Quest I is ready. The first challenge will be added in v1.1.0.')}
+function handleQuestActivation(n){const active=currentQuest();if(n!==active){showToast(n<=(active||0)?'This challenge is already complete.':'Complete the previous challenge to unlock this quest.');return}if(n===1){if(typeof window.showRoadTripScreen==='function')window.showRoadTripScreen();else showToast('Quest I could not be loaded.')}}
 function handleFinalDoor(){showToast(state.completed.length===7?'The Final Door is ready to open.':'Complete each challenge. Claim every key. Close the circle.')}
-function handleReturn(){showEntrance()}
+function handleReturn(){showEntrance();document.getElementById('roadTripScreen')?.setAttribute('hidden','')}
 
 doorHit.addEventListener('touchend',e=>{lastTouchActivation=performance.now();handleDoorActivation(e)},{passive:false});
 doorHit.addEventListener('click',e=>{if(performance.now()-lastTouchActivation<450)return;handleDoorActivation(e)});
