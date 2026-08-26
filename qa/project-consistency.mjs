@@ -36,6 +36,21 @@ export function validateProject(root) {
     }
   }
 
+  const roadtrip = read('roadtrip.js');
+  const requiredRoadtripSymbols = [
+    "requestAnimationFrame(tick)",
+    "function startLoop(",
+    "function stop(",
+    "const HORIZON_Y=",
+    "const CAR_Y=",
+    "const OBJECT_MIN_SCALE=0.2",
+    "const OBJECT_MAX_SCALE=1.0",
+    "window.__ROADTRIP_QA__"
+  ];
+  for (const symbol of requiredRoadtripSymbols) {
+    if (!roadtrip.includes(symbol)) errors.push(`roadtrip runtime contract missing: ${symbol}`);
+  }
+
   const requiredAssets = [
     'assets/entrance-scene.jpg','assets/quest-map-desktop.webp',
     'assets/quest-map-mobile.webp','assets/roadtrip-intro-art.jpg',

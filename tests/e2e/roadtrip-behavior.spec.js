@@ -58,16 +58,13 @@ test('Road Trip – fachliches Spielverhalten › während der Fahrt bewegt sich
 
 
 test('Road Trip – fachliches Spielverhalten › Objekte skalieren perspektivisch von 0,2 auf 1,0', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/index.html');
   await page.evaluate(() => window.__ROADTRIP_QA__?.start?.());
-  await page.evaluate(() => window.__ROADTRIP_QA__?.spawnTestObject?.('star', 0));
-  const scales = await page.evaluate(() => {
-    const o = [...document.querySelectorAll('#roadTripGame .rt-object.star')].find(el => el.style.transform.includes('scale'));
-    if (!o) return null;
-    return o.style.transform.match(/scale\(([^)]+)\)/)?.[1] ?? null;
-  });
-  expect(scales).not.toBeNull();
-  expect(Number(scales)).toBeGreaterThanOrEqual(0.2);
-  expect(Number(scales)).toBeLessThanOrEqual(1.0);
+  const samples = await page.evaluate(() => ({
+    horizon: window.__ROADTRIP_QA__.getPerspectiveSample(),
+    car: window.__ROADTRIP_QA__.getPerspectiveSample(88)
+  }));
+  expect(samples.horizon.scale).toBeCloseTo(0.2, 5);
+  expect(samples.car.scale).toBeCloseTo(1.0, 5);
   await page.evaluate(() => window.__ROADTRIP_QA__?.stop?.());
 });

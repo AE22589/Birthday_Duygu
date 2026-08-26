@@ -1,4 +1,4 @@
-/* Quest I — The Road Trip v1.6.8
+/* Quest I — The Road Trip v1.8.0
    Art-first implementation based on the accepted Quest I concept artwork.
    The artwork is the visual source of truth; HTML/CSS only adds interaction.
 */
@@ -28,7 +28,7 @@ const RESULT_COPY=document.getElementById('resultCopy');
 const RESULT_KICKER=document.getElementById('resultKicker');
 const KEY_REWARD=document.getElementById('keyReward');
 const QUEST_KEY='duyguBirthdayQuestState_v1';
-const VERSION='1.8.0';
+const VERSION='1.8.1';
 const SCREEN=document.getElementById('roadTripScreen');
 const DURATION=60;
 const TARGET_STARS=20;
@@ -36,6 +36,15 @@ const MAX_STARS=43;
 const GAME_LOGIC=window.DuyguGameLogic;
 if(!GAME_LOGIC) throw new Error('Game logic module failed to load');
 const LANES=GAME_LOGIC.LANES;
+const HORIZON_Y=-8;
+const CAR_Y=88;
+const COLLISION_MIN_Y=76;
+const COLLISION_MAX_Y=93;
+const EXIT_Y=112;
+const OBJECT_MIN_SCALE=0.2;
+const OBJECT_MAX_SCALE=1.0;
+const LANE_TOP_WIDTH=8;
+const LANE_BOTTOM_WIDTH=30;
 let running=false,raf=0,startAt=0,lastFrame=0,elapsed=0,score=0,lives=3,lane=1,objects=[],device='desktop',touchStart=null,lastMove=0,readyTimer=0,spawnStarAt=0,spawnObstacleAt=0,invulnerableUntil=0;
 function mobile(){return matchMedia('(max-width:700px)').matches || (navigator.maxTouchPoints>0 && innerWidth<900)}
 function setDevice(){device=mobile()?'mobile':'desktop';TOUCH_HINT.hidden=device!=='mobile';TOUCH_HINT.style.display=device==='mobile'?'block':'none';positionCar(false)}
