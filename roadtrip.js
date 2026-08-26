@@ -28,7 +28,7 @@ const RESULT_COPY=document.getElementById('resultCopy');
 const RESULT_KICKER=document.getElementById('resultKicker');
 const KEY_REWARD=document.getElementById('keyReward');
 const QUEST_KEY='duyguBirthdayQuestState_v1';
-const VERSION='1.8.2';
+const VERSION='1.8.4';
 const SCREEN=document.getElementById('roadTripScreen');
 const DURATION=60;
 const TARGET_STARS=20;
@@ -192,10 +192,19 @@ function back(){clearReadyTimer();stop();clearObjects();setView('intro');window.
 function showRoadTripScreen(){clearReadyTimer();stop();clearObjects();reset();setView('intro');setDevice()}
 READY.addEventListener('click',ready);BACK.addEventListener('click',back);RETURN.addEventListener('click',back);RETRY.addEventListener('click',()=>{stop();clearObjects();reset();setView('intro');setDevice()});BOARD.addEventListener('pointerdown',onPointerDown,{passive:false});BOARD.addEventListener('pointerup',onPointerUp,{passive:false});BOARD.addEventListener('pointercancel',e=>{try{BOARD.releasePointerCapture(e.pointerId)}catch{} touchStart=null},{passive:true});bindControls();setDevice();
 window.showRoadTripScreen=showRoadTripScreen;
+function primeQaObject(o){
+  if(!o)return;
+  const targetY=(COLLISION_MIN_Y+COLLISION_MAX_Y)/2;
+  const normalized=Math.max(0,Math.min(1,(targetY-HORIZON_Y)/(CAR_Y-HORIZON_Y)));
+  o.qaTest=true;
+  o.progress=Math.pow(normalized,1/1.7);
+  o.travelMs=700;
+  renderObject(o,performance.now());
+}
 if(new URLSearchParams(location.search).has('qa') && navigator.webdriver===true){
   window.__DUYGU_QA__={
     getPerspectiveSample:(y=HORIZON_Y)=>{const t=Math.max(0,Math.min(1,(y-HORIZON_Y)/(CAR_Y-HORIZON_Y)));return {y,scale:OBJECT_MIN_SCALE+(OBJECT_MAX_SCALE-OBJECT_MIN_SCALE)*Math.pow(t,2)}},
-  getVisualMotion:()=>{const el=document.getElementById('roadFlowLayer');if(!el)return null;return getComputedStyle(el).backgroundPositionY;},
+  getVisualMotion:()=>{const o=objects.find(o=>o.qaTest&&!o.hit);return o?o.y:null;},
   getState:()=>({running,elapsed,score,lives,lane}),
     move:(dir)=>move(dir),
     reset:()=>{stop();clearObjects();reset();setView('game');setDevice()},
@@ -203,7 +212,14 @@ if(new URLSearchParams(location.search).has('qa') && navigator.webdriver===true)
     setLives:(value)=>{lives=Math.max(0,Math.min(3,Number(value)));updateHud()},
     setScore:(value)=>{score=Math.max(0,Math.min(MAX_STARS,Number(value)));updateHud()},
     setElapsed:(seconds)=>{elapsed=Math.max(0,Math.min(DURATION,Number(seconds)));if(running)startAt=performance.now()-elapsed*1000;updateHud()},
-    spawnTestObject:(type,testLane)=>{const safeType=['star','barrel','cat'].includes(type)?type:'star';const safeLane=Math.max(0,Math.min(2,Number(testLane)));const before=objects.length;spawn(safeType,safeLane);const o=objects[before];if(o){o.y=82;renderObject(o,performance.now())}},
+    spawnTestObject:(type,testLane)=>{
+      const safeType=['star','barrel','cat'].includes(type)?type:'star';
+      const safeLane=Math.max(0,Math.min(2,Number(testLane)));
+      const before=objects.length;
+      spawn(safeType,safeLane);
+      const o=objects[before];
+      if(o){o.lane=safeLane;primeQaObject(o)}
+    },
     runtime:()=>({running,rafActive:!!raf,objectCount:objects.length,elapsed,score,lives,lane})
   };
 }
@@ -227,12 +243,7 @@ window.__ROADTRIP_QA__={
     const before=objects.length;
     spawn(safeType,safeLane);
     const o=objects[before];
-    if(o){
-      o.qaTest=true;
-      o.progress=0;
-      o.lane = safeLane;
-      renderObject(o,performance.now());
-    }
+    if(o){o.lane=safeLane;primeQaObject(o)}
   }
 };
 })();
