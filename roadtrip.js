@@ -18,6 +18,9 @@ const DYNAMIC=document.getElementById('dynamicLayer');
 const CAR=document.getElementById('playerCar');
 const PULSE=document.getElementById('lanePulse');
 const TOUCH_HINT=document.getElementById('touchHint');
+measureBoard();
+window.addEventListener('resize',measureBoard);
+window.addEventListener('orientationchange',()=>setTimeout(measureBoard,60));
 const STARS=document.getElementById('starCount');
 const TIME=document.getElementById('timeCount');
 const LIVES=document.getElementById('lifeCount');
@@ -28,7 +31,7 @@ const RESULT_COPY=document.getElementById('resultCopy');
 const RESULT_KICKER=document.getElementById('resultKicker');
 const KEY_REWARD=document.getElementById('keyReward');
 const QUEST_KEY='duyguBirthdayQuestState_v1';
-const VERSION='1.8.7';
+const VERSION='1.8.9';
 const SCREEN=document.getElementById('roadTripScreen');
 const DURATION=60;
 const TARGET_STARS=20;
@@ -47,16 +50,19 @@ const OBJECT_MAX_SCALE=1.0;
 const LANE_TOP_WIDTH=8;
 const LANE_BOTTOM_WIDTH=30;
 let running=false,raf=0,startAt=0,lastFrame=0,elapsed=0,score=0,lives=3,lane=1,objects=[],device='desktop',touchStart=null,lastMove=0,readyTimer=0,spawnStarAt=0,spawnObstacleAt=0,invulnerableUntil=0;
+let boardW=0,boardH=0;
+function measureBoard(){const r=BOARD.getBoundingClientRect();boardW=r.width;boardH=r.height;}
 function mobile(){return matchMedia('(max-width:700px)').matches || (navigator.maxTouchPoints>0 && innerWidth<900)}
-function setDevice(){device=mobile()?'mobile':'desktop';TOUCH_HINT.hidden=device!=='mobile';TOUCH_HINT.style.display=device==='mobile'?'block':'none';positionCar(false)}
+function setDevice(){device=mobile()?'mobile':'desktop';TOUCH_HINT.hidden=device!=='mobile';TOUCH_HINT.style.display=device==='mobile'?'block':'none';measureBoard();positionCar(false)}
 function laneX(i){return LANES[Math.max(0,Math.min(2,i))]}
-function positionCar(animate=true){const x=laneX(lane);CAR.style.setProperty('--car-x',x);CAR.dataset.lane=String(lane);CAR.setAttribute('aria-label',`Player car, lane ${lane+1} of 3`);CAR.classList.toggle('move',animate);}
+function positionCar(animate=true){const x=laneX(lane);const pxX=boardW*x/100;CAR.style.transform=`translate3d(${pxX}px,0,0) translate(-50%,0)`;CAR.dataset.lane=String(lane);CAR.setAttribute('aria-label',`Player car, lane ${lane+1} of 3`);CAR.classList.toggle('move',animate);}
 function updateHud(){STARS.textContent=`${score} / ${MAX_STARS}`;TIME.textContent=String(Math.max(0,Math.ceil(DURATION-elapsed)));LIVES.textContent=`${'♥ '.repeat(lives).trim()}${lives<3?' '+ '♡ '.repeat(3-lives).trim():''}`}
 function clearObjects(){objects.forEach(o=>o.el.remove());objects=[];DYNAMIC.replaceChildren()}
 function reset(){stop();clearObjects();elapsed=0;score=0;lives=3;lane=1;lastMove=0;spawnStarAt=0;spawnObstacleAt=0;invulnerableUntil=0;CAR.classList.remove('hit');PULSE.classList.remove('show');positionCar(false);updateHud()}
 function asset(type){return type==='star'?'assets/game-star.png':type==='cat'?'assets/game-cat.png':'assets/game-barrel.png'}
 function spawn(type,idx){
   const el=document.createElement('img');
+  el.style.left='0';el.style.top='0';
   el.className=`rt-object ${type}`;
   el.src=asset(type);
   el.alt='';
@@ -69,10 +75,9 @@ function spawn(type,idx){
   };
   objects.push(o);
   renderObject(o,performance.now());
-}
+;measureBoard()}
 function maybeSpawn(){if(score<MAX_STARS && elapsed*1000>=spawnStarAt){spawn('star',Math.random()<.7?lane:Math.floor(Math.random()*3));spawnStarAt=elapsed*1000+900+Math.random()*650}if(elapsed*1000>=spawnObstacleAt){const occupied=new Set(objects.filter(o=>!o.hit&&o.y<55&&o.type!=='star').map(o=>o.lane));let choices=[0,1,2].filter(i=>!occupied.has(i));if(!choices.length)choices=[0,1,2];let idx=choices[Math.floor(Math.random()*choices.length)];if(Math.random()<.58)idx=(lane+(Math.random()<.5?-1:1)+3)%3;spawn(Math.random()<.7?'barrel':'cat',idx);spawnObstacleAt=elapsed*1000+1900+Math.random()*1400}}
 function renderObject(o,now){
-  // Simple pseudo-3D: one progress value drives position, size and lane spread.
   const t=Math.max(0,Math.min(1,o.progress));
   const p=Math.pow(t,1.7);
   o.y=HORIZON_Y+(CAR_Y-HORIZON_Y)*p;
@@ -80,11 +85,9 @@ function renderObject(o,now){
   const laneWidth=LANE_TOP_WIDTH+(LANE_BOTTOM_WIDTH-LANE_TOP_WIDTH)*p;
   const laneOffset=(o.lane-1)*laneWidth;
   const bob=o.type==='star'?Math.sin(now/300+o.phase)*.7:Math.sin(now/500+o.phase)*.25;
-  // Position is relative to the road board. Percentages on left/top use
-  // the containing block; transform percentages are reserved for centering.
-  o.el.style.left=`${50 + laneOffset}%`;
-  o.el.style.top=`${o.y}%`;
-  o.el.style.transform=`translate(-50%, 0) translate(${bob}px, 0) scale(${scale})`;
+  const pxX=boardW*(50+laneOffset)/100;
+  const pxY=boardH*o.y/100;
+  o.el.style.transform=`translate3d(${pxX}px,${pxY}px,0) translate(-50%,0) translate(${bob}px,0) scale(${scale})`;
   o.el.style.opacity=o.hit?'0':String(.4+.6*t);
   o.el.style.zIndex=String(10+Math.round(t*30));
 }
@@ -131,7 +134,13 @@ function unbindGlobalListeners(){
 function onOrientationChange(){setTimeout(setDevice,60)}
 function startLoop(){
   const roadTripGame=document.getElementById('roadTripGame');
-  roadTripGame?.classList.add('is-driving');stop();bindGlobalListeners();running=true;SCENE.classList.add('is-driving');ROAD_MOTION?.classList.add('is-driving');startAt=performance.now();lastFrame=startAt;raf=requestAnimationFrame(tick)}
+  roadTripGame?.classList.add('is-driving');
+  stop();bindGlobalListeners();running=true;
+  SCENE.classList.add('is-driving');ROAD_MOTION?.classList.add('is-driving');
+  measureBoard();
+  positionCar(false);
+  startAt=performance.now();lastFrame=startAt;raf=requestAnimationFrame(tick)
+}
 function stop(){running=false;SCENE.classList.remove('is-driving');ROAD_MOTION?.classList.remove('is-driving');if(raf)cancelAnimationFrame(raf);raf=0;touchStart=null;unbindGlobalListeners()}
 function move(dir){if(!running)return;const now=performance.now();if(now-lastMove<120)return;const next=GAME_LOGIC.moveLane(lane,dir);if(next===lane)return;lane=next;lastMove=now;positionCar(true);PULSE.style.setProperty('--pulse-x',laneX(lane));PULSE.classList.remove('show');void PULSE.offsetWidth;PULSE.classList.add('show')}
 function bindControls(){document.querySelectorAll('[data-move]').forEach(btn=>{btn.addEventListener('click',()=>move(Number(btn.dataset.move)))})}
@@ -209,6 +218,7 @@ if(new URLSearchParams(location.search).has('qa') && navigator.webdriver===true)
   window.__DUYGU_QA__={
     getPerspectiveSample:(y=HORIZON_Y)=>{const t=Math.max(0,Math.min(1,(y-HORIZON_Y)/(CAR_Y-HORIZON_Y)));return {y,scale:OBJECT_MIN_SCALE+(OBJECT_MAX_SCALE-OBJECT_MIN_SCALE)*Math.pow(t,2)}},
   getVisualMotion:()=>{const o=objects.find(o=>o.qaTest&&!o.hit);return o?o.y:null;},
+  getBoardSize:()=>({w:boardW,h:boardH}),
   getState:()=>({running,elapsed,score,lives,lane}),
     move:(dir)=>move(dir),
     reset:()=>{stop();clearObjects();reset();setView('game');setDevice()},
@@ -269,3 +279,5 @@ window.__ROADTRIP_QA__={
   }
 };
 })();
+
+if(new URLSearchParams(location.search).has('debug')){const panel=document.createElement('div');panel.id='roadtrip-debug-panel';panel.style.cssText='position:fixed;top:4px;left:4px;z-index:9999;background:rgba(0,0,0,.75);color:#0f0;font:11px monospace;padding:6px 8px;white-space:pre;pointer-events:none;';document.body.appendChild(panel);setInterval(()=>{const lines=[`running:${running} raf:${!!raf} objs:${objects.length} boardW:${Math.round(boardW)} boardH:${Math.round(boardH)}`];objects.slice(0,6).forEach((o,i)=>lines.push(`#${i} ${o.type} lane:${o.lane} progress:${o.progress.toFixed(2)} y:${o.y.toFixed(1)}`));panel.textContent=lines.join('\\n');},200);}

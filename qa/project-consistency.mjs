@@ -49,7 +49,10 @@ export function validateProject(root) {
     "getPerspectiveSample",
     "getVisualMotion:()=>{const o=objects.find(o=>o.qaTest&&!o.hit);return o?o.y:null;}",
     "function primeQaObject(o)",
-    "o.el.style.top",
+    "let boardW=0,boardH=0;",
+    "function measureBoard()",
+    "o.el.style.transform=`translate3d(",
+    "el.style.left='0';el.style.top='0';",
   ];
   for (const symbol of requiredRoadtripSymbols) {
     if (!roadtrip.includes(symbol)) errors.push(`roadtrip runtime contract missing: ${symbol}`);
