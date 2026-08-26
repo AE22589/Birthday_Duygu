@@ -4,6 +4,7 @@ module.exports = defineConfig({
   testDir: './tests/e2e',
   timeout: 30000,
   expect: { timeout: 5000 },
+  snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{arg}{ext}',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
@@ -13,7 +14,6 @@ module.exports = defineConfig({
     baseURL: 'http://127.0.0.1:4173',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    snapshotPathTemplate: '{testDir}/__screenshots__/{projectName}/{arg}{ext}',
     video: 'retain-on-failure',
   },
   webServer: {
