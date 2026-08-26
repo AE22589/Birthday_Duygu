@@ -1,19 +1,50 @@
-Duygu's Birthday Quest — v1.6.7
+Duygu's Birthday Quest — v1.9.0
 
-Quest I: The Road Trip
+Quest I: The Road Trip — Arcade Edition (kompletter Neubau)
 
-SOURCE OF TRUTH
-The supplied Quest I concept artwork is the visual reference for this release. The game uses the accepted night-road composition, red luggage car, warm lamps, stars, barrels, cat and gold/pink UI language. The concept sheet itself is not shown or shipped as a page; it is used as the design basis.
+FACHLICHE ENTSCHEIDUNG
+Quest I wurde komplett neu gebaut. Die frühere, foto-realistische Umsetzung
+(personalisiertes Konzept-Artwork als visuelle Quelle der Wahrheit) wurde
+durch einen bewusst einfachen, robusten Retro-Arcade-Look ersetzt — reine
+CSS-Formen statt Bild-Assets. Diese Entscheidung wurde explizit getroffen,
+um Stabilität über visuelle Fototreue zu stellen, nachdem die vorherige
+Architektur wiederholt schwer zu diagnostizierende Laufzeitfehler zeigte.
 
-IMPLEMENTATION
-- One canonical responsive gameplay scene for desktop and mobile, avoiding separate geometry drift.
-- The accepted scene art is the background; the static player car is removed from the background and the transparent car asset is layered on top.
-- Dynamic stars, barrels and cats are added only in the foreground, so distant artwork remains part of the scenery.
-- Desktop: LEFT / RIGHT arrow keys; A / D also supported.
-- Mobile: SWIPE LEFT / RIGHT.
-- 60 seconds maximum, 3 lives, relaxed difficulty.
-- 20 stars unlock Key I; 43 is the perfect score.
-- Existing 5-click -> 1337 security flow is unchanged.
+WARUM DER NEUBAU
+Die vorherige Implementierung kombinierte CSS-Layout-Positionierung mit
+gecachten Pixelwerten (Board-Breite/-Höhe), was mehrere Klassen von Bugs
+verursachte: einen Absturz durch falsche Variablen-Initialisierungsreihen-
+folge, ein sichtbares "Rutschen" der Autoposition beim Spielstart, und
+Testinstabilität. Die neue Architektur verwendet ausschließlich Prozent-
+werte für Positionierung — dieselbe Fehlerklasse kann strukturell nicht
+mehr auftreten.
+
+ARCHITEKTUR
+- Nur Prozentwerte (top/left) für Positionierung. Kein gecachter
+  Zwischenspeicher für Spielfeld-Maße, keine Stale-Value-Möglichkeit.
+- Reine Spiellogik (Perspektivskalierung, Fortschritt, Kollisionszone) ist
+  von der DOM-Darstellung getrennt und ganz ohne Browser mit
+  `node tests/game-logic.test.cjs` testbar.
+- Keine Bild-Assets für Quest I — reine CSS-Formen (Auto, Sterne,
+  Hindernisse, Skyline, Menge). Kein Asset kann fehlschlagen oder falsch
+  cachen.
+- Ein Bildschirm-Zustand (`view`: intro/game/result), eine Funktion zum
+  Wechseln.
+
+SPIELABLAUF
+- 3 Fahrspuren, Pfeiltasten (← →) oder Wischen zum Spurwechsel.
+- Sterne sammeln, Tonnen/Katzen ausweichen.
+- 60 Sekunden, 3 Leben, 15 Sterne zum Freischalten von Schlüssel I.
+- Bei Erfolg: Persistenz über denselben `localStorage`-Schlüssel wie der
+  Rest der Seite (`duyguBirthdayQuestState_v1`), unverändertes Format.
+
+QUESTS II–VII
+Unverändert gegenüber der vorherigen Version — weiterhin gesperrt, fachliche
+Ausgestaltung offen (siehe PROJECT_REQUIREMENTS.docx).
+
+SICHERHEITS-GATE
+Unverändert: 5 Klicks auf die Tür innerhalb des Zeitfensters öffnen den
+Entwickler-Zugang, Code 1337 schaltet die Quest Map frei.
 
 VERSION
-v1.6.7
+v1.9.0

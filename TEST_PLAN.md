@@ -1,98 +1,55 @@
 # Duygu's Birthday Quest — QA / TEST PLAN
 
-## Release v1.6.7 — Quest I art-first responsive implementation
+## Release v1.9.0 — Quest I Arcade-Neubau
 
-### A. Regression / security
-1. Countdown screen loads.
-2. Before Sep 8 2026, normal door click does not open map.
-3. Five clicks within the configured window open Developer Access.
-4. `1337` opens the Quest Map.
-5. Fewer than five clicks never opens the map.
-6. Quest Map is not directly accessible through Quest I code.
+### A. Regression / Sicherheit
+1. Countdown-Bildschirm lädt.
+2. Vor dem Stichtag öffnet ein normaler Türklick nicht die Map.
+3. Fünf Klicks im Zeitfenster öffnen den Entwickler-Zugang.
+4. `1337` öffnet die Quest Map.
+5. Weniger als fünf Klicks öffnet die Map nie.
 
 ### B. Map → Quest I
-7. Quest I is the only active quest initially.
-8. Clicking Quest I loads `roadtrip.js` if not already loaded.
-9. Quest I intro appears.
-10. Other quests remain locked.
+6. Quest I ist anfangs die einzige aktive Quest.
+7. Klick auf Quest I zeigt das Intro.
+8. Andere Quests bleiben gesperrt.
 
-### C. Intro gate
-11. Desktop shows arrow-key instructions.
-12. Mobile shows swipe instructions.
-13. `I'M READY` is required.
-14. 3-2-1-GO sequence runs once.
-15. Back to map works before gameplay.
+### C. Intro-Gate
+9. `I'M READY` startet das Spiel direkt (kein Countdown mehr nötig — bewusst
+   vereinfacht gegenüber der Vorversion).
+10. Zurück zur Map funktioniert vor dem Spielstart.
 
-### D. Visual source-of-truth
-16. `assets/quest1-game-background.jpg` is derived from the accepted Quest I concept artwork.
-17. `assets/roadtrip-car.png` is layered above the background.
-18. No generic vector road is used.
-19. No opaque SVG/canvas layer covers the artwork.
-20. Desktop and mobile use the same canonical scene and responsive crop.
-21. No duplicated HUD from the concept sheet is shown; HUD is live HTML.
+### D. Gameplay
+11. Timer startet bei 60.
+12. Sterne können gesammelt werden.
+13. Hindernisse kosten Leben.
+14. Kollision hat ein Unverwundbarkeits-Fenster.
+15. 15+ Sterne innerhalb von 60 Sekunden vergeben Schlüssel I.
+16. Retry setzt den Lauf vollständig zurück.
+17. Abschluss kehrt zur Map zurück.
 
-### E. Desktop interaction
-22. Test 1366x768.
-23. Test 1440x900.
-24. Test 1920x1080.
-25. Arrow Left changes one lane.
-26. Arrow Right changes one lane.
-27. A/D also change lanes.
-28. Button controls work.
-29. No page scrolling from arrow keys during gameplay.
-30. Car remains visually attached to the road and never leaves the board.
+### E. Desktop-Steuerung
+18. Pfeiltasten links/rechts wechseln je eine Spur.
+19. Kein Seiten-Scrollen durch Pfeiltasten während des Spiels.
 
-### F. Mobile interaction
-31. Test 390x844.
-32. Test 393x852.
-33. Test 412x915.
-34. Swipe left changes one lane.
-35. Swipe right changes one lane.
-36. Touch does not scroll the page during gameplay.
-37. Full board is visible without horizontal overflow.
-38. Car remains centered on the chosen lane.
-39. No desktop controls appear on mobile.
-40. Mobile crop keeps the road, moon, lamps and destination readable.
+### F. Mobile-Steuerung
+20. Wischen links/rechts wechselt je eine Spur.
+21. Touch scrollt die Seite während des Spiels nicht.
+22. Keine Desktop-Steuerelemente auf Mobile.
 
-### G. Gameplay
-41. Timer starts at 60.
-42. Stars can be collected.
-43. Obstacles reduce lives.
-44. All three lanes are never intentionally blocked.
-45. Collision has an invulnerability window.
-46. 20+ stars within the 60-second run awards Key I.
-47. <20 stars does not award Key I.
-48. 43 is the maximum displayed score.
-49. Retry fully resets the run.
-50. Completion returns to map.
+### G. Zustand / Regression
+23. Quest-Abschluss schreibt nach `duyguBirthdayQuestState_v1`.
+24. Reload erhält Schlüssel I.
+25. Bestehende Quest-Map-Sicherheit/-Zustand bleiben unberührt.
 
-### H. State / regression
-51. Quest completion writes to `duyguBirthdayQuestState_v1`.
-52. Reload preserves Key I.
-53. Existing quest map security and state are untouched.
-54. No stale v1.1.x/v1.2.x Quest I renderer remains referenced.
+### H. Statische technische Prüfungen
+26. `node --check` auf allen JS-Dateien.
+27. Benötigte Assets (nur noch 3: Eingangsbild, 2× Quest-Map) vorhanden.
+28. Alle Cache-Buster-Versionen konsistent `v1.9.0`.
+29. `qa/project-consistency.mjs` schlägt fehl, falls die alte
+    Board-Cache-Architektur wieder eingeführt wird.
 
-### I. Static technical checks
-55. `node --check script.js`
-56. `node --check roadtrip.js`
-57. Required assets exist.
-58. All HTML/CSS/JS cache-busters are `v1.6.7`.
-59. `window.__DUYGU_ROADTRIP_SELF_TEST__()` reports renderer, source asset, controls, lanes and state key.
-60. ZIP contents are internally consistent.
-
-### Deployment gate
-The live GitHub Pages URL must be checked manually after upload. Local static tests are not proof of the deployed CDN state. If the live page is unchanged, inspect the Network panel for `style.css?v=1.6.7`, `script.js?v=1.6.7`, and `roadtrip.js?v=1.6.7`.
-
-
-## Regression gate — Quest I v1.6.7
-
-- [ ] Before READY: intro visible, game hidden, result hidden.
-- [ ] After READY countdown: intro hidden and game visible; both must not coexist.
-- [ ] Game board is entirely inside the viewport on 1366×768, 1920×1080, 390×844 and 844×390.
-- [ ] Desktop ArrowLeft / ArrowRight move exactly one lane per accepted input.
-- [ ] A / D remain supported.
-- [ ] Mobile swipe left / right moves exactly one lane.
-- [ ] Touch scrolling does not start while playing.
-- [ ] Returning to map stops the game loop and hides the entire Road Trip screen.
-- [ ] Reloading the project never leaves the game view visible behind the intro.
-- [ ] Developer security flow remains 5 clicks → code 1337 → quest map.
+### Deployment-Gate
+Die live GitHub-Pages-URL nach dem Upload manuell prüfen. Lokale Tests sind
+kein Beweis für den tatsächlichen CDN-Zustand — im Zweifel den
+Netzwerk-Tab auf `roadtrip.js?v=1.9.0` kontrollieren.

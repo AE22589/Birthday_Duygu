@@ -1,28 +1,30 @@
-# QA Hardening — v1.6.7
+# QA Hardening — v1.9.0
 
-## Release gates
+## Release-Gates
+1. Static QA (`qa/static-check.mjs`) — Datei-/Versions-/Architektur-Konsistenz
+2. Unit-Tests der reinen Spiellogik (`tests/game-logic.test.cjs`)
+3. Security E2E (`security-map.spec.js`)
+4. Quest-Map Visual Regression (`visual-map.spec.js`)
+5. Runtime Health (`runtime-health.spec.js`)
+6. Vollständiger Nutzerpfad inkl. Quest-I-Gewinn und Persistenz
 
-1. Static QA and asset integrity
-2. Game logic unit QA
-3. Security E2E
-4. Quest Map visual regression at 1366, 1920, 390 and 430 CSS pixels
-5. Desktop keyboard/button E2E
-6. Mobile swipe E2E in both directions
-7. Deterministic game-state regression
-8. Quest completion and persistence regression
-9. Retry/lifecycle regression
-10. Overflow/no-scroll checks
+## Architektur-Schutzregel
+`qa/project-consistency.mjs` prüft aktiv gegen den Wiedereinzug der alten
+Fehlerklasse: gecachte Board-Maße, `translate3d`-Positionierung oder
+`--car-x`-CSS-Variablen dürfen in `roadtrip.js` nicht mehr vorkommen. Wird
+eines dieser Muster gefunden, schlägt Static QA bewusst fehl.
 
-## Visual regression
+## QA-Schnittstelle
+`window.__ROADTRIP__` ist ungated (kein `?qa=1`-Flag nötig), da Quest I
+keine echten Nutzerdaten verarbeitet. Verfügbare Methoden: `getState()`,
+`start()`, `move(dir)`, `spawn(type, lane)`, `forceFinish(gameOver)`,
+`setElapsed(seconds)`.
 
-The Quest Map is captured against four approved baselines under `tests/e2e/__screenshots__/`. The baseline is generated from the current map artwork plus the active-ring treatment at the exact viewport geometry used by the test matrix.
+## Debug-Overlay
+`?debug=1` an die URL anhängen zeigt Live-Werte (Ansicht, Fortschritt pro
+Objekt, laufender Zustand) direkt im Bild — kein DevTools-Zugriff nötig.
 
-A future intentional visual change must update the baseline deliberately; it must never be updated just to make CI green.
-
-## QA-only controls
-
-The deterministic QA API is exposed only when both `?qa=1` is present and `navigator.webdriver === true`. The visual-map mode uses `?qa=visual-map` with the same browser-test requirement. This prevents ordinary visitors from activating the QA API through the URL alone.
-
-## Manual testing policy
-
-Manual checks are reserved for subjective visual quality, animation feel, and real-device/browser compatibility that cannot be represented reliably by automated assertions. Functional regressions should be automated as soon as they are discovered.
+## Manuelle Testpolitik
+Manuelle Prüfung bleibt reserviert für subjektive visuelle Qualität und
+Verhalten auf echten Geräten, das sich nicht zuverlässig automatisieren
+lässt. Funktionale Regressionen werden so bald wie möglich automatisiert.

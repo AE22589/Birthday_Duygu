@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#030508">
 <meta name="description" content="Duygu's 43rd Birthday Adventure">
 <title>Duygu's 43rd Birthday Quest</title>
-<link rel="stylesheet" href="style.css?v=1.8.13">
+<link rel="stylesheet" href="style.css?v=1.9.0">
 </head>
 <body>
 <main id="app">
@@ -84,68 +84,75 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </main>
 <section id="roadTripScreen" class="screen roadtrip-screen" hidden aria-label="Quest I The Road Trip">
-  <div class="roadtrip-wrap">
-    <section id="roadTripIntro" class="roadtrip-intro" aria-labelledby="roadTripTitle">
-      <div class="intro-art-panel" aria-hidden="true">
-        <div class="intro-art-image"></div>
-        <div class="intro-art-vignette"></div>
-      </div>
-      <div class="intro-copy">
-        <div class="quest-kicker">QUEST I</div>
-        <h1 id="roadTripTitle">THE ROAD TRIP</h1>
-        <p class="intro-lead">Collect the stars. Avoid the obstacles. Reach your destination.</p>
-        <div class="how-to-play">
-          <div class="how-block desktop-instructions">
-            <span class="how-label">LAPTOP / DESKTOP</span>
-            <div class="key-row"><button type="button" class="control-key" data-move="-1" aria-label="Move left">←</button><button type="button" class="control-key" data-move="1" aria-label="Move right">→</button></div>
-            <span>Use the <strong>LEFT</strong> and <strong>RIGHT</strong> arrow keys to change lanes.</span>
-          </div>
-          <div class="how-block mobile-instructions">
-            <span class="how-label">MOBILE</span>
-            <div class="swipe-symbol">← <span>SWIPE</span> →</div>
-            <span>Swipe <strong>LEFT</strong> or <strong>RIGHT</strong> to change lanes.</span>
-          </div>
-          <div class="rules-line"><span>✦ Collect stars</span><span>✦ Avoid barrels &amp; animals</span><span>✦ 3 lives</span><span>✦ Max. 60 seconds</span></div>
-        </div>
-        <button id="readyButton" class="game-button" type="button">I'M READY</button>
-        <button id="backToMapFromIntro" class="text-button" type="button">BACK TO QUEST MAP</button>
-      </div>
-    </section>
+  <div class="rt-wrap">
+    <div class="rt-cabinet">
+      <div class="rt-scanlines"></div>
 
-    <section id="roadTripGame" class="roadtrip-game" hidden aria-label="The Road Trip game">
-      <div class="game-hud" aria-live="polite">
-        <div><span class="hud-label">LIVES</span><strong id="lifeCount">♥ ♥ ♥</strong></div>
-        <div class="hud-center"><span class="hud-label">THE ROAD TRIP</span><strong id="timeCount">60</strong></div>
-        <div><span class="hud-label">STARS</span><strong id="starCount">0 / 43</strong></div>
-      </div>
-      <div id="roadBoard" class="road-board" tabindex="0" aria-label="Road Trip game area">
-        <div id="sceneLayer" class="scene-layer">
-          <div class="road-background" aria-hidden="true"></div>
-          
-          <div id="dynamicLayer" class="dynamic-layer" aria-hidden="true"></div>
-          <img id="playerCar" class="player-car" src="assets/roadtrip-car.png" alt="">
-          <div id="lanePulse" class="lane-pulse" aria-hidden="true"></div>
-          <div id="rtEffects" class="rt-effects" aria-hidden="true"></div>
+      <section id="roadTripIntro" class="rt-view rt-intro" aria-labelledby="roadTripTitle">
+        <h1 class="rt-title" id="roadTripTitle">THE ROAD TRIP</h1>
+        <p class="rt-subtitle">✦ ARCADE EDITION ✦</p>
+        <p class="rt-hint">Pfeiltasten ← → oder Wischen, um die Spur zu wechseln.</p>
+        <div class="rt-rules">
+          <span>★ Sterne sammeln</span>
+          <span>⛔ Hindernissen ausweichen</span>
+          <span>♥ 3 Leben</span>
+          <span>⏱ 60 Sekunden</span>
         </div>
-        <div class="desktop-game-controls" aria-label="Optional lane controls"><button type="button" class="control-key game-control" data-move="-1" aria-label="Move left">←</button><button type="button" class="control-key game-control" data-move="1" aria-label="Move right">→</button></div>
-        <div class="game-touch-hint" id="touchHint">SWIPE LEFT / RIGHT</div>
-      </div>
-      <p class="game-note">The road is yours. Stay calm, follow the stars, and enjoy the ride.</p>
-    </section>
+        <button id="readyButton" class="rt-btn" type="button">I'M READY</button>
+        <button id="backToMapFromIntro" class="rt-textlink" type="button">BACK TO QUEST MAP</button>
+      </section>
 
-    <section id="roadTripResult" class="roadtrip-panel result-panel" hidden>
-      <div id="resultKicker" class="quest-kicker">JOURNEY COMPLETE</div>
-      <h1 id="resultTitle">THE ROAD REMEMBERS</h1>
-      <p id="resultCopy">You made it through the night.</p>
-      <div class="result-stats"><div><span>STARS</span><strong id="resultStars">0</strong></div><div><span>TIME</span><strong id="resultTime">60s</strong></div></div>
-      <div id="keyReward" class="key-reward" hidden><div class="key-glow"></div><div class="key-art">✦</div><strong>KEY I ACQUIRED</strong><span>THE FIRST KEY IS YOURS.</span></div>
-      <button id="returnToMapFromResult" class="game-button" type="button">RETURN TO QUEST MAP</button>
-      <button id="retryRoadTrip" class="text-button" type="button">TRY AGAIN</button>
-    </section>
+      <section id="roadTripGame" class="rt-view rt-game" hidden aria-label="The Road Trip game">
+        <div class="rt-hud" aria-live="polite">
+          <div><label>LIVES</label><strong id="lifeCount">♥ ♥ ♥</strong></div>
+          <div class="rt-hud-center"><label>TIME</label><strong id="timeCount">60</strong></div>
+          <div><label>STARS</label><strong id="starCount">0 / 15</strong></div>
+        </div>
+        <div id="roadBoard" class="rt-board" tabindex="0" aria-label="Road Trip game area">
+          <div class="rt-horizon-glow"></div>
+          <div class="rt-skyline left" id="skylineLeft"></div>
+          <div class="rt-skyline right" id="skylineRight"></div>
+          <div class="rt-crowd left"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="rt-crowd right"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="rt-road">
+            <div class="rt-road-shape"></div>
+            <div class="rt-road-edge left"></div>
+            <div class="rt-road-edge right"></div>
+          </div>
+          <div id="roadMarkers"></div>
+          <div id="dynamicLayer" aria-hidden="true"></div>
+          <div id="playerCar" class="rt-car">
+            <div class="wheel fl"></div><div class="wheel fr"></div>
+            <div class="wheel rl"></div><div class="wheel rr"></div>
+            <div class="car-body"></div>
+            <div class="car-stripe"></div>
+            <div class="car-roof"></div>
+            <div class="car-windshield"></div>
+          </div>
+          <div class="rt-flash" id="rtFlash"></div>
+        </div>
+        <div class="rt-touch-controls" aria-label="Optional lane controls">
+          <button type="button" data-move="-1" aria-label="Move left">◀</button>
+          <button type="button" data-move="1" aria-label="Move right">▶</button>
+        </div>
+        <p class="rt-note">The road is yours. Stay calm, follow the stars, and enjoy the ride.</p>
+      </section>
+
+      <section id="roadTripResult" class="rt-view rt-result" hidden>
+        <h1 class="rt-title" id="resultTitle">JOURNEY COMPLETE</h1>
+        <div class="rt-result-stats">
+          <div><label>STARS</label><div class="rt-big" id="resultStars">0</div></div>
+          <div><label>TIME</label><div class="rt-big" id="resultTime">0s</div></div>
+        </div>
+        <div id="keyReward" class="rt-key-reward" hidden><strong>KEY I ACQUIRED</strong><span>THE FIRST KEY IS YOURS.</span></div>
+        <button id="returnToMapFromResult" class="rt-btn" type="button">RETURN TO QUEST MAP</button>
+        <button id="retryRoadTrip" class="rt-textlink" type="button">TRY AGAIN</button>
+      </section>
+
+    </div>
   </div>
 </section>
-<script src="game-logic.js?v=1.8.13" defer></script>
-<script src="script.js?v=1.8.13" defer></script>
-<script src="roadtrip.js?v=1.8.13" defer></script>
+<script src="script.js?v=1.9.0" defer></script>
+<script src="roadtrip.js?v=1.9.0" defer></script>
 </body>
 </html>

@@ -1,19 +1,21 @@
-# QA Automation — v1.6.7
+# QA Automation — v1.9.0
 
 ## Upload
-Replace the repository contents with the contents of this folder, including `.github/workflows/qa.yml`. Commit once.
+Repository-Inhalte durch den Inhalt dieses Ordners ersetzen, inklusive
+`.github/workflows/qa.yml`. Einmalig committen.
 
-## Automated gates
-1. Static QA: assets, version/cache consistency, security gate, navigation, controls, mobile CSS, visible car positioning, and game-over logic.
-2. Browser QA: Chromium at 1366x768, 1920x1080, iPhone 12 and iPhone 14 Pro Max.
-3. End-to-end flow: developer gate -> quest map -> Quest I intro -> READY countdown -> gameplay.
-4. Desktop keyboard/on-screen controls run only on desktop projects.
-5. Mobile swipe runs only on mobile projects and uses Pointer Events with `pointerType: touch`.
-6. Control tests verify both internal lane state and actual visible car movement.
-7. Console/page errors and unwanted page scrolling are treated as failures.
+## Automatisierte Gates
+1. Static QA: Datei-/Asset-/Versions-Konsistenz, Architektur-Schutzregel
+   gegen die alte Board-Cache-Fehlerklasse.
+2. Unit-Tests der reinen Spiellogik (kein Browser nötig).
+3. Browser QA: Chromium/WebKit auf den konfigurierten Viewports.
+4. Kompletter Nutzerpfad: Entwickler-Gate → Quest Map → Quest I → Ready →
+   Spielen → Gewinnen → Persistenz → Quest II entsperrt.
 
 ## GitHub
-After commit, open Actions and select **Quest QA**. A release is not considered QA-passed until both Static QA and Browser QA are green.
+Nach dem Commit unter „Actions" den Workflow **Quest QA** prüfen. Ein
+Release gilt erst als QA-bestanden, wenn Static QA und Browser QA beide
+grün sind.
 
-## Local
-Run `npm install`, then `npm run qa:static` and `npm run qa:e2e`.
+## Lokal
+`npm install`, dann `npm run qa:static` und `npm run qa:e2e`.
