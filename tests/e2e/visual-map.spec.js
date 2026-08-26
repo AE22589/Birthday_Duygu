@@ -49,8 +49,8 @@ test.describe('Quest Map visual regression', () => {
       animations: 'disabled',
       caret: 'hide',
       scale: 'css',
-      maxDiffPixels: 12000,
-      maxDiffPixelRatio: 0.005,
+      maxDiffPixels: 80,
+      maxDiffPixelRatio: 0.00015,
     });
   });
 });
