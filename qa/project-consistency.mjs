@@ -46,7 +46,8 @@ export function validateProject(root) {
     "const OBJECT_MIN_SCALE=0.2",
     "const OBJECT_MAX_SCALE=1.0",
     "window.__ROADTRIP_QA__",
-    "getPerspectiveSample"
+    "getPerspectiveSample",
+    "getComputedStyle(el,'::before').backgroundPositionY"
   ];
   for (const symbol of requiredRoadtripSymbols) {
     if (!roadtrip.includes(symbol)) errors.push(`roadtrip runtime contract missing: ${symbol}`);

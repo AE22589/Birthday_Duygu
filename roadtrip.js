@@ -214,7 +214,7 @@ window.__ROADTRIP_QA__={
   
   start:()=>{clearReadyTimer();reset();setView('game');startLoop();},
   stop:()=>stop(),
-  getVisualMotion:()=>{const el=document.getElementById('roadFlowLayer');return el?getComputedStyle(el).backgroundPositionY:null;},
+  getVisualMotion:()=>{const el=document.getElementById('roadFlowLayer');return el?getComputedStyle(el,'::before').backgroundPositionY:null;},
   getState:()=>({
     running,
     lives,
