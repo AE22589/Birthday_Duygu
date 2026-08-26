@@ -43,8 +43,16 @@ Unverändert gegenüber der vorherigen Version — weiterhin gesperrt, fachliche
 Ausgestaltung offen (siehe PROJECT_REQUIREMENTS.docx).
 
 SICHERHEITS-GATE
-Unverändert: 5 Klicks auf die Tür innerhalb des Zeitfensters öffnen den
-Entwickler-Zugang, Code 1337 schaltet die Quest Map frei.
+5 Klicks auf die Tür innerhalb des Zeitfensters öffnen den Entwickler-
+Zugang, Code 1337 schaltet die Quest Map frei. Bei 3 falschen Code-
+Eingaben wird die Eingabe für 24 Stunden gesperrt (übersteht Neuladen,
+liegt in localStorage).
+
+QUEST-DURCHGÄNGE
+Abgeschlossene Quests lassen sich über die Quest Map jederzeit erneut
+öffnen und spielen — praktisch zum Testen, ohne Fortschritt zurücksetzen
+oder den Browser schließen zu müssen. Der gespeicherte Fortschritt
+(Schlüssel, Freischaltung der nächsten Quest) bleibt davon unberührt.
 
 VERSION
-v1.9.0
+v1.9.2

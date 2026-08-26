@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const VERSION='1.9.0';
+const VERSION='1.9.2';
 const QA_MODE=new URLSearchParams(location.search).has('qa') && navigator.webdriver===true;
 const QA_VISUAL_MAP=new URLSearchParams(location.search).get('qa')==='visual-map' && navigator.webdriver===true;
 const TARGET_MS=Date.parse('2026-09-08T00:00:00+02:00');
@@ -7,6 +7,9 @@ const ADMIN_CODE='1337';
 const CLICK_LIMIT=5;
 const CLICK_WINDOW_MS=2500;
 const STATE_KEY='duyguBirthdayQuestState_v1';
+const LOCKOUT_KEY='duyguAdminLockout_v1';
+const LOCKOUT_ATTEMPT_LIMIT=3;
+const LOCKOUT_DURATION_MS=24*60*60*1000;
 
 const $=id=>document.getElementById(id);
 const entrance=$('entrance'),questScreen=$('questScreen'),doorHit=$('doorHit'),modal=$('adminModal'),codeInput=$('adminCode'),unlockButton=$('unlock'),cancelButton=$('cancel'),error=$('error'),toast=$('toast'),lockTitle=$('lockTitle'),lockText=$('lockText'),mapShell=$('mapShell'),mapImage=$('mapImage'),svg=$('mapInteraction'),controlsGroup=$('questControls'),lockedLayers=$('lockedLayers'),activeLayer=$('activeLayer'),activeRing=$('activeRing'),activeRingGlow=$('activeRingGlow'),finalDoorHotspot=$('finalDoorHotspot'),returnHotspot=$('returnHotspot'),countdown={days:$('days'),hours:$('hours'),minutes:$('minutes'),seconds:$('seconds')};
@@ -35,7 +38,15 @@ const GEOMETRY={
 };
 const ROMAN=['I','II','III','IV','V','VI','VII'];
 const NAMES=['The Road Trip','Paint It!','Sucuk Master',"Lokum's Challenge",'Memory Lane','Our Little Puzzle','German Word Challenge'];
-let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,state=loadState();
+let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,lockoutTimer=null,state=loadState();
+
+function loadLockout(){try{const p=JSON.parse(localStorage.getItem(LOCKOUT_KEY)||'{}');return{attempts:Number.isInteger(p.attempts)?p.attempts:0,lockedUntil:Number.isFinite(p.lockedUntil)?p.lockedUntil:0}}catch{return{attempts:0,lockedUntil:0}}}
+function saveLockout(s){try{localStorage.setItem(LOCKOUT_KEY,JSON.stringify(s))}catch{}}
+function clearLockout(){try{localStorage.removeItem(LOCKOUT_KEY)}catch{}}
+function isLockedOut(){return loadLockout().lockedUntil>Date.now()}
+function lockoutRemainingMs(){return Math.max(0,loadLockout().lockedUntil-Date.now())}
+function formatLockoutRemaining(ms){const totalMinutes=Math.ceil(ms/60000);const h=Math.floor(totalMinutes/60),m=totalMinutes%60;return h>0?`${h}h ${m}m`:`${Math.max(1,m)}m`}
+function registerWrongAttempt(){const s=loadLockout();s.attempts=(s.attempts||0)+1;if(s.attempts>=LOCKOUT_ATTEMPT_LIMIT){s.lockedUntil=Date.now()+LOCKOUT_DURATION_MS;s.attempts=0}saveLockout(s)}
 
 function loadState(){try{const p=JSON.parse(localStorage.getItem(STATE_KEY)||'{}');const c=Array.isArray(p.completed)?p.completed.filter(n=>Number.isInteger(n)&&n>=1&&n<=7):[];return{completed:[...new Set(c)].sort((a,b)=>a-b)}}catch{return{completed:[]}}}
 function saveState(){try{localStorage.setItem(STATE_KEY,JSON.stringify({completed:state.completed}))}catch{}}
@@ -49,8 +60,28 @@ function setCountdown(ms){const t=Math.max(0,Math.floor(ms/1000));const d=Math.f
 function isUnlocked(){return previewGranted||Date.now()>=TARGET_MS}
 function unlockEntrance(){lockTitle.textContent='THE DOOR IS READY';lockText.innerHTML='The right moment has arrived.<br>Click the door and begin the adventure.'}
 function refreshCountdown(){const remaining=TARGET_MS-Date.now();setCountdown(remaining);if(remaining<=0||previewGranted){unlockEntrance();if(countdownTimer){clearInterval(countdownTimer);countdownTimer=null}}}
-function openPreviewModal(){clickCount=0;clickWindowStart=0;modal.hidden=false;codeInput.value='';error.textContent='';requestAnimationFrame(()=>codeInput.focus())}
-function closePreviewModal(){modal.hidden=true;clickCount=0;clickWindowStart=0;codeInput.value='';error.textContent=''}
+function updateLockoutUI(){
+  if(isLockedOut()){
+    error.textContent=`Too many attempts. Try again in ${formatLockoutRemaining(lockoutRemainingMs())}.`;
+    codeInput.disabled=true;
+    unlockButton.disabled=true;
+  }else{
+    codeInput.disabled=false;
+    unlockButton.disabled=false;
+    if(lockoutTimer){clearInterval(lockoutTimer);lockoutTimer=null}
+  }
+}
+function openPreviewModal(){
+  clickCount=0;clickWindowStart=0;modal.hidden=false;codeInput.value='';error.textContent='';
+  if(isLockedOut()){
+    updateLockoutUI();
+    if(!lockoutTimer)lockoutTimer=setInterval(updateLockoutUI,1000);
+  }else{
+    codeInput.disabled=false;unlockButton.disabled=false;
+    requestAnimationFrame(()=>codeInput.focus());
+  }
+}
+function closePreviewModal(){modal.hidden=true;clickCount=0;clickWindowStart=0;codeInput.value='';error.textContent='';if(lockoutTimer){clearInterval(lockoutTimer);lockoutTimer=null}}
 function setSvgGeometry(g){
   svg.setAttribute('viewBox',`0 0 ${g.width} ${g.height}`);
   svg.setAttribute('preserveAspectRatio','xMidYMid meet');
@@ -162,7 +193,8 @@ function ensureRoadTripLoaded(){
 }
 async function handleQuestActivation(n){
   const active=currentQuest();
-  if(n!==active){showToast(n<=(active||0)?'This challenge is already complete.':'Complete the previous challenge to unlock this quest.');return}
+  const reachable=active===null?7:active;
+  if(n>reachable){showToast('Complete the previous challenge to unlock this quest.');return}
   if(n===1){
     try{await ensureRoadTripLoaded();window.showRoadTripScreen();}
     catch(err){console.error('[Quest I]',err);showToast('Quest I could not be loaded. Please refresh and try again.');}
@@ -178,7 +210,10 @@ window.__DUYGU_SELF_TEST__=()=>({
   questOneAvailable:typeof window.showRoadTripScreen==='function',
   questOneLoaderAvailable:typeof ensureRoadTripLoaded==='function',
   mapHotspots:document.querySelectorAll('.quest-hotspot').length,
-  stateKey:STATE_KEY
+  stateKey:STATE_KEY,
+  lockoutAttemptLimit:LOCKOUT_ATTEMPT_LIMIT,
+  isLockedOut:isLockedOut(),
+  lockoutRemainingMs:lockoutRemainingMs()
 });
 
 doorHit.addEventListener('touchend',e=>{lastTouchActivation=performance.now();handleDoorActivation(e)},{passive:false});
@@ -187,7 +222,21 @@ finalDoorHotspot.addEventListener('click',e=>{e.preventDefault();handleFinalDoor
 finalDoorHotspot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleFinalDoor()}});
 returnHotspot.addEventListener('click',e=>{e.preventDefault();handleReturn()});
 returnHotspot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleReturn()}});
-unlockButton.addEventListener('click',()=>{if(codeInput.value.trim()!==ADMIN_CODE){error.textContent='Wrong code.';codeInput.select();return}previewGranted=true;closePreviewModal();unlockEntrance();showQuestMap();showToast('Developer preview unlocked.')});
+unlockButton.addEventListener('click',()=>{
+  if(isLockedOut()){updateLockoutUI();return}
+  if(codeInput.value.trim()!==ADMIN_CODE){
+    registerWrongAttempt();
+    if(isLockedOut()){
+      updateLockoutUI();
+      if(!lockoutTimer)lockoutTimer=setInterval(updateLockoutUI,1000);
+    }else{
+      error.textContent='Wrong code.';codeInput.select();
+    }
+    return;
+  }
+  clearLockout();
+  previewGranted=true;closePreviewModal();unlockEntrance();showQuestMap();showToast('Developer preview unlocked.');
+});
 cancelButton.addEventListener('click',closePreviewModal);
 codeInput.addEventListener('keydown',e=>{if(e.key==='Enter')unlockButton.click();if(e.key==='Escape')closePreviewModal()});
 modal.addEventListener('pointerup',e=>{if(e.target===modal)closePreviewModal()});

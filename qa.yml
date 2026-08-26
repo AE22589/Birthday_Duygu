@@ -1,0 +1,86 @@
+name: Quest QA
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-qa:
+    name: Static + Unit QA
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Remove legacy Quest I v1.8 files
+        # "Add files via upload" fügt hinzu/überschreibt, löscht aber nie.
+        # Diese Dateien gehören zur ausgemusterten Quest-I-Architektur
+        # (v1.8.x) und wurden im Repository nie explizit gelöscht. Dieser
+        # Schritt räumt sie im CI-Checkout auf, damit die Konsistenzprüfung
+        # nicht auf Repo-Altlasten anspringt, die keine Datei mehr
+        # referenziert.
+        run: |
+          rm -f game-logic.js
+          rm -f assets/game-star.png assets/game-barrel.png assets/game-cat.png
+          rm -f assets/roadtrip-car.png assets/quest1-game-background.jpg
+          rm -f assets/quest1-game-source.jpg assets/quest1-intro-art.jpg
+          rm -f assets/roadtrip-desktop-art.jpg assets/roadtrip-intro-art.jpg
+          rm -f assets/roadtrip-mobile-art.jpg
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Static QA
+        run: npm run qa:static
+      - name: Game logic unit QA
+        run: npm run qa:unit
+
+  browser-qa:
+    name: Browser + Visual QA
+    needs: static-qa
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Remove legacy Quest I v1.8 files
+        run: |
+          rm -f game-logic.js
+          rm -f assets/game-star.png assets/game-barrel.png assets/game-cat.png
+          rm -f assets/roadtrip-car.png assets/quest1-game-background.jpg
+          rm -f assets/quest1-game-source.jpg assets/quest1-intro-art.jpg
+          rm -f assets/roadtrip-desktop-art.jpg assets/roadtrip-intro-art.jpg
+          rm -f assets/roadtrip-mobile-art.jpg
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: Run browser + visual QA
+        run: npm run qa:e2e
+      - name: Validate QA artifacts exist on failure
+        if: failure()
+        run: test -d playwright-report || true
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: ignore
+      - name: Upload test diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: test-results/
+          if-no-files-found: ignore
