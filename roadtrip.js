@@ -210,6 +210,8 @@ if(new URLSearchParams(location.search).has('qa') && navigator.webdriver===true)
 }
 window.__DUYGU_ROADTRIP_SELF_TEST__=()=>({version:VERSION,renderer:'HTML/CSS layered art',background:'assets/quest1-game-background.jpg',car:'assets/roadtrip-car.png',desktopKeyboard:true,mobileSwipe:true,pointerTouch:true,lanes:LANES.length, logicModule:true,duration:DURATION,targetStars:TARGET_STARS,maxStars:MAX_STARS,stateKey:QUEST_KEY,readyGate:!!READY,hiddenCssEnforced:getComputedStyle(GAME).display==='none'||GAME.hidden});
 window.__ROADTRIP_QA__={
+  getPerspectiveSample:(y=HORIZON_Y)=>{const t=Math.max(0,Math.min(1,(y-HORIZON_Y)/(CAR_Y-HORIZON_Y)));return {y,scale:OBJECT_MIN_SCALE+(OBJECT_MAX_SCALE-OBJECT_MIN_SCALE)*Math.pow(t,2)}},
+  
   start:()=>{clearReadyTimer();reset();setView('game');startLoop();},
   stop:()=>stop(),
   getVisualMotion:()=>{const el=document.getElementById('roadFlowLayer');return el?getComputedStyle(el).backgroundPositionY:null;},

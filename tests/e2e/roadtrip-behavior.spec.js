@@ -60,6 +60,7 @@ test('Road Trip – fachliches Spielverhalten › während der Fahrt bewegt sich
 test('Road Trip – fachliches Spielverhalten › Objekte skalieren perspektivisch von 0,2 auf 1,0', async ({ page }) => {
   await page.goto('/index.html');
   await page.evaluate(() => window.__ROADTRIP_QA__?.start?.());
+  await page.waitForFunction(() => typeof window.__ROADTRIP_QA__?.getPerspectiveSample === 'function');
   const samples = await page.evaluate(() => ({
     horizon: window.__ROADTRIP_QA__.getPerspectiveSample(),
     car: window.__ROADTRIP_QA__.getPerspectiveSample(88)
