@@ -154,15 +154,20 @@ window.__ROADTRIP_QA__={
     lives,
     stars:score,
     elapsed,
-    objects:objects.map(o=>({lane:o.lane,y:o.y,type:o.type}))
+    objects:objects.map(o=>({lane:o.lane,y:o.y,type:o.type,qaTest:!!o.qaTest}))
   }),
-  spawnTestObject:(type='star',testLane=1)=>{
+  spawnTestObject:(type='star',testLane=0)=>{
     const safeType=['star','barrel','cat'].includes(type)?type:'star';
     const safeLane=Math.max(0,Math.min(2,Number(testLane)));
     const before=objects.length;
     spawn(safeType,safeLane);
     const o=objects[before];
-    if(o){o.y=82;renderObject(o,performance.now());}
+    if(o){
+      o.qaTest=true;
+      o.y=40;
+      o.lane = safeLane;
+      renderObject(o,performance.now());
+    }
   }
 };
 })();

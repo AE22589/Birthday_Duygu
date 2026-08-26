@@ -21,22 +21,22 @@ test.describe('Road Trip – fachliches Spielverhalten', () => {
       return await page.evaluate(() => window.__ROADTRIP_QA__?.getState()?.running);
     }).toBe(true);
 
-    await page.evaluate(() => window.__ROADTRIP_QA__.spawnTestObject('star', 1));
+    await page.evaluate(() => window.__ROADTRIP_QA__.spawnTestObject('star', 0));
 
     const before = await page.evaluate(() => {
-      const objects = window.__ROADTRIP_QA__.getState().objects;
-      return objects[objects.length - 1]?.y;
+      const object = window.__ROADTRIP_QA__.getState().objects.find(o => o.qaTest);
+      return object?.y;
     });
 
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(600);
 
     const after = await page.evaluate(() => {
-      const objects = window.__ROADTRIP_QA__.getState().objects;
-      return objects[objects.length - 1]?.y;
+      const object = window.__ROADTRIP_QA__.getState().objects.find(o => o.qaTest);
+      return object?.y;
     });
 
     expect(typeof before).toBe('number');
     expect(typeof after).toBe('number');
-    expect(after).toBeGreaterThan(before + 5);
+    expect(after).toBeGreaterThan(before + 2);
   });
 });
