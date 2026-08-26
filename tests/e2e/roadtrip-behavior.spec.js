@@ -28,15 +28,17 @@ test.describe('Road Trip – fachliches Spielverhalten', () => {
       return object?.y;
     });
 
-    await page.waitForTimeout(600);
-
-    const after = await page.evaluate(() => {
-      const object = window.__ROADTRIP_QA__.getState().objects.find(o => o.qaTest);
-      return object?.y;
-    });
-
     expect(typeof before).toBe('number');
-    expect(typeof after).toBe('number');
-    expect(after).toBeGreaterThan(before + 2);
+
+    // Do not depend on one fixed frame interval: WebKit on CI can throttle
+    // animation frames. Wait until the same deterministic test object has
+    // demonstrably advanced, while failing if it never moves.
+    await expect.poll(async () => {
+      return await page.evaluate(() => {
+        const object = window.__ROADTRIP_QA__.getState().objects.find(o => o.qaTest);
+        if (!object) return null;
+        return object.y;
+      });
+    }, { timeout: 2500, intervals: [100, 200, 300] }).toBeGreaterThan(before + 2);
   });
 });
