@@ -13,6 +13,7 @@ const RETURN=document.getElementById('returnToMapFromResult');
 const RETRY=document.getElementById('retryRoadTrip');
 const BOARD=document.getElementById('roadBoard');
 const SCENE=document.getElementById('sceneLayer');
+const ROAD_MOTION=document.getElementById('roadMotion');
 const DYNAMIC=document.getElementById('dynamicLayer');
 const CAR=document.getElementById('playerCar');
 const PULSE=document.getElementById('lanePulse');
@@ -27,7 +28,7 @@ const RESULT_COPY=document.getElementById('resultCopy');
 const RESULT_KICKER=document.getElementById('resultKicker');
 const KEY_REWARD=document.getElementById('keyReward');
 const QUEST_KEY='duyguBirthdayQuestState_v1';
-const VERSION='1.6.7';
+const VERSION='1.6.8';
 const SCREEN=document.getElementById('roadTripScreen');
 const DURATION=60;
 const TARGET_STARS=20;
@@ -69,8 +70,8 @@ function unbindGlobalListeners(){
   globalListenersBound=false;
 }
 function onOrientationChange(){setTimeout(setDevice,60)}
-function startLoop(){stop();bindGlobalListeners();running=true;startAt=performance.now();lastFrame=startAt;raf=requestAnimationFrame(tick)}
-function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=0;touchStart=null;unbindGlobalListeners()}
+function startLoop(){stop();bindGlobalListeners();running=true;SCENE.classList.add('is-driving');ROAD_MOTION?.classList.add('is-driving');startAt=performance.now();lastFrame=startAt;raf=requestAnimationFrame(tick)}
+function stop(){running=false;SCENE.classList.remove('is-driving');ROAD_MOTION?.classList.remove('is-driving');if(raf)cancelAnimationFrame(raf);raf=0;touchStart=null;unbindGlobalListeners()}
 function move(dir){if(!running)return;const now=performance.now();if(now-lastMove<120)return;const next=GAME_LOGIC.moveLane(lane,dir);if(next===lane)return;lane=next;lastMove=now;positionCar(true);PULSE.style.setProperty('--pulse-x',laneX(lane));PULSE.classList.remove('show');void PULSE.offsetWidth;PULSE.classList.add('show')}
 function bindControls(){document.querySelectorAll('[data-move]').forEach(btn=>{btn.addEventListener('click',()=>move(Number(btn.dataset.move)))})}
 function onKey(e){
@@ -148,3 +149,18 @@ if(new URLSearchParams(location.search).has('qa') && navigator.webdriver===true)
 }
 window.__DUYGU_ROADTRIP_SELF_TEST__=()=>({version:VERSION,renderer:'HTML/CSS layered art',background:'assets/quest1-game-background.jpg',car:'assets/roadtrip-car.png',desktopKeyboard:true,mobileSwipe:true,pointerTouch:true,lanes:LANES.length, logicModule:true,duration:DURATION,targetStars:TARGET_STARS,maxStars:MAX_STARS,stateKey:QUEST_KEY,readyGate:!!READY,hiddenCssEnforced:getComputedStyle(GAME).display==='none'||GAME.hidden});
 })();
+// --- QA state exposure (read-only; no gameplay behavior change) ---
+
+window.__ROADTRIP_QA__ = {
+  getState() {
+    return {
+      running: typeof gameRunning !== 'undefined' ? !!gameRunning : false,
+      lives: typeof lives !== 'undefined' ? lives : null,
+      stars: typeof stars !== 'undefined' ? stars : null,
+      speed: typeof speed !== 'undefined' ? speed : null,
+      objects: Array.isArray(objects)
+        ? objects.map(o => ({ lane: o.lane, y: o.y, type: o.type }))
+        : []
+    };
+  }
+};
