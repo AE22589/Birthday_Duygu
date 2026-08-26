@@ -28,7 +28,7 @@ const RESULT_COPY=document.getElementById('resultCopy');
 const RESULT_KICKER=document.getElementById('resultKicker');
 const KEY_REWARD=document.getElementById('keyReward');
 const QUEST_KEY='duyguBirthdayQuestState_v1';
-const VERSION='1.8.4';
+const VERSION='1.8.7';
 const SCREEN=document.getElementById('roadTripScreen');
 const DURATION=60;
 const TARGET_STARS=20;
@@ -80,7 +80,11 @@ function renderObject(o,now){
   const laneWidth=LANE_TOP_WIDTH+(LANE_BOTTOM_WIDTH-LANE_TOP_WIDTH)*p;
   const laneOffset=(o.lane-1)*laneWidth;
   const bob=o.type==='star'?Math.sin(now/300+o.phase)*.7:Math.sin(now/500+o.phase)*.25;
-  o.el.style.transform=`translate3d(calc(50% + ${laneOffset}% - 50% + ${bob}px), ${o.y}%, 0) scale(${scale})`;
+  // Position is relative to the road board. Percentages on left/top use
+  // the containing block; transform percentages are reserved for centering.
+  o.el.style.left=`${50 + laneOffset}%`;
+  o.el.style.top=`${o.y}%`;
+  o.el.style.transform=`translate(-50%, 0) translate(${bob}px, 0) scale(${scale})`;
   o.el.style.opacity=o.hit?'0':String(.4+.6*t);
   o.el.style.zIndex=String(10+Math.round(t*30));
 }
@@ -244,6 +248,24 @@ window.__ROADTRIP_QA__={
     spawn(safeType,safeLane);
     const o=objects[before];
     if(o){o.lane=safeLane;primeQaObject(o)}
+  },
+  spawnMotionTestObject:(type='star',testLane=0)=>{
+    const safeType=['star','barrel','cat'].includes(type)?type:'star';
+    const safeLane=Math.max(0,Math.min(2,Number(testLane)));
+    const before=objects.length;
+    spawn(safeType,safeLane);
+    const o=objects[before];
+    if(o){
+      o.lane=safeLane;
+      o.qaTest=true;
+      o.hit=false;
+      o.progress=0.04;
+      o.travelMs=3000;
+      o.y=progressToY(o.progress);
+      o.el.dataset.qaMotionTest='true';
+      renderObject(o,performance.now());
+    }
+    return o||null;
   }
 };
 })();
