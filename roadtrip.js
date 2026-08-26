@@ -195,7 +195,8 @@ READY.addEventListener('click',ready);BACK.addEventListener('click',back);RETURN
 window.showRoadTripScreen=showRoadTripScreen;
 if(new URLSearchParams(location.search).has('qa') && navigator.webdriver===true){
   window.__DUYGU_QA__={
-    getVisualMotion:()=>{const el=document.getElementById('roadFlowLayer');if(!el)return null;return getComputedStyle(el).backgroundPositionY;},
+    getPerspectiveSample:(y=HORIZON_Y)=>{const t=Math.max(0,Math.min(1,(y-HORIZON_Y)/(CAR_Y-HORIZON_Y)));return {y,scale:OBJECT_MIN_SCALE+(OBJECT_MAX_SCALE-OBJECT_MIN_SCALE)*Math.pow(t,2)}},
+  getVisualMotion:()=>{const el=document.getElementById('roadFlowLayer');if(!el)return null;return getComputedStyle(el).backgroundPositionY;},
   getState:()=>({running,elapsed,score,lives,lane}),
     move:(dir)=>move(dir),
     reset:()=>{stop();clearObjects();reset();setView('game');setDevice()},

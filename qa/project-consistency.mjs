@@ -45,7 +45,8 @@ export function validateProject(root) {
     "const CAR_Y=",
     "const OBJECT_MIN_SCALE=0.2",
     "const OBJECT_MAX_SCALE=1.0",
-    "window.__ROADTRIP_QA__"
+    "window.__ROADTRIP_QA__",
+    "getPerspectiveSample"
   ];
   for (const symbol of requiredRoadtripSymbols) {
     if (!roadtrip.includes(symbol)) errors.push(`roadtrip runtime contract missing: ${symbol}`);
