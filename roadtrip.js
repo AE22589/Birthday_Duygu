@@ -28,7 +28,7 @@ const RESULT_COPY=document.getElementById('resultCopy');
 const RESULT_KICKER=document.getElementById('resultKicker');
 const KEY_REWARD=document.getElementById('keyReward');
 const QUEST_KEY='duyguBirthdayQuestState_v1';
-const VERSION='1.8.1';
+const VERSION='1.8.2';
 const SCREEN=document.getElementById('roadTripScreen');
 const DURATION=60;
 const TARGET_STARS=20;
@@ -36,8 +36,9 @@ const MAX_STARS=43;
 const GAME_LOGIC=window.DuyguGameLogic;
 if(!GAME_LOGIC) throw new Error('Game logic module failed to load');
 const LANES=GAME_LOGIC.LANES;
-const HORIZON_Y=-8;
+const HORIZON_Y=4;
 const CAR_Y=88;
+const OBJECT_TRAVEL_MS=2200;
 const COLLISION_MIN_Y=76;
 const COLLISION_MAX_Y=93;
 const EXIT_Y=112;
@@ -62,8 +63,8 @@ function spawn(type,idx){
   el.draggable=false;
   DYNAMIC.appendChild(el);
   const o={
-    type,lane:idx,y:HORIZON_Y,el,
-    speed:type==='star'?14+Math.random()*2:12+Math.random()*2,
+    type,lane:idx,y:HORIZON_Y,progress:0,el,
+    travelMs:type==='star'?2100:2300,
     phase:Math.random()*6.28,hit:false
   };
   objects.push(o);
@@ -71,17 +72,17 @@ function spawn(type,idx){
 }
 function maybeSpawn(){if(score<MAX_STARS && elapsed*1000>=spawnStarAt){spawn('star',Math.random()<.7?lane:Math.floor(Math.random()*3));spawnStarAt=elapsed*1000+900+Math.random()*650}if(elapsed*1000>=spawnObstacleAt){const occupied=new Set(objects.filter(o=>!o.hit&&o.y<55&&o.type!=='star').map(o=>o.lane));let choices=[0,1,2].filter(i=>!occupied.has(i));if(!choices.length)choices=[0,1,2];let idx=choices[Math.floor(Math.random()*choices.length)];if(Math.random()<.58)idx=(lane+(Math.random()<.5?-1:1)+3)%3;spawn(Math.random()<.7?'barrel':'cat',idx);spawnObstacleAt=elapsed*1000+1900+Math.random()*1400}}
 function renderObject(o,now){
-  const t=Math.max(0,Math.min(1,(o.y-HORIZON_Y)/(CAR_Y-HORIZON_Y)));
-  // Perspective acceleration: slow at horizon, fast near the car.
-  const p=t*t;
+  // Simple pseudo-3D: one progress value drives position, size and lane spread.
+  const t=Math.max(0,Math.min(1,o.progress));
+  const p=Math.pow(t,1.7);
+  o.y=HORIZON_Y+(CAR_Y-HORIZON_Y)*p;
   const scale=OBJECT_MIN_SCALE+(OBJECT_MAX_SCALE-OBJECT_MIN_SCALE)*p;
   const laneWidth=LANE_TOP_WIDTH+(LANE_BOTTOM_WIDTH-LANE_TOP_WIDTH)*p;
-  const center=50;
   const laneOffset=(o.lane-1)*laneWidth;
   const bob=o.type==='star'?Math.sin(now/300+o.phase)*.7:Math.sin(now/500+o.phase)*.25;
-  o.el.style.transform=`translate3d(calc(${center}% + ${laneOffset}% - 50% + ${bob}px), ${o.y}%, 0) scale(${scale})`;
-  o.el.style.opacity=o.hit?'0':String(.35+.65*t);
-  o.el.style.zIndex=String(10+Math.round(t*20));
+  o.el.style.transform=`translate3d(calc(50% + ${laneOffset}% - 50% + ${bob}px), ${o.y}%, 0) scale(${scale})`;
+  o.el.style.opacity=o.hit?'0':String(.4+.6*t);
+  o.el.style.zIndex=String(10+Math.round(t*30));
 }
 function collect(o){if(o.hit)return;o.hit=true;score=Math.min(MAX_STARS,score+1);o.el.classList.add('collected');if(score===TARGET_STARS)flash('FIRST KEY WITHIN REACH')}
 function collide(o,now){if(o.hit||now<invulnerableUntil)return;o.hit=true;o.el.classList.add('hit');lives=Math.max(0,lives-1);invulnerableUntil=now+1300;CAR.classList.remove('hit');void CAR.offsetWidth;CAR.classList.add('hit');flash(lives===1?'WATCH THE ROAD':'EASY DOES IT')}
@@ -91,16 +92,14 @@ function update(dt,now){
   maybeSpawn();
   for(const o of objects){
     if(o.hit)continue;
-    const t=Math.max(0,Math.min(1,(o.y-HORIZON_Y)/(CAR_Y-HORIZON_Y)));
-    const travelRate=o.type==='star'?0.000020:0.000017;
-    o.y += (CAR_Y-HORIZON_Y) * travelRate * dt * (0.35 + 1.65*t);
+    o.progress=Math.min(1,o.progress+dt/o.travelMs);
     renderObject(o,now);
     const near=o.y>COLLISION_MIN_Y&&o.y<COLLISION_MAX_Y&&o.lane===lane;
     if(near){
       if(o.type==='star')collect(o);
       else if(now>=invulnerableUntil)collide(o,now);
     }
-    if(o.y>EXIT_Y){o.hit=true;o.el.remove();}
+    if(o.progress>=1||o.y>EXIT_Y){o.hit=true;o.el.remove();}
   }
   objects=objects.filter(o=>!o.hit||o.el.isConnected);
   updateHud();
@@ -214,7 +213,7 @@ window.__ROADTRIP_QA__={
   
   start:()=>{clearReadyTimer();reset();setView('game');startLoop();},
   stop:()=>stop(),
-  getVisualMotion:()=>{const el=document.getElementById('roadFlowLayer');return el?getComputedStyle(el,'::before').backgroundPositionY:null;},
+  getVisualMotion:()=>{const o=objects.find(o=>o.qaTest&&!o.hit);return o?o.y:null;},
   getState:()=>({
     running,
     lives,
@@ -230,7 +229,7 @@ window.__ROADTRIP_QA__={
     const o=objects[before];
     if(o){
       o.qaTest=true;
-      o.y=40;
+      o.progress=0;
       o.lane = safeLane;
       renderObject(o,performance.now());
     }

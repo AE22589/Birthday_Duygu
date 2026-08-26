@@ -86,3 +86,10 @@
 }
 #roadTripGame:not(.is-driving) #roadFlowLayer{animation-play-state:paused}
 #roadTripGame:not(.is-driving) #roadFlowLayer::before{animation-play-state:paused}
+
+/* QUEST-001 simplified gameplay: the accepted background remains completely static.
+   Forward motion is communicated only by the gameplay objects. */
+#roadFlowLayer,
+.road-motion{display:none !important}
+.scene-layer.is-driving .road-background,
+.road-background{animation:none !important;transform:none !important}
