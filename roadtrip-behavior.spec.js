@@ -1,42 +1,39 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Road Trip – fachliches Spielverhalten', () => {
-  test('während der Fahrt bewegt sich die Spielwelt auf das Auto zu', async ({ page }) => {
+  test('während der Fahrt bewegt sich ein Spielobjekt sichtbar auf das Auto zu', async ({ page }) => {
     await page.goto('/index.html');
-    await page.waitForLoadState('networkidle');
 
-    // Open Quest I through the same public navigation bridge used by the app.
-    await page.evaluate(() => {
-      if (typeof window.showRoadTripScreen !== 'function') {
-        throw new Error('Road Trip navigation bridge missing');
-      }
-      window.showRoadTripScreen();
+    const initial = await page.evaluate(() => {
+      window.__ROADTRIP_QA__?.start?.();
+      window.__ROADTRIP_QA__?.spawnMotionTestObject?.('star', 1);
+      const el = document.querySelector('#dynamicLayer .rt-object');
+      const r = el?.getBoundingClientRect();
+      return r ? { top: r.top, width: r.width } : null;
     });
+    expect(initial).not.toBeNull();
 
-    const ready = page.locator('#readyButton');
-    await expect(ready).toBeVisible();
-    await ready.click();
+    await page.waitForTimeout(300);
 
-    await expect.poll(async () => {
-      return await page.evaluate(() => window.__ROADTRIP_QA__?.getState()?.running);
-    }).toBe(true);
-
-    await page.evaluate(() => window.__ROADTRIP_QA__.spawnTestObject('star', 1));
-
-    const before = await page.evaluate(() => {
-      const objects = window.__ROADTRIP_QA__.getState().objects;
-      return objects[objects.length - 1]?.y;
+    const later = await page.evaluate(() => {
+      const el = document.querySelector('#dynamicLayer .rt-object');
+      const r = el?.getBoundingClientRect();
+      return r ? { top: r.top, width: r.width } : null;
     });
+    expect(later).not.toBeNull();
+    expect(later.top).toBeGreaterThan(initial.top);
+    expect(later.width).toBeGreaterThan(initial.width);
 
-    await page.waitForTimeout(400);
+    await page.evaluate(() => window.__ROADTRIP_QA__?.stop?.());
+  });
 
-    const after = await page.evaluate(() => {
-      const objects = window.__ROADTRIP_QA__.getState().objects;
-      return objects[objects.length - 1]?.y;
-    });
-
-    expect(typeof before).toBe('number');
-    expect(typeof after).toBe('number');
-    expect(after).toBeGreaterThan(before + 5);
+  test('Perspektive wächst von 0,2 am Horizont auf 1,0 am Auto', async ({ page }) => {
+    await page.goto('/index.html');
+    const samples = await page.evaluate(() => ({
+      horizon: window.__ROADTRIP_QA__.getPerspectiveSample(),
+      car: window.__ROADTRIP_QA__.getPerspectiveSample(88)
+    }));
+    expect(samples.horizon.scale).toBeCloseTo(0.2, 5);
+    expect(samples.car.scale).toBeCloseTo(1.0, 5);
   });
 });

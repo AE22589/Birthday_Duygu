@@ -18,7 +18,6 @@ const DYNAMIC=document.getElementById('dynamicLayer');
 const CAR=document.getElementById('playerCar');
 const PULSE=document.getElementById('lanePulse');
 const TOUCH_HINT=document.getElementById('touchHint');
-measureBoard();
 window.addEventListener('resize',measureBoard);
 window.addEventListener('orientationchange',()=>setTimeout(measureBoard,60));
 const STARS=document.getElementById('starCount');
@@ -31,7 +30,7 @@ const RESULT_COPY=document.getElementById('resultCopy');
 const RESULT_KICKER=document.getElementById('resultKicker');
 const KEY_REWARD=document.getElementById('keyReward');
 const QUEST_KEY='duyguBirthdayQuestState_v1';
-const VERSION='1.8.9';
+const VERSION='1.8.13';
 const SCREEN=document.getElementById('roadTripScreen');
 const DURATION=60;
 const TARGET_STARS=20;
@@ -52,13 +51,14 @@ const LANE_BOTTOM_WIDTH=30;
 let running=false,raf=0,startAt=0,lastFrame=0,elapsed=0,score=0,lives=3,lane=1,objects=[],device='desktop',touchStart=null,lastMove=0,readyTimer=0,spawnStarAt=0,spawnObstacleAt=0,invulnerableUntil=0;
 let boardW=0,boardH=0;
 function measureBoard(){const r=BOARD.getBoundingClientRect();boardW=r.width;boardH=r.height;}
+function progressToY(progress){const t=Math.max(0,Math.min(1,progress));return HORIZON_Y+(CAR_Y-HORIZON_Y)*Math.pow(t,1.7);}
 function mobile(){return matchMedia('(max-width:700px)').matches || (navigator.maxTouchPoints>0 && innerWidth<900)}
-function setDevice(){device=mobile()?'mobile':'desktop';TOUCH_HINT.hidden=device!=='mobile';TOUCH_HINT.style.display=device==='mobile'?'block':'none';measureBoard();positionCar(false)}
+function setDevice(){device=mobile()?'mobile':'desktop';TOUCH_HINT.hidden=device!=='mobile';TOUCH_HINT.style.display=device==='mobile'?'block':'none';positionCar(false)}
 function laneX(i){return LANES[Math.max(0,Math.min(2,i))]}
-function positionCar(animate=true){const x=laneX(lane);const pxX=boardW*x/100;CAR.style.transform=`translate3d(${pxX}px,0,0) translate(-50%,0)`;CAR.dataset.lane=String(lane);CAR.setAttribute('aria-label',`Player car, lane ${lane+1} of 3`);CAR.classList.toggle('move',animate);}
+function positionCar(animate=true){const x=laneX(lane);CAR.style.setProperty('--car-x',x);CAR.dataset.lane=String(lane);CAR.setAttribute('aria-label',`Player car, lane ${lane+1} of 3`);CAR.classList.toggle('move',animate);}
 function updateHud(){STARS.textContent=`${score} / ${MAX_STARS}`;TIME.textContent=String(Math.max(0,Math.ceil(DURATION-elapsed)));LIVES.textContent=`${'♥ '.repeat(lives).trim()}${lives<3?' '+ '♡ '.repeat(3-lives).trim():''}`}
 function clearObjects(){objects.forEach(o=>o.el.remove());objects=[];DYNAMIC.replaceChildren()}
-function reset(){stop();clearObjects();elapsed=0;score=0;lives=3;lane=1;lastMove=0;spawnStarAt=0;spawnObstacleAt=0;invulnerableUntil=0;CAR.classList.remove('hit');PULSE.classList.remove('show');positionCar(false);updateHud()}
+function reset(){stop();clearObjects();elapsed=0;score=0;lives=3;lane=1;lastMove=0;spawnStarAt=0;spawnObstacleAt=0;invulnerableUntil=0;CAR.classList.remove('hit');PULSE.classList.remove('show');updateHud()}
 function asset(type){return type==='star'?'assets/game-star.png':type==='cat'?'assets/game-cat.png':'assets/game-barrel.png'}
 function spawn(type,idx){
   const el=document.createElement('img');
@@ -74,8 +74,7 @@ function spawn(type,idx){
     phase:Math.random()*6.28,hit:false
   };
   objects.push(o);
-  renderObject(o,performance.now());
-;measureBoard()}
+  renderObject(o,performance.now());}
 function maybeSpawn(){if(score<MAX_STARS && elapsed*1000>=spawnStarAt){spawn('star',Math.random()<.7?lane:Math.floor(Math.random()*3));spawnStarAt=elapsed*1000+900+Math.random()*650}if(elapsed*1000>=spawnObstacleAt){const occupied=new Set(objects.filter(o=>!o.hit&&o.y<55&&o.type!=='star').map(o=>o.lane));let choices=[0,1,2].filter(i=>!occupied.has(i));if(!choices.length)choices=[0,1,2];let idx=choices[Math.floor(Math.random()*choices.length)];if(Math.random()<.58)idx=(lane+(Math.random()<.5?-1:1)+3)%3;spawn(Math.random()<.7?'barrel':'cat',idx);spawnObstacleAt=elapsed*1000+1900+Math.random()*1400}}
 function renderObject(o,now){
   const t=Math.max(0,Math.min(1,o.progress));
@@ -244,6 +243,7 @@ window.__ROADTRIP_QA__={
   start:()=>{clearReadyTimer();reset();setView('game');startLoop();},
   stop:()=>stop(),
   getVisualMotion:()=>{const o=objects.find(o=>o.qaTest&&!o.hit);return o?o.y:null;},
+  getBoardSize:()=>({w:boardW,h:boardH}),
   getState:()=>({
     running,
     lives,
