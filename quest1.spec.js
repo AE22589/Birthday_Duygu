@@ -62,14 +62,17 @@ test('desktop keyboard moves the car left and right and prevents scrolling', asy
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('0');
   await expect.poll(async () => await carCenter(page)).toBeLessThan(initial - 10);
 
+  await page.waitForTimeout(130);
   await page.keyboard.press('ArrowRight');
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('1');
   await expect.poll(async () => Math.abs(await carCenter(page) - initial)).toBeLessThan(3);
 
+  await page.waitForTimeout(130);
   await page.keyboard.press('ArrowRight');
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('2');
   await expect.poll(async () => await carCenter(page)).toBeGreaterThan(initial + 10);
 
+  await page.waitForTimeout(130);
   await page.keyboard.press('ArrowRight');
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('2');
   expect(await page.evaluate(() => window.scrollY)).toBe(0);
@@ -83,6 +86,7 @@ test('desktop lane control buttons use the same movement logic', async ({ page }
   await page.locator('.game-control[data-move="-1"]').click();
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('0');
   await expect.poll(async () => await carCenter(page)).toBeLessThan(initial - 10);
+  await page.waitForTimeout(130);
   await page.locator('.game-control[data-move="1"]').click();
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('1');
 });
@@ -119,4 +123,14 @@ test('mobile swipe right moves car right without scrolling', async ({ page }, te
   await expect.poll(async () => await car.getAttribute('data-lane')).toBe('2');
   await expect.poll(async () => await carCenter(page)).toBeGreaterThan(initial + 10);
   expect(await page.evaluate(() => window.scrollY)).toBe(0);
+});
+
+test('mobile door taps count reliably to developer gate', async ({ page }) => {
+  await page.goto('/index.html');
+  const door = page.locator('#doorHit');
+  for (let i = 0; i < 5; i++) {
+    await door.dispatchEvent('touchend', { bubbles: true, cancelable: true });
+    await page.waitForTimeout(80);
+  }
+  await expect(page.locator('#adminModal')).toBeVisible();
 });

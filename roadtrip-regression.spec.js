@@ -17,6 +17,7 @@ test('game state QA API exposes deterministic movement state', async ({page}) =>
   await expect.poll(async()=>await page.evaluate(()=>window.__DUYGU_QA__?.getState().running)).toBeTruthy();
   await page.evaluate(()=>window.__DUYGU_QA__.move(-1));
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('0');
+  await page.waitForTimeout(130);
   await page.evaluate(()=>window.__DUYGU_QA__.move(1));
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('1');
 });

@@ -13,7 +13,7 @@ async function start(page) {
     Date.now=()=>new Date('2026-09-07T23:00:00+02:00').getTime();
     localStorage.clear();
   });
-  await page.goto('/index.html');
+  await page.goto('/index.html?qa=1');
   await page.locator('#doorHit').click({clickCount:5,delay:80,force:true});
   await page.locator('#adminCode').fill('1337');
   await page.locator('#unlock').click();
@@ -23,6 +23,11 @@ async function start(page) {
   await expect(page.locator('.rules-line')).toBeVisible();
   await page.locator('#readyButton').click();
   await expect(page.locator('#roadTripGame')).toBeVisible({timeout:6000});
+}
+
+
+async function waitForInputCooldown(page) {
+  await page.waitForTimeout(140);
 }
 
 async function carCenter(page) {
@@ -48,15 +53,20 @@ test('real user journey: desktop controls and gameplay outcomes', async ({page},
   const errors=monitorRuntime(page);
   await start(page);
   const initial=await carCenter(page);
+  await waitForInputCooldown(page);
   await page.keyboard.press('ArrowLeft');
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('0');
   await expect.poll(async()=>await carCenter(page)).toBeLessThan(initial-10);
+  await waitForInputCooldown(page);
   await page.keyboard.press('ArrowRight');
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('1');
+  await waitForInputCooldown(page);
   await page.keyboard.press('d');
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('2');
+  await waitForInputCooldown(page);
   await page.keyboard.press('a');
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('1');
+  await waitForInputCooldown(page);
   await page.locator('.game-control[data-move="1"]').click();
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('2');
   await page.evaluate(()=>window.__DUYGU_QA__.spawnTestObject('star',2));
@@ -74,11 +84,14 @@ test('real user journey: mobile swipe controls and gameplay outcomes', async ({p
   const errors=monitorRuntime(page);
   await start(page);
   const initial=await carCenter(page);
+  await waitForInputCooldown(page);
   await swipe(page,.70,.30);
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('0');
   await expect.poll(async()=>await carCenter(page)).toBeLessThan(initial-10);
+  await waitForInputCooldown(page);
   await swipe(page,.30,.70);
   await expect.poll(async()=>await page.locator('#playerCar').getAttribute('data-lane')).toBe('1');
+  await waitForInputCooldown(page);
   await swipe(page,.50,.53);
   await page.waitForTimeout(160);
   await expect(page.locator('#playerCar')).toHaveAttribute('data-lane','1');
