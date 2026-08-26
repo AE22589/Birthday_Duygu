@@ -34,3 +34,55 @@
 @media (min-width:701px) and (max-height:760px){.roadtrip-wrap{padding:10px 18px}.roadtrip-intro{grid-template-columns:330px 1fr;max-width:980px}.intro-art-panel{min-height:480px}.intro-copy{padding:24px 30px}.roadtrip-intro h1{font-size:50px}.how-to-play{padding:16px}.road-board{max-height:calc(100vh - 150px)}.roadtrip-game{width:min(1000px,100%)} }
 
 @media (max-width:700px) and (orientation:landscape){.roadtrip-screen.is-playing .roadtrip-wrap{padding:4px}.game-hud>div{padding:5px 7px}.hud-label{font-size:6px}.game-hud strong{font-size:15px}.road-board{width:min(78vw,calc((100dvh - 70px) * 390 / 620));height:min(calc(100dvh - 70px),620px)}.game-touch-hint{bottom:7px;font-size:9px}.player-car{bottom:4%}}
+
+
+/* QUEST-001: static accepted artwork + moving perspective lane markers */
+#roadTripGame{position:relative;overflow:hidden}
+#roadFlowLayer{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  overflow:hidden;
+  opacity:.82;
+  animation:roadForwardFlow .9s linear infinite;
+}
+#roadFlowLayer::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:0;
+  width:58%;
+  height:100%;
+  transform:translateX(-50%);
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 58px,
+      rgba(235,180,76,.72) 58px 66px,
+      transparent 66px 142px
+    );
+  clip-path:polygon(47% 0,53% 0,100% 100%,0 100%);
+  background-size:100% 142px;
+  animation:roadMarkersFlow .62s linear infinite;
+}
+#roadFlowLayer::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:0;
+  width:60%;
+  height:100%;
+  transform:translateX(-50%);
+  background:
+    linear-gradient(74deg,transparent 0 48%,rgba(235,180,76,.45) 48.5% 49.5%,transparent 50%),
+    linear-gradient(106deg,transparent 0 50.5%,rgba(235,180,76,.45) 51% 52%,transparent 52.5%);
+  clip-path:polygon(48% 0,52% 0,100% 100%,0 100%);
+  opacity:.75;
+}
+@keyframes roadMarkersFlow{
+  from{background-position:0 -142px}
+  to{background-position:0 142px}
+}
+#roadTripGame:not(.is-driving) #roadFlowLayer{animation-play-state:paused}
+#roadTripGame:not(.is-driving) #roadFlowLayer::before{animation-play-state:paused}
