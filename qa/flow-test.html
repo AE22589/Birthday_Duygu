@@ -1,0 +1,15 @@
+<!doctype html><meta charset="utf-8"><title>QA</title><iframe id="app" src="../index.html" style="width:1440px;height:900px;border:0"></iframe><pre id="out">starting</pre><script>
+const out=document.getElementById('out');const f=document.getElementById('app');
+function report(x){out.textContent=JSON.stringify(x,null,2)}
+f.onload=async()=>{const w=f.contentWindow,d=f.contentDocument;await new Promise(r=>setTimeout(r,800));
+  for(let i=0;i<5;i++)d.getElementById('doorHit').click();
+  d.getElementById('adminCode').value='1337';d.getElementById('unlock').click();await new Promise(r=>setTimeout(r,150));
+  const q=d.querySelector('.quest-hotspot[data-quest="1"]');if(!q){report({error:'no quest hotspot'});return}q.click();await new Promise(r=>setTimeout(r,250));
+  const before=d.getElementById('playerCar').getBoundingClientRect().left;
+  d.getElementById('readyButton').click();await new Promise(r=>setTimeout(r,3000));
+  const after=d.getElementById('playerCar').getBoundingClientRect().left;
+  d.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true,cancelable:true}));await new Promise(r=>setTimeout(r,250));
+  const afterKey=d.getElementById('playerCar').getBoundingClientRect().left;
+  report({version:w.__DUYGU_APP_VERSION__,road:w.__DUYGU_ROADTRIP_SELF_TEST__(),introHidden:d.getElementById('roadTripIntro').hidden,gameHidden:d.getElementById('roadTripGame').hidden,gameDisplay:w.getComputedStyle(d.getElementById('roadTripGame')).display,screenPlaying:d.getElementById('roadTripScreen').classList.contains('is-playing'),board:d.getElementById('roadBoard').getBoundingClientRect().toJSON(),before,after,afterKey,activeElement:d.activeElement.id,hiddenRule:w.getComputedStyle(d.getElementById('roadTripGame')).display==='none'});
+}
+</script>
