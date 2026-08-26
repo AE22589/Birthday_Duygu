@@ -1,46 +1,42 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Road Trip – fachliches Spielverhalten', () => {
-  test('die Straße bzw. Objekte bewegen sich während der Fahrt', async ({ page }) => {
+  test('während der Fahrt bewegt sich die Spielwelt auf das Auto zu', async ({ page }) => {
     await page.goto('/index.html');
     await page.waitForLoadState('networkidle');
 
-    // Start the quest through the existing UI.
-    const roadTrip = page.getByRole('button', { name: /road trip/i }).first();
-    if (await roadTrip.count()) {
-      await roadTrip.click();
-    } else {
-      await page.locator('[data-quest="roadtrip"], #roadTrip, .road-trip').first().click();
-    }
-
-    await page.waitForTimeout(700);
-
-    const stateBefore = await page.evaluate(() => {
-      const qa = window.__ROADTRIP_QA__;
-      return qa ? qa.getState() : null;
+    // Open Quest I through the same public navigation bridge used by the app.
+    await page.evaluate(() => {
+      if (typeof window.showRoadTripScreen !== 'function') {
+        throw new Error('Road Trip navigation bridge missing');
+      }
+      window.showRoadTripScreen();
     });
 
-    expect(stateBefore, 'Road Trip QA state must be available').not.toBeNull();
+    const ready = page.locator('#readyButton');
+    await expect(ready).toBeVisible();
+    await ready.click();
 
-    await page.waitForTimeout(1200);
+    await expect.poll(async () => {
+      return await page.evaluate(() => window.__ROADTRIP_QA__?.getState()?.running);
+    }).toBe(true);
 
-    const stateAfter = await page.evaluate(() => window.__ROADTRIP_QA__.getState());
+    await page.evaluate(() => window.__ROADTRIP_QA__.spawnTestObject('star', 1));
 
-    expect(stateAfter.running).toBeTruthy();
-
-    // The game must actually advance its world while the car is driving.
-    // At least one spawned object must have changed its Y position.
-    const before = new Map(
-      stateBefore.objects.map((o, i) => [`${o.type}-${i}`, o.y])
-    );
-    const moved = stateAfter.objects.some((o, i) => {
-      const oldY = before.get(`${o.type}-${i}`);
-      return typeof oldY === 'number' && typeof o.y === 'number' && Math.abs(o.y - oldY) > 5;
+    const before = await page.evaluate(() => {
+      const objects = window.__ROADTRIP_QA__.getState().objects;
+      return objects[objects.length - 1]?.y;
     });
 
-    expect(
-      moved,
-      'Während der Fahrt muss sich mindestens ein Stern/Hindernis sichtbar auf das Auto zubewegen.'
-    ).toBeTruthy();
+    await page.waitForTimeout(400);
+
+    const after = await page.evaluate(() => {
+      const objects = window.__ROADTRIP_QA__.getState().objects;
+      return objects[objects.length - 1]?.y;
+    });
+
+    expect(typeof before).toBe('number');
+    expect(typeof after).toBe('number');
+    expect(after).toBeGreaterThan(before + 5);
   });
 });

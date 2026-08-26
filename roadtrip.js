@@ -1,4 +1,4 @@
-/* Quest I — The Road Trip v1.6.7
+/* Quest I — The Road Trip v1.6.8
    Art-first implementation based on the accepted Quest I concept artwork.
    The artwork is the visual source of truth; HTML/CSS only adds interaction.
 */
@@ -148,19 +148,21 @@ if(new URLSearchParams(location.search).has('qa') && navigator.webdriver===true)
   };
 }
 window.__DUYGU_ROADTRIP_SELF_TEST__=()=>({version:VERSION,renderer:'HTML/CSS layered art',background:'assets/quest1-game-background.jpg',car:'assets/roadtrip-car.png',desktopKeyboard:true,mobileSwipe:true,pointerTouch:true,lanes:LANES.length, logicModule:true,duration:DURATION,targetStars:TARGET_STARS,maxStars:MAX_STARS,stateKey:QUEST_KEY,readyGate:!!READY,hiddenCssEnforced:getComputedStyle(GAME).display==='none'||GAME.hidden});
-})();
-// --- QA state exposure (read-only; no gameplay behavior change) ---
-
-window.__ROADTRIP_QA__ = {
-  getState() {
-    return {
-      running: typeof gameRunning !== 'undefined' ? !!gameRunning : false,
-      lives: typeof lives !== 'undefined' ? lives : null,
-      stars: typeof stars !== 'undefined' ? stars : null,
-      speed: typeof speed !== 'undefined' ? speed : null,
-      objects: Array.isArray(objects)
-        ? objects.map(o => ({ lane: o.lane, y: o.y, type: o.type }))
-        : []
-    };
+window.__ROADTRIP_QA__={
+  getState:()=>({
+    running,
+    lives,
+    stars:score,
+    elapsed,
+    objects:objects.map(o=>({lane:o.lane,y:o.y,type:o.type}))
+  }),
+  spawnTestObject:(type='star',testLane=1)=>{
+    const safeType=['star','barrel','cat'].includes(type)?type:'star';
+    const safeLane=Math.max(0,Math.min(2,Number(testLane)));
+    const before=objects.length;
+    spawn(safeType,safeLane);
+    const o=objects[before];
+    if(o){o.y=82;renderObject(o,performance.now());}
   }
 };
+})();

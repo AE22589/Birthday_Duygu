@@ -35,8 +35,8 @@ if (!index.includes(`game-logic.js?v=${VERSION}`)) throw new Error('cache versio
 for (const file of ['style.css','script.js','roadtrip.js']) {
   if (!index.includes(file + `?v=${VERSION}`)) throw new Error(`cache version missing for ${file}`);
 }
-if (!script.includes(`const VERSION='1.6.7'`)) throw new Error('app version mismatch');
-if (!road.includes(`const VERSION='1.6.7'`)) throw new Error('roadtrip version mismatch');
+if (!script.includes(`const VERSION='${VERSION}'`)) throw new Error('app version mismatch');
+if (!road.includes(`const VERSION='${VERSION}'`)) throw new Error('roadtrip version mismatch');
 
 const requiredSelectors = ['#entrance','#questScreen','#adminModal','#doorHit','#roadTripScreen','#roadTripIntro','#roadTripGame','#roadTripResult','#readyButton','#roadBoard'];
 for (const selector of requiredSelectors) {
