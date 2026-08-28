@@ -1,15 +1,2 @@
-const assert=require('node:assert/strict');
-const P=require('./puzzle.js');
-const solved=P.solvedBoard();
-assert.equal(P.canMove(solved,3),true);
-assert.equal(P.canMove(solved,4),true);
-assert.equal(P.canMove(solved,2),false);
-assert.strictEqual(P.move(solved,2),solved);
-const oneMove=P.move(solved,4);
-assert.deepEqual(oneMove.slice(-2),[5,4]);
-assert.equal(P.isSolved(solved),true);
-assert.equal(P.isSolved(oneMove),false);
-const shuffled=P.shuffle(()=>0.37,30);
-assert.equal(P.isSolved(shuffled),false);
-assert.equal(P.isSolvable(shuffled),true);
-console.log('PASS: Puzzle logic QA');
+const assert=require('node:assert/strict'),P=require('./puzzle.js');
+assert.deepEqual(P.pieces(),[0,1,2,3,4,5]);let state=P.createState([5,4,3,2,1,0]);state=P.place(state,5,0);assert.equal(state.board[0],5);assert.strictEqual(P.place(state,4,0),state);state=P.returnToPalette(state,5);assert.equal(state.board[0],null);assert.equal(state.palette.filter(piece=>piece===5).length,1);state=P.place(state,5,1);state=P.place(state,5,2);assert.equal(state.board[1],null);assert.equal(state.board[2],5);assert.equal(state.palette.includes(5),false);let wrong=P.createState();for(let p=0;p<6;p++)wrong=P.place(wrong,p,(p+1)%6);assert.equal(P.isSolved(wrong),false);let solved=P.createState();for(let p=0;p<6;p++)solved=P.place(solved,p,p);assert.equal(P.isSolved(solved),true);console.log('PASS: Puzzle placement logic QA');

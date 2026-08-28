@@ -113,12 +113,13 @@ Finding all eight pairs stores Quest 5 in the shared progress state and unlocks
 Quest VI through the existing map progression.
 
 QUEST VI — OUR LITTLE PUZZLE
-Quest VI is a lazy-loaded 2×3 sliding puzzle with five image tiles and one empty
-field. A permanent uncropped reference image is displayed beside the puzzle on
-desktop and above it on mobile. Click or tap only an orthogonally adjacent tile
-to slide it; there is no time limit and only the exact completed arrangement
-succeeds. Its solvable shuffle uses about 30 valid moves from the completed
-layout. Solving it stores Quest 6 in the shared progress state and unlocks Quest VII.
+Quest VI is a lazy-loaded 2×3 placement puzzle with six image pieces and six
+empty board slots. A permanent uncropped reference image is displayed beside the
+board on desktop and above it on mobile. On desktop, pieces can be dragged from
+the shuffled palette into any free slot and back; on mobile, tap a piece and then
+a free slot, with placed pieces returnable to the palette. There is no time limit,
+and the quest succeeds only when all six pieces occupy their exact matching slots.
+Solving it stores Quest 6 in the shared progress state and unlocks Quest VII.
 
 QUEST IV — LOKUM'S CHALLENGE
 Quest IV uses the two approved arcade maze graphics and their matching data from

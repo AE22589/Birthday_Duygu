@@ -1,31 +1,26 @@
 /* Quest VI — Our Little Puzzle */
 'use strict';
-const PUZZLE_VERSION='1.0.0';
-const PUZZLE_COLS=2,PUZZLE_ROWS=3,PUZZLE_COUNT=PUZZLE_COLS*PUZZLE_ROWS,PUZZLE_EMPTY=PUZZLE_COUNT-1;
-const PUZZLE_IMAGE='assets/quest-vi/puzzle-source.jpeg';
-const PUZZLE_KEY='duyguBirthdayQuestState_v1';
-function puzzleSolvedBoard(){return Array.from({length:PUZZLE_COUNT},(_,index)=>index)}
-function puzzleEmptyIndex(board){return board.indexOf(PUZZLE_EMPTY)}
-function puzzleAdjacent(a,b){return Math.abs(Math.floor(a/PUZZLE_COLS)-Math.floor(b/PUZZLE_COLS))+Math.abs(a%PUZZLE_COLS-b%PUZZLE_COLS)===1}
-function puzzleCanMove(board,index){return Array.isArray(board)&&index>=0&&index<PUZZLE_COUNT&&board[index]!==PUZZLE_EMPTY&&puzzleAdjacent(index,puzzleEmptyIndex(board))}
-function puzzleMove(board,index){if(!puzzleCanMove(board,index))return board;const next=[...board],empty=puzzleEmptyIndex(next);[next[index],next[empty]]=[next[empty],next[index]];return next}
-function puzzleIsSolved(board){return Array.isArray(board)&&board.length===PUZZLE_COUNT&&board.every((tile,index)=>tile===index)}
-function puzzleIsSolvable(board){const tiles=board.filter(tile=>tile!==PUZZLE_EMPTY);let inversions=0;for(let i=0;i<tiles.length;i++)for(let j=i+1;j<tiles.length;j++)if(tiles[i]>tiles[j])inversions++;const blankRowFromBottom=PUZZLE_ROWS-Math.floor(puzzleEmptyIndex(board)/PUZZLE_COLS);return (inversions+blankRowFromBottom)%2===1}
-function puzzleShuffle(random=Math.random,steps=30){let board=puzzleSolvedBoard(),previous=-1;for(let i=0;i<steps;i++){const empty=puzzleEmptyIndex(board),choices=[];for(let index=0;index<PUZZLE_COUNT;index++)if(index!==previous&&puzzleAdjacent(index,empty))choices.push(index);const move=choices[Math.floor(random()*choices.length)];previous=empty;board=puzzleMove(board,move)}if(puzzleIsSolved(board))board=puzzleMove(board,PUZZLE_EMPTY-1);return board}
-const PuzzleLogic={VERSION:PUZZLE_VERSION,COLS:PUZZLE_COLS,ROWS:PUZZLE_ROWS,COUNT:PUZZLE_COUNT,EMPTY:PUZZLE_EMPTY,solvedBoard:puzzleSolvedBoard,adjacent:puzzleAdjacent,canMove:puzzleCanMove,move:puzzleMove,isSolved:puzzleIsSolved,isSolvable:puzzleIsSolvable,shuffle:puzzleShuffle};
+const PUZZLE_VERSION='2.0.0';
+const PUZZLE_COLS=2,PUZZLE_ROWS=3,PUZZLE_COUNT=6;
+const PUZZLE_IMAGE='assets/quest-vi/puzzle-source.jpeg',PUZZLE_KEY='duyguBirthdayQuestState_v1';
+function puzzlePieces(){return Array.from({length:PUZZLE_COUNT},(_,i)=>i)}
+function puzzleShuffle(random=Math.random){const pieces=puzzlePieces();for(let i=pieces.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[pieces[i],pieces[j]]=[pieces[j],pieces[i]]}return pieces}
+function puzzleCreateState(order=puzzlePieces()){return {board:Array(PUZZLE_COUNT).fill(null),palette:[...order]}}
+function puzzleFindPiece(state,piece){const slot=state.board.indexOf(piece);return slot>=0?{source:'board',slot}:state.palette.includes(piece)?{source:'palette',slot:-1}:null}
+function puzzlePlace(state,piece,slot){if(!state||slot<0||slot>=PUZZLE_COUNT||state.board[slot]!==null)return state;const origin=puzzleFindPiece(state,piece);if(!origin)return state;const board=[...state.board],palette=[...state.palette];if(origin.source==='palette')palette.splice(palette.indexOf(piece),1);else board[origin.slot]=null;board[slot]=piece;return {board,palette}}
+function puzzleReturn(state,piece){const origin=puzzleFindPiece(state,piece);if(!origin||origin.source!=='board')return state;const board=[...state.board];board[origin.slot]=null;return {board,palette:[...state.palette,piece]}}
+function puzzleIsSolved(state){return !!state&&state.palette.length===0&&state.board.every((piece,slot)=>piece===slot)}
+const PuzzleLogic={VERSION:PUZZLE_VERSION,COLS:PUZZLE_COLS,ROWS:PUZZLE_ROWS,COUNT:PUZZLE_COUNT,pieces:puzzlePieces,shuffle:puzzleShuffle,createState:puzzleCreateState,findPiece:puzzleFindPiece,place:puzzlePlace,returnToPalette:puzzleReturn,isSolved:puzzleIsSolved};
 if(typeof module!=='undefined'&&module.exports)module.exports=PuzzleLogic;
 if(typeof document!=='undefined')(function(){
-  const $=id=>document.getElementById(id),screen=$('puzzleScreen'),boardEl=$('pzBoard'),views={intro:$('puzzleIntro'),game:$('puzzleGame'),result:$('puzzleResult')};
-  if(!screen||!boardEl)return;
-  let board=puzzleSolvedBoard(),hintTimer=0;
-  function setView(view){screen.hidden=false;Object.entries(views).forEach(([name,element])=>{if(element)element.hidden=name!==view})}
-  function saveCompletion(){try{const state=JSON.parse(localStorage.getItem(PUZZLE_KEY)||'{}'),completed=Array.isArray(state.completed)?state.completed.filter(Number.isInteger):[];if(!completed.includes(6))completed.push(6);localStorage.setItem(PUZZLE_KEY,JSON.stringify({completed:[...new Set(completed)].sort((a,b)=>a-b)}))}catch{}}
-  function backgroundPosition(tile){const row=Math.floor(tile/PUZZLE_COLS),col=tile%PUZZLE_COLS;return `${col/(PUZZLE_COLS-1)*100}% ${row/(PUZZLE_ROWS-1)*100}%`}
-  function render(){boardEl.replaceChildren(...board.map((tile,index)=>{const button=document.createElement('button');button.type='button';button.className='pz-tile';button.dataset.index=String(index);button.setAttribute('role','gridcell');button.dataset.goal=tile===PUZZLE_EMPTY?'EMPTY':String(tile+1);if(tile===PUZZLE_EMPTY){button.classList.add('is-empty');button.setAttribute('aria-label','Empty puzzle field');button.disabled=true}else{button.style.backgroundImage=`url("${PUZZLE_IMAGE}")`;button.style.backgroundPosition=backgroundPosition(tile);button.setAttribute('aria-label','Move puzzle tile');button.addEventListener('click',()=>move(index))}return button}))}
-  function move(index){const next=puzzleMove(board,index);if(next===board)return;board=next;render();if(puzzleIsSolved(board)){saveCompletion();setView('result')}}
-  function start(){clearTimeout(hintTimer);boardEl.classList.remove('pz-show-hint');board=puzzleShuffle();render();setView('game')}
-  function showHint(){if(document.getElementById('puzzleGame')?.hidden)return;clearTimeout(hintTimer);boardEl.classList.add('pz-show-hint');hintTimer=setTimeout(()=>boardEl.classList.remove('pz-show-hint'),2500)}
-  function back(){setView('intro');window.showQuestMap?.()}
-  $('pzReadyButton')?.addEventListener('click',start);$('pzRetryButton')?.addEventListener('click',start);$('pzBackButton')?.addEventListener('click',back);$('pzGameBackButton')?.addEventListener('click',back);$('pzReturnButton')?.addEventListener('click',back);$('pzHintButton')?.addEventListener('click',showHint);
-  window.showPuzzleScreen=()=>{board=puzzleSolvedBoard();setView('intro')};window.__PUZZLE__={start,move,getBoard:()=>[...board]};
+ const $=id=>document.getElementById(id),screen=$('puzzleScreen'),boardEl=$('pzBoard'),paletteEl=$('pzPalette'),returnButton=$('pzReturnPiece'),views={intro:$('puzzleIntro'),game:$('puzzleGame'),result:$('puzzleResult')};if(!screen||!boardEl||!paletteEl)return;let state=puzzleCreateState(),selected=null;
+ function setView(view){screen.hidden=false;Object.entries(views).forEach(([name,element])=>{if(element)element.hidden=name!==view})}
+ function saveCompletion(){try{const saved=JSON.parse(localStorage.getItem(PUZZLE_KEY)||'{}'),completed=Array.isArray(saved.completed)?saved.completed.filter(Number.isInteger):[];if(!completed.includes(6))completed.push(6);localStorage.setItem(PUZZLE_KEY,JSON.stringify({completed:[...new Set(completed)].sort((a,b)=>a-b)}))}catch{}}
+ function pos(piece){const row=Math.floor(piece/PUZZLE_COLS),col=piece%PUZZLE_COLS;return `${col*100}% ${row/(PUZZLE_ROWS-1)*100}%`}
+ function makePiece(piece,source,slot){const button=document.createElement('button');button.type='button';button.className='pz-piece';button.draggable=true;button.dataset.piece=piece;button.style.backgroundImage=`url("${PUZZLE_IMAGE}")`;button.style.backgroundPosition=pos(piece);button.classList.toggle('is-selected',selected?.piece===piece&&selected.source===source);button.addEventListener('click',()=>{selected={piece,source,slot};render()});button.addEventListener('dragstart',e=>{selected={piece,source,slot};e.dataTransfer.setData('text/plain',JSON.stringify(selected))});return button}
+ function render(){boardEl.replaceChildren(...state.board.map((piece,slot)=>{const cell=document.createElement('div');cell.className='pz-slot';if(piece===null)cell.classList.add('is-empty');else cell.append(makePiece(piece,'board',slot));cell.addEventListener('click',()=>{if(piece!==null){selected={piece,source:'board',slot};render()}else if(selected)place(slot)});cell.addEventListener('dragover',e=>{if(piece===null)e.preventDefault()});cell.addEventListener('drop',e=>{e.preventDefault();try{selected=JSON.parse(e.dataTransfer.getData('text/plain'))}catch{}if(selected)place(slot)});return cell}));paletteEl.replaceChildren(...state.palette.map(piece=>makePiece(piece,'palette',-1)));if(returnButton)returnButton.hidden=selected?.source!=='board'}
+ function place(slot){const next=puzzlePlace(state,selected.piece,slot);if(next===state)return;state=next;selected=null;render();if(puzzleIsSolved(state)){saveCompletion();setView('result')}}
+ function start(){state=puzzleCreateState(puzzleShuffle());selected=null;render();setView('game')}function back(){setView('intro');window.showQuestMap?.()}
+ paletteEl.addEventListener('dragover',e=>{if(selected?.source==='board')e.preventDefault()});paletteEl.addEventListener('drop',e=>{e.preventDefault();try{selected=JSON.parse(e.dataTransfer.getData('text/plain'))}catch{}if(selected?.source==='board'){state=puzzleReturn(state,selected.piece);selected=null;render()}});returnButton?.addEventListener('click',()=>{if(selected?.source==='board'){state=puzzleReturn(state,selected.piece);selected=null;render()}});
+ $('pzReadyButton')?.addEventListener('click',start);$('pzRetryButton')?.addEventListener('click',start);$('pzBackButton')?.addEventListener('click',back);$('pzGameBackButton')?.addEventListener('click',back);$('pzReturnButton')?.addEventListener('click',back);window.showPuzzleScreen=()=>{state=puzzleCreateState();selected=null;setView('intro')};
 })();
