@@ -265,6 +265,30 @@
   </div></div>
 </section>
 
+<section id="memoryLaneScreen" class="screen roadtrip-screen" hidden aria-label="Quest V Memory Lane">
+  <div class="rt-wrap ml-wrap"><div class="rt-cabinet ml-cabinet"><div class="rt-scanlines"></div>
+    <section id="memoryLaneIntro" class="rt-view rt-intro" aria-labelledby="memoryLaneTitle">
+      <h1 class="rt-title" id="memoryLaneTitle">MEMORY LANE</h1>
+      <p class="rt-subtitle">✦ MATCH EDITION ✦</p>
+      <p class="rt-hint">Find all eight pairs. Take your time — there is no timer.</p>
+      <div class="rt-rules"><span>🃏 16 cards</span><span>💞 8 pairs</span><span>∞ NO TIME LIMIT</span><span>✨ Match to win</span></div>
+      <button id="mlReadyButton" class="rt-btn" type="button">I'M READY</button>
+      <button id="mlBackButton" class="rt-textlink" type="button">BACK TO QUEST MAP</button>
+    </section>
+    <section id="memoryLaneGame" class="rt-view ml-game" hidden aria-label="Memory Lane game">
+      <div class="rt-hud ml-hud" aria-live="polite"><div><label>PAIRS</label><strong id="mlPairs">0 / 8</strong></div><div><label>MOVES</label><strong id="mlMoves">0</strong></div></div>
+      <div id="mlBoard" class="ml-board" role="grid" aria-label="Memory cards"></div>
+      <button id="mlGameBackButton" class="rt-textlink" type="button">BACK TO QUEST MAP</button>
+    </section>
+    <section id="memoryLaneResult" class="rt-view rt-result" hidden>
+      <h1 class="rt-title">MEMORY MASTER!</h1><p class="pi-result-message">All 8 pairs found. Your memories are safe.</p>
+      <div class="rt-key-reward"><strong>KEY V ACQUIRED</strong><span>THE FIFTH KEY IS YOURS.</span></div>
+      <button id="mlReturnButton" class="rt-btn" type="button">RETURN TO QUEST MAP</button>
+      <button id="mlRetryButton" class="rt-textlink" type="button">PLAY AGAIN</button>
+    </section>
+  </div></div>
+</section>
+
 <script src="script.js?v=1.11.1" defer></script>
 <script src="roadtrip.js?v=1.11.1" defer></script>
 </body>

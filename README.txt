@@ -104,6 +104,14 @@ four pan slots, one browning cycle per sucuk, a 65–90% golden success window, 
 
 The current approved gameplay/design source is PROJECT_REQUIREMENTS.docx (concept v2.0).
 
+QUEST V — MEMORY LANE
+Quest V is a lazy-loaded 4×4 Memory with eight shuffled image pairs. Cards use
+the shared neon arcade back, contain their full front image without cropping,
+and support click/tap interaction. Two cards may be open at once; matches stay
+open while non-matches turn back after a short delay. There is no time limit.
+Finding all eight pairs stores Quest 5 in the shared progress state and unlocks
+Quest VI through the existing map progression.
+
 QUEST IV — LOKUM'S CHALLENGE
 Quest IV uses the two approved arcade maze graphics and their matching data from
 quest4-maze-spec.json. Each arrow-key, WASD, or swipe input moves Lokum exactly
