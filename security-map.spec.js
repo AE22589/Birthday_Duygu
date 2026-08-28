@@ -75,6 +75,27 @@ test('quest map geometry stays aligned and inside viewport', async ({page}, test
 });
 
 
+
+test('quest unlock state is refreshed and reachable quests no longer show locked', async ({page}) => {
+  await page.addInitScript(() => {
+    Date.now=()=>new Date('2026-09-07T23:00:00+02:00').getTime();
+    localStorage.clear();
+    localStorage.setItem('duyguBirthdayQuestState_v1', JSON.stringify({completed:[1]}));
+  });
+  await page.goto('/index.html');
+  await page.locator('#doorHit').click({clickCount:5,delay:80,force:true});
+  await page.locator('#adminCode').fill('1337');
+  await page.locator('#unlock').click();
+  await expect(page.locator('[data-quest="2"]')).toHaveAttribute('aria-label', /ready/i);
+  await expect(page.locator('[data-quest="3"]')).toHaveAttribute('aria-label', /locked/i);
+
+  await page.evaluate(() => localStorage.setItem('duyguBirthdayQuestState_v1', JSON.stringify({completed:[1,2]})));
+  await page.evaluate(() => window.showQuestMap());
+  await expect(page.locator('[data-quest="3"]')).toHaveAttribute('aria-label', /ready/i);
+  await page.locator('[data-quest="3"]').click();
+  await expect(page.locator('#sucukMasterIntro')).toBeVisible({timeout:4000});
+});
+
 test('QA controls are not exposed to a non-automated browser context', async ({page}) => {
   await page.addInitScript(() => {
     Object.defineProperty(Navigator.prototype, 'webdriver', { get: () => false, configurable: true });

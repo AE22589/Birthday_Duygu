@@ -12,8 +12,8 @@ const LOCKOUT_ATTEMPT_LIMIT=3;
 const LOCKOUT_DURATION_MS=24*60*60*1000;
 
 const $=id=>document.getElementById(id);
-const entrance=$('entrance'),questScreen=$('questScreen'),doorHit=$('doorHit'),modal=$('adminModal'),codeInput=$('adminCode'),unlockButton=$('unlock'),cancelButton=$('cancel'),error=$('error'),toast=$('toast'),lockTitle=$('lockTitle'),lockText=$('lockText'),mapShell=$('mapShell'),mapImage=$('mapImage'),svg=$('mapInteraction'),controlsGroup=$('questControls'),lockedLayers=$('lockedLayers'),activeLayer=$('activeLayer'),activeRing=$('activeRing'),activeRingGlow=$('activeRingGlow'),finalDoorHotspot=$('finalDoorHotspot'),returnHotspot=$('returnHotspot'),countdown={days:$('days'),hours:$('hours'),minutes:$('minutes'),seconds:$('seconds')};
-if(!entrance||!questScreen||!doorHit||!mapImage||!svg||!controlsGroup||!lockedLayers||!activeLayer||!activeRing||!activeRingGlow||!finalDoorHotspot||!returnHotspot)return;
+const entrance=$('entrance'),questScreen=$('questScreen'),doorHit=$('doorHit'),modal=$('adminModal'),codeInput=$('adminCode'),unlockButton=$('unlock'),cancelButton=$('cancel'),error=$('error'),toast=$('toast'),lockTitle=$('lockTitle'),lockText=$('lockText'),mapShell=$('mapShell'),mapImage=$('mapImage'),svg=$('mapInteraction'),controlsGroup=$('questControls'),lockedLayers=$('lockedLayers'),questStatusLayers=$('questStatusLayers'),activeLayer=$('activeLayer'),activeRing=$('activeRing'),activeRingGlow=$('activeRingGlow'),finalDoorHotspot=$('finalDoorHotspot'),returnHotspot=$('returnHotspot'),countdown={days:$('days'),hours:$('hours'),minutes:$('minutes'),seconds:$('seconds')};
+if(!entrance||!questScreen||!doorHit||!mapImage||!svg||!controlsGroup||!lockedLayers||!questStatusLayers||!activeLayer||!activeRing||!activeRingGlow||!finalDoorHotspot||!returnHotspot)return;
 
 const NS='http://www.w3.org/2000/svg';
 const GEOMETRY={
@@ -145,6 +145,31 @@ function buildLockedLayer(g,active){
     lockedImage.setAttribute('aria-hidden','true');
     lockedLayers.appendChild(lockedImage);
   });
+
+  // The supplied map artwork contains the word LOCKED baked into every
+  // future quest plaque. Cover only that status line for reachable quests
+  // and restore the intended READY label without changing the artwork.
+  const statusBoxes = isMobile() ? [
+    null,
+    {x:18,y:288,w:58,h:18}, {x:244,y:288,w:64,h:18}, {x:243,y:427,w:64,h:18},
+    {x:174,y:546,w:140,h:18}, {x:28,y:546,w:102,h:18}, {x:10,y:427,w:68,h:18}
+  ] : [
+    null,
+    {x:607,y:312,w:76,h:22}, {x:925,y:312,w:84,h:22}, {x:1140,y:458,w:105,h:22},
+    {x:1072,y:709,w:90,h:22}, {x:754,y:812,w:108,h:22}, {x:405,y:709,w:96,h:22}
+  ];
+  for(let n=2;n<=active;n++){
+    const box=statusBoxes[n]; if(!box)continue;
+    const rect=document.createElementNS(NS,'rect');
+    rect.setAttribute('x',box.x);rect.setAttribute('y',box.y);rect.setAttribute('width',box.w);rect.setAttribute('height',box.h);
+    rect.setAttribute('rx','3');rect.setAttribute('fill','#101317');rect.setAttribute('opacity','.97');
+    questStatusLayers.appendChild(rect);
+    const text=document.createElementNS(NS,'text');
+    text.setAttribute('x',box.x+box.w/2);text.setAttribute('y',box.y+box.h*.72);
+    text.setAttribute('text-anchor','middle');text.setAttribute('fill','#d9b76b');
+    text.setAttribute('font-size',isMobile()?'5.5':'8');text.setAttribute('font-family','serif');text.setAttribute('letter-spacing','1');
+    text.textContent='READY';questStatusLayers.appendChild(text);
+  }
 }
 
 function renderMap(){
@@ -233,6 +258,7 @@ function ensurePaintItLoaded(){
   return paintItLoadPromise;
 }
 async function handleQuestActivation(n){
+  state=loadState();
   const active=currentQuest();
   const reachable=active===null?7:active;
   if(n>reachable){showToast('Complete the previous challenge to unlock this quest.');return}
