@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const VERSION='1.11.0';
+const VERSION='1.11.1';
 const QA_MODE=new URLSearchParams(location.search).has('qa') && navigator.webdriver===true;
 const QA_VISUAL_MAP=new URLSearchParams(location.search).get('qa')==='visual-map' && navigator.webdriver===true;
 const TARGET_MS=Date.parse('2026-09-08T00:00:00+02:00');
@@ -54,6 +54,8 @@ function isMobile(){return window.matchMedia('(max-width:700px)').matches}
 function geometry(){return isMobile()?GEOMETRY.mobile:GEOMETRY.desktop}
 function mapState(){let n=0;while(state.completed.includes(n+1))n++;return n}
 function currentQuest(){const n=mapState();return n<7?n+1:null}
+function isQuestReachable(n){return n===1||state.completed.includes(n-1)}
+function questStatus(n){if(state.completed.includes(n))return 'completed';if(isQuestReachable(n))return 'ready';return 'locked'}
 function mapAsset(){return`assets/quest-map-${isMobile()?'mobile':'desktop'}.webp`}
 function showToast(message){toast.textContent=message;toast.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove('show'),2200)}
 function setCountdown(ms){const t=Math.max(0,Math.floor(ms/1000));const d=Math.floor(t/86400),h=Math.floor(t%86400/3600),m=Math.floor(t%3600/60),s=t%60;countdown.days.textContent=String(d).padStart(2,'0');countdown.hours.textContent=String(h).padStart(2,'0');countdown.minutes.textContent=String(m).padStart(2,'0');countdown.seconds.textContent=String(s).padStart(2,'0')}
@@ -96,7 +98,8 @@ function createHotspot(questNumber,q,active){
   circle.classList.add('svg-hotspot','quest-hotspot');
   circle.setAttribute('cx',q.x);circle.setAttribute('cy',q.y);circle.setAttribute('r',Math.max(18,q.r-2));
   circle.setAttribute('role','button');circle.setAttribute('tabindex',active?'0':'-1');
-  circle.setAttribute('aria-label',`Quest ${ROMAN[questNumber-1]}: ${NAMES[questNumber-1]}${active?', ready':', locked'}`);
+  const status=questStatus(questNumber);
+  circle.setAttribute('aria-label',`Quest ${ROMAN[questNumber-1]}: ${NAMES[questNumber-1]}, ${status}`);
   circle.dataset.quest=String(questNumber);
   circle.addEventListener('click',()=>handleQuestActivation(questNumber));
   circle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleQuestActivation(questNumber)}});
@@ -116,7 +119,7 @@ function buildLockedLayer(g,active){
 
   g.quests.forEach((q,index)=>{
     const n=index+1;
-    if(n<=active)return;
+    if(isQuestReachable(n))return;
 
     // Use a real SVG image instance rather than <use>. Both the master image
     // and the locked image occupy the exact same user-space coordinates.
@@ -158,7 +161,8 @@ function buildLockedLayer(g,active){
     {x:607,y:312,w:76,h:22}, {x:925,y:312,w:84,h:22}, {x:1140,y:458,w:105,h:22},
     {x:1072,y:709,w:90,h:22}, {x:754,y:812,w:108,h:22}, {x:405,y:709,w:96,h:22}
   ];
-  for(let n=2;n<=active;n++){
+  for(let n=1;n<=g.quests.length;n++){
+    if(!isQuestReachable(n))continue;
     const box=statusBoxes[n]; if(!box)continue;
     const rect=document.createElementNS(NS,'rect');
     rect.setAttribute('x',box.x);rect.setAttribute('y',box.y);rect.setAttribute('width',box.w);rect.setAttribute('height',box.h);
@@ -168,7 +172,7 @@ function buildLockedLayer(g,active){
     text.setAttribute('x',box.x+box.w/2);text.setAttribute('y',box.y+box.h*.72);
     text.setAttribute('text-anchor','middle');text.setAttribute('fill','#d9b76b');
     text.setAttribute('font-size',isMobile()?'5.5':'8');text.setAttribute('font-family','serif');text.setAttribute('letter-spacing','1');
-    text.textContent='READY';questStatusLayers.appendChild(text);
+    text.textContent=state.completed.includes(n)?'DONE':'READY';questStatusLayers.appendChild(text);
   }
 }
 
@@ -179,7 +183,7 @@ function renderMap(){
   setHover(false);
   controlsGroup.replaceChildren();
   buildLockedLayer(g,active);
-  g.quests.forEach((q,index)=>{const n=index+1;controlsGroup.appendChild(createHotspot(n,q,n===active))});
+  g.quests.forEach((q,index)=>{const n=index+1;controlsGroup.appendChild(createHotspot(n,q,n===active && isQuestReachable(n)))});
   const target=active?g.quests[active-1]:g.finalDoor;
   activeRing.setAttribute('cx',String(target.x));
   activeRing.setAttribute('cy',String(target.y));
@@ -260,8 +264,7 @@ function ensurePaintItLoaded(){
 async function handleQuestActivation(n){
   state=loadState();
   const active=currentQuest();
-  const reachable=active===null?7:active;
-  if(n>reachable){showToast('Complete the previous challenge to unlock this quest.');return}
+  if(!isQuestReachable(n)){showToast('Complete the previous challenge to unlock this quest.');return}
   if(n===1){
     try{await ensureRoadTripLoaded();window.showRoadTripScreen();}
     catch(err){console.error('[Quest I]',err);showToast('Quest I could not be loaded. Please refresh and try again.');}

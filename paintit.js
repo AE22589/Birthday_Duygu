@@ -15,7 +15,7 @@
      <script>-Tag in index.html.
 */
 'use strict';
-const PI_VERSION='1.11.0';
+const PI_VERSION='1.11.1';
 
 /* =========================================================================
    TEIL 1 — REINE SPIELLOGIK (kein DOM, kein Browser nötig, pur testbar)

@@ -3,7 +3,7 @@
    by script.js and uses the supplied Quest-IV maze/treat/Lokum assets.
 */
 'use strict';
-const VERSION='1.11.0';
+const VERSION='1.11.1';
 const LC_VERSION=VERSION;
 
 const N=Object.freeze({N:1,E:2,S:4,W:8});

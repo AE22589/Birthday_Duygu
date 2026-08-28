@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const L = require('../lokumchallenge.js');
 
-assert.equal(L.VERSION, '1.11.0');
+assert.equal(L.VERSION, '1.11.1');
 assert.equal(L.CONFIG.DURATION, 60);
 assert.equal(L.CONFIG.MAZES.length, 2);
 assert.equal(L.CONFIG.MAZES[0].size, 9);

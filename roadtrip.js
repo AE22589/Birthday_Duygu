@@ -11,7 +11,7 @@
    - Ein Bildschirm-Zustand, eine Funktion zum Wechseln.
 */
 'use strict';
-const VERSION='1.11.0';
+const VERSION='1.11.1';
 
 /* =========================================================================
    TEIL 1 — REINE SPIELLOGIK (kein DOM, kein Browser nötig, pur testbar)
