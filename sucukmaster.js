@@ -70,7 +70,7 @@ if(typeof document!=='undefined')(function(){
   const QUEST_KEY='duyguBirthdayQuestState_v1', QUEST_NUMBER=3;
   const screenEl=$('sucukMasterScreen');
   const views={intro:$('sucukMasterIntro'),game:$('sucukMasterGame'),result:$('sucukMasterResult')};
-  const slotsLayer=$('smSlots'),plateEl=$('smPlate'),plateCountEl=$('smPlateCount'),lokumEl=$('smLokum'),lokumWarn=$('smLokumWarning');
+  const slotsLayer=$('smSlots'),plateEl=$('smPlate'),finishedSucuksEl=$('smFinishedSucuks'),plateCountEl=$('smPlateCount'),lokumEl=$('smLokum'),lokumWarn=$('smLokumWarning');
   const hudTime=$('smTimeCount'),hudPerfect=$('smPerfectCount');
   const readyBtn=$('smReadyButton'),backBtn=$('smBackToMapFromIntro'),retryBtn=$('smRetry'),returnBtn=$('smReturnToMapFromResult');
   const resultTitle=$('smResultTitle'),resultPerfect=$('smResultPerfect'),keyReward=$('smKeyReward');
@@ -78,7 +78,7 @@ if(typeof document!=='undefined')(function(){
 
   let view='intro',running=false,raf=0,startAt=0,elapsed=0,lastSpawnAt=0,nextSpawnDelay=2500;
   let slots=smCreateSlots(),perfectSucuks=0,plateCount=0,lokumActive=false,lokumDeadline=0,nextLokumAt=Infinity;
-  let pendingFrame=null;
+  let pendingFrame=null,renderedPlateCount=-1;
 
   function setView(next){view=next;screenEl.hidden=false;Object.entries(views).forEach(([k,v])=>{if(v)v.hidden=k!==next;});}
   function updateHud(){hudTime.textContent=String(Math.max(0,Math.ceil(SM_CONFIG.DURATION-elapsed)));hudPerfect.textContent=String(perfectSucuks);}
@@ -89,20 +89,34 @@ if(typeof document!=='undefined')(function(){
     if(!el){el=document.createElement('button');el.type='button';el.className='sm-slot';el.dataset.slot=String(s.id);el.setAttribute('aria-label',`Pan ${s.id+1}`);slotsLayer.appendChild(el);}
     el.className=`sm-slot ${s.state}`;
     const progress=slotProgress(s,now);
-    const pan=document.createElement('img');pan.alt='';pan.draggable=false;pan.className='sm-pan';pan.src='assets/quest-iii/pan.png';
+    const pan=document.createElement('img');pan.alt='';pan.draggable=false;pan.className='sm-pan';pan.src='pan.png';
     const img=document.createElement('img');img.alt='';img.draggable=false;img.className='sm-sucuk';
-    if(s.state==='burnt')img.src='assets/quest-iii/sucuk-burnt.png';
-    else if(s.side===1)img.src='assets/quest-iii/sucuk-raw.png';
-    else img.src='assets/quest-iii/sucuk-brown.png';
-    img.style.setProperty('--sm-brown',String(Math.min(1,progress)));
+    if(s.state==='burnt')img.src='sucuk-burnt.png';
+    else if(s.side===1)img.src='sucuk-raw.png';
+    else img.src='sucuk-brown.png';
+    el.style.setProperty('--sm-brown',String(Math.min(1,progress)));
     el.replaceChildren(pan,img);
     const pct=Math.round(progress*100);
     el.title=s.state==='burnt'?'Click to clear the burnt pan':s.side===1?`Browned ${pct}% — click in the golden zone to turn`: `Side 2 ${pct}% — click in the perfect zone to remove`;
   }
+  function renderPlate(){
+    plateEl.dataset.count=String(plateCount);
+    plateCountEl.textContent=plateCount?`x${plateCount}`:'';
+    plateCountEl.hidden=plateCount===0;
+    if(plateCount===renderedPlateCount)return;
+    const positions=[[14,36,-18],[43,31,8],[27,52,-5],[55,53,19],[8,58,11],[62,20,-12]];
+    const fragment=document.createDocumentFragment();
+    for(let i=0;i<plateCount;i++){
+      const [left,top,rotation]=positions[i%positions.length];
+      const sucuk=document.createElement('img');sucuk.alt='';sucuk.className='sm-finished-sucuk';sucuk.src='sucuk-brown.png';
+      sucuk.style.left=`${left}%`;sucuk.style.top=`${top}%`;sucuk.style.transform=`rotate(${rotation}deg)`;
+      fragment.appendChild(sucuk);
+    }
+    finishedSucuksEl.replaceChildren(fragment);renderedPlateCount=plateCount;
+  }
   function renderAll(now=performance.now()){
     slots.forEach(s=>renderSlot(s,now));
-    plateEl.textContent=plateCount?`x${plateCount}`:'';
-    plateEl.dataset.count=String(plateCount);
+    renderPlate();
     lokumEl.hidden=!lokumActive;lokumWarn.hidden=!lokumActive;
     updateHud();
   }
@@ -131,7 +145,7 @@ if(typeof document!=='undefined')(function(){
   }
   function showLokum(){if(plateCount<=0||lokumActive)return;lokumActive=true;lokumDeadline=performance.now()+SM_CONFIG.LOKUM_WARNING_MS;lokumEl.hidden=false;lokumWarn.hidden=false;lokumEl.classList.remove('sm-lokum-pop');void lokumEl.offsetWidth;lokumEl.classList.add('sm-lokum-pop');}
   function clickLokum(){if(!running||!lokumActive)return;lokumActive=false;nextLokumAt=performance.now()+randomDelay(SM_CONFIG.LOKUM_MIN_MS,SM_CONFIG.LOKUM_MAX_MS);renderAll();}
-  function stealSucuk(){if(plateCount>0)plateCount--;lokumActive=false;nextLokumAt=performance.now()+randomDelay(SM_CONFIG.LOKUM_MIN_MS,SM_CONFIG.LOKUM_MAX_MS);renderAll();}
+  function stealSucuk(){if(plateCount>0){plateCount--;perfectSucuks=Math.max(0,perfectSucuks-1)}lokumActive=false;nextLokumAt=performance.now()+randomDelay(SM_CONFIG.LOKUM_MIN_MS,SM_CONFIG.LOKUM_MAX_MS);renderAll();}
   function tick(now){
     if(!running)return;
     elapsed=(now-startAt)/1000;
@@ -143,7 +157,7 @@ if(typeof document!=='undefined')(function(){
     if(elapsed>=SM_CONFIG.DURATION){finish();return;}
     raf=requestAnimationFrame(tick);
   }
-  function reset(){running=false;if(raf)cancelAnimationFrame(raf);slots=smCreateSlots();perfectSucuks=0;plateCount=0;elapsed=0;lokumActive=false;nextLokumAt=Infinity;pendingFrame=null;slotsLayer.innerHTML='';renderAll(performance.now());}
+  function reset(){running=false;if(raf)cancelAnimationFrame(raf);slots=smCreateSlots();perfectSucuks=0;plateCount=0;elapsed=0;lokumActive=false;nextLokumAt=Infinity;pendingFrame=null;renderedPlateCount=-1;slotsLayer.innerHTML='';renderAll(performance.now());}
   function start(){reset();setView('game');running=true;startAt=performance.now();lastSpawnAt=startAt;nextSpawnDelay=2500;nextLokumAt=Infinity;raf=requestAnimationFrame(tick);}
   function back(){reset();setView('intro');window.showQuestMap?.();}
   readyBtn?.addEventListener('click',start);retryBtn?.addEventListener('click',start);backBtn?.addEventListener('click',back);returnBtn?.addEventListener('click',back);
