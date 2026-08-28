@@ -103,3 +103,11 @@ four pan slots, one browning cycle per sucuk, a 65–90% golden success window, 
 60-second round, and the approved result/key thresholds from the current design concept.
 
 The current approved gameplay/design source is PROJECT_REQUIREMENTS.docx (concept v2.0).
+
+QUEST IV — LOKUM'S CHALLENGE
+Quest IV uses the two approved arcade maze graphics and their matching data from
+quest4-maze-spec.json. Each arrow-key, WASD, or swipe input moves Lokum exactly
+one grid cell after a wall check; diagonal and free pixel movement are not used.
+During the short step animation, one next direction may be buffered. Lokum and
+every Treat stay centered in their grid cells, and idle/walk sprites use the same
+render size and anchor point.

@@ -247,17 +247,12 @@
       <button id="lcBackToMapFromIntro" class="rt-textlink" type="button">BACK TO QUEST MAP</button>
     </section>
     <section id="lokumChallengeGame" class="rt-view lc-game" hidden aria-label="Lokum's Challenge game">
-      <div class="rt-hud lc-hud" aria-live="polite">
-        <div><label id="lcMazeLabel">MAZE 1/2</label><strong>🐈 LOKUM</strong></div>
-        <div><label>TIME</label><strong id="lcTimeCount">60</strong></div>
-        <div><label>TREATS</label><strong id="lcTreatCount">0 / 20</strong></div>
-      </div>
       <div id="lcMaze" class="lc-maze" tabindex="0" role="application" aria-label="Maze. Use arrow keys or swipe to move Lokum.">
         <img id="lcMazeImage" class="lc-maze-image" src="maze-01-new.png" alt="Lokum's Challenge maze">
+        <div class="lc-image-hud" aria-live="polite"><strong id="lcMazeLabel" class="lc-image-hud-maze">1 / 2</strong><strong id="lcTimeCount" class="lc-image-hud-time">60</strong><strong id="lcTreatCount" class="lc-image-hud-treats">0 / 20</strong></div>
         <div id="lcTreats" class="lc-treats" aria-hidden="true"></div>
         <img id="lcLokum" class="lc-lokum" src="lokum-idle.png" alt="Lokum">
       </div>
-      <div class="rt-rules lc-legend" aria-label="Maze legend"><span>🐈 LOKUM / START</span><span>🚪 EXIT</span><span>▰ WALL</span><span>🐟 FISH TREAT</span><span>🩷 PINK FISH TREAT</span><span>❤️ HEART TREAT</span><span>⚽ BALL TREAT</span></div>
       <p class="rt-note">Arrow keys / WASD on desktop · swipe on mobile. Reach both exits before the 60-second timer ends.</p>
     </section>
     <section id="lokumChallengeResult" class="rt-view rt-result" hidden>

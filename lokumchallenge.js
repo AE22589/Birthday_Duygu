@@ -61,6 +61,7 @@ const LC_CONFIG=Object.freeze({
     'treat-heart.png','treat-ball.png'
   ])
 });
+const LC_GRID=Object.freeze({imageWidth:1600,imageHeight:1080,left:629,top:331,span:666});
 
 function lcClamp(n,min=0,max=LC_CONFIG.DURATION){return Math.max(min,Math.min(max,n));}
 function lcCreateState(){
@@ -105,9 +106,8 @@ function lcFinish(state){return {...state,running:false,finished:true,failed:fal
 function lcFail(state){return {...state,running:false,finished:false,failed:true};}
 function lcSetElapsed(state,seconds){return {...state,elapsed:lcClamp(Number(seconds)||0)};}
 function lcCellPosition(maze,row,col){
-  const x=(maze.boundsX[col]+maze.boundsX[col+1])/2;
-  const y=(maze.boundsY[row]+maze.boundsY[row+1])/2;
-  return {x:x/1254*100,y:y/1254*100};
+  const cell=LC_GRID.span/maze.size;
+  return {x:(LC_GRID.left+(col+.5)*cell)/LC_GRID.imageWidth*100,y:(LC_GRID.top+(row+.5)*cell)/LC_GRID.imageHeight*100};
 }
 
 const LokumChallengeLogic={
@@ -138,7 +138,7 @@ if(typeof document!=='undefined')(function(){
   const resultTitle=$('lcResultTitle'),resultTreats=$('lcResultTreats'),keyReward=$('lcKeyReward');
   if(!screenEl||!mazeEl||!mazeImage||!actorEl||!treatsEl)return;
 
-  let view='intro',state=lcCreateState(),raf=0,startAt=0,animIndex=0,animAt=0;
+  let view='intro',state=lcCreateState(),raf=0,startAt=0,animIndex=0,animAt=0,stepBusy=false,queuedDirection=null,stepTimer=0;
 
   function setView(next){view=next;screenEl.hidden=false;Object.entries(views).forEach(([k,v])=>{if(v)v.hidden=k!==next;});}
   function loadAsset(url){mazeImage.src=url;}
@@ -162,7 +162,7 @@ if(typeof document!=='undefined')(function(){
   }
   function render(now=performance.now()){
     const maze=lcMaze(state);loadAsset(`maze-0${state.mazeIndex+1}-new.png`);
-    mazeLabel.textContent=`MAZE ${state.mazeIndex+1}/2`;
+    mazeLabel.textContent=`${state.mazeIndex+1} / 2`;
     hudTime.textContent=String(Math.max(0,Math.ceil(LC_CONFIG.DURATION-state.elapsed)));
     hudTreats.textContent=`${lcTreatCount(state)} / 20`;
     renderTreats();renderActor(now);
@@ -176,8 +176,9 @@ if(typeof document!=='undefined')(function(){
   }
   function move(direction){
     if(!state.running)return;
+    if(stepBusy){if(!queuedDirection)queuedDirection=direction;return;}
     const result=lcMove(state,direction);state=result.state;
-    if(result.changed){render();if(result.exit)handleExit();}
+    if(result.changed){stepBusy=true;render();clearTimeout(stepTimer);stepTimer=setTimeout(()=>{stepBusy=false;const next=queuedDirection;queuedDirection=null;if(next)move(next)},180);if(result.exit)handleExit();}
   }
   function tick(now){
     if(!state.running)return;
@@ -185,7 +186,7 @@ if(typeof document!=='undefined')(function(){
     if(state.elapsed>=LC_CONFIG.DURATION){state.elapsed=LC_CONFIG.DURATION;fail();return;}
     render(now);raf=requestAnimationFrame(tick);
   }
-  function reset(){state=lcCreateState();if(raf)cancelAnimationFrame(raf);raf=0;startAt=0;animIndex=0;animAt=performance.now();render();}
+  function reset(){state=lcCreateState();if(raf)cancelAnimationFrame(raf);clearTimeout(stepTimer);raf=0;stepTimer=0;stepBusy=false;queuedDirection=null;startAt=0;animIndex=0;animAt=performance.now();render();}
   function start(){reset();setView('game');state.running=true;startAt=performance.now();raf=requestAnimationFrame(tick);mazeEl.focus();}
   function back(){reset();setView('intro');window.showQuestMap?.();}
   function keydown(e){
