@@ -63,7 +63,7 @@ const LC_CONFIG=Object.freeze({
     'treat-heart.png','treat-ball.png'
   ])
 });
-const LC_GRID=Object.freeze({imageWidth:1600,imageHeight:1080,left:629,top:331,span:666});
+const LC_GRID=Object.freeze({imageWidth:1600,imageHeight:1080,left:628,top:330,width:664,height:664});
 
 function lcClamp(n,min=0,max=LC_CONFIG.DURATION){return Math.max(min,Math.min(max,n));}
 function lcCreateState(){
@@ -112,8 +112,7 @@ function lcFinish(state){return {...state,running:false,finished:true,failed:fal
 function lcFail(state){return {...state,running:false,finished:false,failed:true};}
 function lcSetElapsed(state,seconds){return {...state,elapsed:lcClamp(Number(seconds)||0)};}
 function lcCellPosition(maze,row,col){
-  const cell=LC_GRID.span/maze.size;
-  return {x:(LC_GRID.left+(col+.5)*cell)/LC_GRID.imageWidth*100,y:(LC_GRID.top+(row+.5)*cell)/LC_GRID.imageHeight*100};
+  return {x:(LC_GRID.left+(col+.5)*LC_GRID.width/maze.size)/LC_GRID.imageWidth*100,y:(LC_GRID.top+(row+.5)*LC_GRID.height/maze.size)/LC_GRID.imageHeight*100};
 }
 
 const LokumChallengeLogic={
