@@ -20,7 +20,7 @@ Quest I and Quest II were not intentionally changed in their gameplay logic.
 The Playwright suite covers:
 - lazy loading and intro instructions;
 - five production asset URLs and four pan slots;
-- golden-zone turn and perfect-zone finish;
+- single golden-window finish at 65–90% progress;
 - burnt-slot clearing;
 - key III at five perfect sucuks;
 - mobile document overflow guard;

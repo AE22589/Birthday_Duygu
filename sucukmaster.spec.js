@@ -19,14 +19,12 @@ async function reachQuestThree(page){
   await expect(page.locator('#sucukMasterIntro')).toBeVisible({timeout:4000});
 }
 
-test('Quest III lädt lazy und zeigt die verbindlichen Zwei-Klick-Hinweise', async ({page})=>{
+test('Quest III lädt lazy und zeigt die verbindlichen Hinweise zum goldenen Fenster', async ({page})=>{
   const errors=monitorRuntime(page);
   await reachQuestThree(page);
   expect(await page.evaluate(()=>typeof window.showSucukMasterScreen)).toBe('function');
-  await expect(page.locator('#sucukMasterIntro')).toContainText(/turn/i);
-  await expect(page.locator('#sucukMasterIntro')).toContainText(/perfect/i);
+  await expect(page.locator('#sucukMasterIntro')).toContainText(/golden/i);
   await expect(page.locator('#sucukMasterIntro')).toContainText(/burnt/i);
-  await expect(page.locator('#sucukMasterIntro')).toContainText(/Lokum/i);
   expect(errors).toEqual([]);
 });
 
@@ -38,26 +36,22 @@ test('Quest III verwendet die fünf Produktionsassets und hat vier Pfannen-Slots
   const state=await page.evaluate(()=>{window.__SUCUKMASTER__.spawn();return window.__SUCUKMASTER__.getState();});
   expect(state.slots.length).toBe(4);
   expect(state.slots.filter(s=>s.state==='active').length).toBe(1);
-  await expect(page.locator('.sm-slot[data-slot="0"] .sm-pan')).toHaveAttribute('src', /quest-iii\/pan\.png/);
-  await expect(page.locator('.sm-slot[data-slot="0"] .sm-sucuk')).toHaveAttribute('src', /quest-iii\/sucuk-raw\.png/);
+  await expect(page.locator('.sm-slot[data-slot="0"] .sm-pan')).toHaveAttribute('src', /pan\.png/);
+  await expect(page.locator('.sm-slot[data-slot="0"] .sm-sucuk')).toHaveAttribute('src', /sucuk-raw\.png/);
   const assetResults=await page.evaluate(async urls=>Promise.all(urls.map(async url=>({url,ok:(await fetch(url,{cache:'no-store'})).ok}))),[
-    'assets/quest-iii/pan.png','assets/quest-iii/sucuk-raw.png','assets/quest-iii/sucuk-brown.png','assets/quest-iii/sucuk-burnt.png','assets/quest-iii/plate.png'
+    'pan.png','sucuk-raw.png','sucuk-brown.png','sucuk-burnt.png','plate.png'
   ]);
   expect(assetResults.filter(x=>!x.ok)).toEqual([]);
   expect(errors).toEqual([]);
 });
 
-test('Zwei-Klick-System: goldene Zone wendet, perfekte Zone beendet', async ({page})=>{
+test('Goldenes Fenster beendet die Sucuk mit einem Klick', async ({page})=>{
   const errors=monitorRuntime(page);
   await reachQuestThree(page);
   await page.locator('#smReadyButton').click();
   await page.evaluate(()=>window.__SUCUKMASTER__.spawn());
-  await page.evaluate(()=>window.__SUCUKMASTER__.clickSlot(0,0.70));
-  let state=await page.evaluate(()=>window.__SUCUKMASTER__.getState());
-  expect(state.slots[0].side).toBe(2);
-  expect(state.perfectSucuks).toBe(0);
-  await page.evaluate(()=>window.__SUCUKMASTER__.clickSlot(0,0.90));
-  state=await page.evaluate(()=>window.__SUCUKMASTER__.getState());
+  await page.evaluate(()=>window.__SUCUKMASTER__.clickSlot(0,0.65));
+  const state=await page.evaluate(()=>window.__SUCUKMASTER__.getState());
   expect(state.perfectSucuks).toBe(1);
   expect(state.plateCount).toBe(1);
   expect(errors).toEqual([]);
@@ -81,7 +75,7 @@ test('Ab fünf perfekten Sucuks gibt es Schlüssel III', async ({page})=>{
   const errors=monitorRuntime(page);
   await reachQuestThree(page);
   await page.locator('#smReadyButton').click();
-  await page.evaluate(()=>{for(let i=0;i<5;i++){window.__SUCUKMASTER__.spawn();window.__SUCUKMASTER__.clickSlot(i%4,0.70);window.__SUCUKMASTER__.clickSlot(i%4,0.90);}});
+  await page.evaluate(()=>{for(let i=0;i<5;i++){window.__SUCUKMASTER__.spawn();window.__SUCUKMASTER__.clickSlot(i%4,0.65);}});
   await page.evaluate(()=>window.__SUCUKMASTER__.forceFinish());
   await expect(page.locator('#sucukMasterResult')).toBeVisible();
   await expect(page.locator('#smResultTitle')).toHaveText(/SUCUK MASTER|SUCUK PRO|WELL BROWNED/);

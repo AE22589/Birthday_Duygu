@@ -97,9 +97,9 @@ v1.10.0
 
 QUEST III — SUCUK MASTER (v1.11.0)
 Quest III is implemented as a lazy-loaded independent module. It uses the approved
-individual production assets under assets/quest-iii/. The pure timing/state logic is
+individual production assets from the project root. The pure timing/state logic is
 unit-tested and the browser flow has a dedicated Playwright E2E suite. Quest III uses
-four pan slots, a two-click browning cycle, Lokum's steal mechanic, a 60-second round,
-and the approved result/key thresholds from the current design concept.
+four pan slots, one browning cycle per sucuk, a 65–90% golden success window, a
+60-second round, and the approved result/key thresholds from the current design concept.
 
 The current approved gameplay/design source is PROJECT_REQUIREMENTS.docx (concept v2.0).
