@@ -3,8 +3,7 @@
    by script.js and uses the supplied Quest-IV maze/treat/Lokum assets.
 */
 'use strict';
-const VERSION='1.11.1';
-const LC_VERSION=VERSION;
+const LC_VERSION='1.11.1';
 
 const N=Object.freeze({N:1,E:2,S:4,W:8});
 const DIRECTION_VECTORS=Object.freeze({up:[-1,0],right:[0,1],down:[1,0],left:[0,-1]});
@@ -112,7 +111,7 @@ function lcCellPosition(maze,row,col){
 }
 
 const LokumChallengeLogic={
-  VERSION,
+  VERSION:LC_VERSION,
   CONFIG:LC_CONFIG,
   createState:lcCreateState,
   canMove:lcCanMove,
