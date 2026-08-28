@@ -78,7 +78,7 @@ if(typeof document!=='undefined')(function(){
 
   let view='intro',running=false,raf=0,startAt=0,elapsed=0,lastSpawnAt=0,nextSpawnDelay=2500;
   let slots=smCreateSlots(),perfectSucuks=0,plateCount=0,lokumActive=false,lokumDeadline=0,nextLokumAt=Infinity;
-  let pendingFrame=null,renderedPlateCount=-1;
+  let pendingFrame=null,renderedPlateCount=-1,feedbackIndex=-1,feedbackUntil=0,feedbackText='';
 
   function setView(next){view=next;screenEl.hidden=false;Object.entries(views).forEach(([k,v])=>{if(v)v.hidden=k!==next;});}
   function updateHud(){hudTime.textContent=String(Math.max(0,Math.ceil(SM_CONFIG.DURATION-elapsed)));hudPerfect.textContent=String(perfectSucuks);}
@@ -95,8 +95,13 @@ if(typeof document!=='undefined')(function(){
     else if(s.side===1)img.src='sucuk-raw.png';
     else img.src='sucuk-brown.png';
     el.style.setProperty('--sm-brown',String(Math.min(1,progress)));
-    el.replaceChildren(pan,img);
     const pct=Math.round(progress*100);
+    const zone=smZone(progress);
+    const meter=document.createElement('span');meter.className='sm-slot-meter';meter.style.setProperty('--sm-progress',`${pct}%`);meter.innerHTML='<i></i>';
+    const status=document.createElement('span');status.className=`sm-slot-status ${s.side===1&&zone==='turn'?'turn':s.side===2&&zone==='perfect'?'perfect':''}`;
+    status.textContent=s.state==='burnt'?'BURNT — CLICK TO CLEAR':s.side===1&&zone==='turn'?'TURN NOW!':s.side===2&&zone==='perfect'?'TAKE OUT NOW!':s.side===2?`SIDE 2 — ${pct}%`:`SIDE 1 — ${pct}%`;
+    el.replaceChildren(pan,img,meter,status);
+    if(feedbackIndex===s.id&&now<feedbackUntil){const feedback=document.createElement('span');feedback.className='sm-slot-feedback';feedback.textContent=feedbackText;el.appendChild(feedback)}
     el.title=s.state==='burnt'?'Click to clear the burnt pan':s.side===1?`Browned ${pct}% — click in the golden zone to turn`: `Side 2 ${pct}% — click in the perfect zone to remove`;
   }
   function renderPlate(){
@@ -134,13 +139,16 @@ if(typeof document!=='undefined')(function(){
   function grantKey(){try{const s=JSON.parse(localStorage.getItem(QUEST_KEY)||'{}');const c=Array.isArray(s.completed)?s.completed.filter(Number.isInteger):[];if(!c.includes(QUEST_NUMBER))c.push(QUEST_NUMBER);localStorage.setItem(QUEST_KEY,JSON.stringify({completed:[...new Set(c)].sort((a,b)=>a-b)}));}catch{}}
   function spawn(){const result=smSpawnSlice(slots,performance.now());if(result.index>=0){slots=result.slots;scheduleSpawn(performance.now());}}
   function clearBurnt(index){slots[index]={id:index,state:'empty',side:1,startAt:0};}
+  function showClickFeedback(index,slot,progress,now){feedbackIndex=index;feedbackUntil=now+650;feedbackText=slot.side===1?(progress<SM_CONFIG.TURN_MIN?'KEEP BROWNING':'TOO LATE — CLEAR AFTER BURNING'):(progress<SM_CONFIG.PERFECT_MIN?'SIDE 2 — KEEP BROWNING':'TOO LATE — CLEAR AFTER BURNING');}
   function clickSlot(index){
     if(!running)return;
     const now=performance.now();const s=slots[index];if(!s||s.state==='empty')return;
     const progress=slotProgress(s,now);const result=smClickSlot(s,progress);
+    if(result.action!=='none'){feedbackIndex=-1;feedbackUntil=0;}
     if(result.action==='turn'){slots[index]={...s,side:2,startAt:now};}
     else if(result.action==='finish'){slots[index]={id:index,state:'empty',side:1,startAt:0};perfectSucuks++;plateCount++;if(nextLokumAt===Infinity)scheduleLokum(now);}
     else if(result.action==='clear'){clearBurnt(index);}
+    else showClickFeedback(index,s,progress,now);
     renderAll(now);
   }
   function showLokum(){if(plateCount<=0||lokumActive)return;lokumActive=true;lokumDeadline=performance.now()+SM_CONFIG.LOKUM_WARNING_MS;lokumEl.hidden=false;lokumWarn.hidden=false;lokumEl.classList.remove('sm-lokum-pop');void lokumEl.offsetWidth;lokumEl.classList.add('sm-lokum-pop');}
@@ -157,7 +165,7 @@ if(typeof document!=='undefined')(function(){
     if(elapsed>=SM_CONFIG.DURATION){finish();return;}
     raf=requestAnimationFrame(tick);
   }
-  function reset(){running=false;if(raf)cancelAnimationFrame(raf);slots=smCreateSlots();perfectSucuks=0;plateCount=0;elapsed=0;lokumActive=false;nextLokumAt=Infinity;pendingFrame=null;renderedPlateCount=-1;slotsLayer.innerHTML='';renderAll(performance.now());}
+  function reset(){running=false;if(raf)cancelAnimationFrame(raf);slots=smCreateSlots();perfectSucuks=0;plateCount=0;elapsed=0;lokumActive=false;nextLokumAt=Infinity;pendingFrame=null;renderedPlateCount=-1;feedbackIndex=-1;feedbackUntil=0;feedbackText='';slotsLayer.innerHTML='';renderAll(performance.now());}
   function start(){reset();setView('game');running=true;startAt=performance.now();lastSpawnAt=startAt;nextSpawnDelay=2500;nextLokumAt=Infinity;raf=requestAnimationFrame(tick);}
   function back(){reset();setView('intro');window.showQuestMap?.();}
   readyBtn?.addEventListener('click',start);retryBtn?.addEventListener('click',start);backBtn?.addEventListener('click',back);returnBtn?.addEventListener('click',back);
