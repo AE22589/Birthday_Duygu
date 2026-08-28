@@ -1,4 +1,4 @@
-# QA Automation — v1.9.0
+# QA Automation — v1.10.0
 
 ## Upload
 Repository-Inhalte durch den Inhalt dieses Ordners ersetzen, inklusive
@@ -6,11 +6,14 @@ Repository-Inhalte durch den Inhalt dieses Ordners ersetzen, inklusive
 
 ## Automatisierte Gates
 1. Static QA: Datei-/Asset-/Versions-Konsistenz, Architektur-Schutzregel
-   gegen die alte Board-Cache-Fehlerklasse.
-2. Unit-Tests der reinen Spiellogik (kein Browser nötig).
+   gegen die alte Board-Cache-Fehlerklasse (gilt für `roadtrip.js` und
+   `paintit.js` gleichermaßen).
+2. Unit-Tests der reinen Spiellogik beider Quests (kein Browser nötig).
 3. Browser QA: Chromium/WebKit auf den konfigurierten Viewports.
-4. Kompletter Nutzerpfad: Entwickler-Gate → Quest Map → Quest I → Ready →
-   Spielen → Gewinnen → Persistenz → Quest II entsperrt.
+4. Kompletter Nutzerpfad Quest I: Entwickler-Gate → Quest Map → Quest I →
+   Ready → Spielen → Gewinnen → Persistenz → Quest II entsperrt.
+5. Kompletter Nutzerpfad Quest II: Sperre vor Quest-I-Abschluss, Lazy-
+   Loading, Bemalen, Pfotenabdruck-Regel, Bewertungsstufen, Persistenz.
 
 ## GitHub
 Nach dem Commit unter „Actions" den Workflow **Quest QA** prüfen. Ein

@@ -10,10 +10,10 @@ if (result.errors.length) {
 console.log(`PASS: v${result.version} static QA`);
 console.log(JSON.stringify({
   version: result.version,
-  requiredAssets: 3,
+  requiredAssets: 25,
   security: "5-click + 1337 code",
-  questFlow: "map -> intro -> countdown -> game -> result",
-  controls: ["ArrowLeft","ArrowRight","A","D","swipe (pointerdown/up)","pointerTouch"],
+  questFlow: "map -> intro -> game -> result (Quest IV: two mazes)",
+  controls: ["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","WASD","swipe (pointerdown/up)"],
   gameOver: "lives can reach 0",
   mobileCss: true
 }, null, 2));

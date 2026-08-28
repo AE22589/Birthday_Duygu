@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#030508">
 <meta name="description" content="Duygu's 43rd Birthday Adventure">
 <title>Duygu's 43rd Birthday Quest</title>
-<link rel="stylesheet" href="style.css?v=1.9.2">
+<link rel="stylesheet" href="style.css?v=1.11.0">
 </head>
 <body>
 <main id="app">
@@ -152,7 +152,124 @@
     </div>
   </div>
 </section>
-<script src="script.js?v=1.9.2" defer></script>
-<script src="roadtrip.js?v=1.9.2" defer></script>
+
+<section id="paintItScreen" class="screen roadtrip-screen" hidden aria-label="Quest II Paint It">
+  <div class="rt-wrap">
+    <div class="rt-cabinet">
+      <div class="rt-scanlines"></div>
+
+      <section id="paintItIntro" class="rt-view rt-intro" aria-labelledby="paintItTitle">
+        <h1 class="rt-title" id="paintItTitle">PAINT IT!</h1>
+        <p class="rt-subtitle">✦ ARCADE EDITION ✦</p>
+        <p class="rt-hint">Drag across the wall to paint it — each tile needs a few passes before it's fully covered, so keep going back and forth like a real roller.</p>
+        <p class="rt-hint">Watch out: Lokum sometimes leaves paw prints on finished tiles, and you'll need to touch those up again.</p>
+        <div class="rt-rules">
+          <span>🎨 Paint the wall</span>
+          <span>🐾 Watch for paw prints</span>
+          <span>⏱ 60 seconds</span>
+          <span>✓ 90%+ to succeed</span>
+        </div>
+        <button id="piReadyButton" class="rt-btn" type="button">I'M READY</button>
+        <button id="piBackToMapFromIntro" class="rt-textlink" type="button">BACK TO QUEST MAP</button>
+      </section>
+
+      <section id="paintItGame" class="rt-view pi-game" hidden aria-label="Paint It game">
+        <div class="rt-hud pi-hud">
+          <div><label>TIME</label><strong id="piTimeCount">60</strong></div>
+          <div><label>COVERAGE</label><strong id="piCoverageCount">0%</strong></div>
+        </div>
+        <div id="piWall" class="pi-wall" tabindex="0" aria-label="Paintable wall">
+          <div class="pi-floor"></div>
+          <div class="pi-box a" aria-hidden="true">📦</div>
+          <div class="pi-box b" aria-hidden="true">📦</div>
+          <div id="piCells" class="pi-cells"></div>
+          <img id="piLokum" class="pi-lokum" src="assets/lokum.png" alt="" hidden>
+          <img id="piDuygu" class="pi-duygu" src="assets/duygu.png" alt="">
+          <div id="piRoller" class="pi-roller"></div>
+        </div>
+        <p class="rt-note">Drag to paint. Lokum may undo a finished tile now and then.</p>
+      </section>
+
+      <section id="paintItResult" class="rt-view rt-result" hidden>
+        <h1 class="rt-title" id="piResultTitle">WALL COMPLETE</h1>
+        <p class="pi-result-message" id="piResultMessage"></p>
+        <div class="rt-result-stats">
+          <div><label>COVERAGE</label><div class="rt-big" id="piResultCoverage">0%</div></div>
+        </div>
+        <div id="piKeyReward" class="rt-key-reward" hidden><strong>KEY II ACQUIRED</strong><span>THE SECOND KEY IS YOURS.</span></div>
+        <button id="piReturnToMapFromResult" class="rt-btn" type="button">RETURN TO QUEST MAP</button>
+        <button id="piRetry" class="rt-textlink" type="button">TRY AGAIN</button>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section id="sucukMasterScreen" class="screen roadtrip-screen" hidden aria-label="Quest III Sucuk Master">
+  <div class="rt-wrap"><div class="rt-cabinet"><div class="rt-scanlines"></div>
+    <section id="sucukMasterIntro" class="rt-view rt-intro" aria-labelledby="sucukMasterTitle">
+      <h1 class="rt-title" id="sucukMasterTitle">SUCUK MASTER</h1>
+      <p class="rt-subtitle">✦ ARCADE EDITION ✦</p>
+      <p class="rt-hint">Take each sucuk out at the right moment: turn it in the golden zone, then click again in the perfect zone to finish it.</p>
+      <p class="rt-hint">Too early or too late on the first click has no effect. A burnt pan stays blocked until you clear it. When Lokum appears, click him before he steals a finished sucuk.</p>
+      <div class="rt-rules"><span>🍳 4 pans</span><span>⏱ 60 seconds</span><span>🔥 2 clicks</span><span>🐈 Watch Lokum</span></div>
+      <button id="smReadyButton" class="rt-btn" type="button">I'M READY</button>
+      <button id="smBackToMapFromIntro" class="rt-textlink" type="button">BACK TO QUEST MAP</button>
+    </section>
+    <section id="sucukMasterGame" class="rt-view sm-game" hidden aria-label="Sucuk Master game">
+      <div class="rt-hud sm-hud"><div><label>TIME</label><strong id="smTimeCount">60</strong></div><div><label>PERFECT</label><strong id="smPerfectCount">0</strong></div></div>
+      <div class="sm-kitchen" id="smKitchen">
+        <div class="sm-backdrop" aria-hidden="true"></div>
+        <div id="smSlots" class="sm-slots" aria-label="Four pan slots"></div>
+        <div class="sm-plate-wrap"><img id="smPlate" class="sm-plate" src="assets/quest-iii/plate.png" alt="Finished sucuk plate"><span id="smPlateCount" class="sm-plate-count" aria-hidden="true"></span></div>
+        <button id="smLokumWarning" class="sm-lokum-warning" type="button" hidden>LOKUM!</button>
+        <button id="smLokum" class="sm-lokum" type="button" hidden aria-label="Click Lokum before he steals the sucuk"><img src="assets/lokum.png" alt=""></button>
+      </div>
+      <p class="rt-note">Turn in the golden zone. Then take it out in the perfect zone. Burnt pans must be cleared.</p>
+    </section>
+    <section id="sucukMasterResult" class="rt-view rt-result" hidden>
+      <h1 class="rt-title" id="smResultTitle">NOT QUITE THERE</h1>
+      <p class="pi-result-message">Perfectly finished sucuks: <strong id="smResultPerfect">0</strong></p>
+      <div id="smKeyReward" class="rt-key-reward" hidden><strong>KEY III ACQUIRED</strong><span>THE THIRD KEY IS YOURS.</span></div>
+      <button id="smReturnToMapFromResult" class="rt-btn" type="button">RETURN TO QUEST MAP</button>
+      <button id="smRetry" class="rt-textlink" type="button">TRY AGAIN</button>
+    </section>
+  </div></div>
+</section>
+
+<section id="lokumChallengeScreen" class="screen roadtrip-screen" hidden aria-label="Quest IV Lokum's Challenge">
+  <div class="rt-wrap lc-wrap"><div class="rt-cabinet lc-cabinet"><div class="rt-scanlines"></div>
+    <section id="lokumChallengeIntro" class="rt-view rt-intro" aria-labelledby="lokumChallengeTitle">
+      <h1 class="rt-title" id="lokumChallengeTitle">LOKUM'S CHALLENGE</h1>
+      <p class="rt-subtitle">✦ MAZE EDITION ✦</p>
+      <p class="rt-hint">Guide Lokum through two mazes. Choose between a faster route and a higher treat score.</p>
+      <div class="rt-rules"><span>🐈 Active movement</span><span>🍬 20 treats</span><span>⏱ 60 seconds total</span><span>↗ Two exits</span></div>
+      <button id="lcReadyButton" class="rt-btn" type="button">I'M READY</button>
+      <button id="lcBackToMapFromIntro" class="rt-textlink" type="button">BACK TO QUEST MAP</button>
+    </section>
+    <section id="lokumChallengeGame" class="rt-view lc-game" hidden aria-label="Lokum's Challenge game">
+      <div class="rt-hud lc-hud" aria-live="polite">
+        <div><label id="lcMazeLabel">MAZE 1/2</label><strong>🐈 LOKUM</strong></div>
+        <div><label>TIME</label><strong id="lcTimeCount">60</strong></div>
+        <div><label>TREATS</label><strong id="lcTreatCount">0 / 20</strong></div>
+      </div>
+      <div id="lcMaze" class="lc-maze" tabindex="0" role="application" aria-label="Maze. Use arrow keys or swipe to move Lokum.">
+        <img id="lcMazeImage" class="lc-maze-image" src="assets/quest-iv/maze-01.png" alt="Lokum's Challenge maze">
+        <div id="lcTreats" class="lc-treats" aria-hidden="true"></div>
+        <img id="lcLokum" class="lc-lokum" src="assets/quest-iv/lokum-idle.png" alt="Lokum">
+      </div>
+      <p class="rt-note">Arrow keys / WASD on desktop · swipe on mobile. Reach both exits before the 60-second timer ends.</p>
+    </section>
+    <section id="lokumChallengeResult" class="rt-view rt-result" hidden>
+      <h1 class="rt-title" id="lcResultTitle">NICE HUNT!</h1>
+      <div class="rt-result-stats"><div><label>TREATS</label><div class="rt-big" id="lcResultTreats">0</div></div></div>
+      <div id="lcKeyReward" class="rt-key-reward"><strong>KEY IV ACQUIRED</strong><span>THE FOURTH KEY IS YOURS.</span></div>
+      <button id="lcReturnToMapFromResult" class="rt-btn" type="button">RETURN TO QUEST MAP</button>
+      <button id="lcRetry" class="rt-textlink" type="button">TRY AGAIN</button>
+    </section>
+  </div></div>
+</section>
+
+<script src="script.js?v=1.11.0" defer></script>
+<script src="roadtrip.js?v=1.11.0" defer></script>
 </body>
 </html>

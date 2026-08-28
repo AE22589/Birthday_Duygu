@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const VERSION='1.9.2';
+const VERSION='1.11.0';
 const QA_MODE=new URLSearchParams(location.search).has('qa') && navigator.webdriver===true;
 const QA_VISUAL_MAP=new URLSearchParams(location.search).get('qa')==='visual-map' && navigator.webdriver===true;
 const TARGET_MS=Date.parse('2026-09-08T00:00:00+02:00');
@@ -172,7 +172,7 @@ function renderMap(){
   returnHotspot.setAttribute('x',String(r.x));returnHotspot.setAttribute('y',String(r.y));returnHotspot.setAttribute('width',String(r.w));returnHotspot.setAttribute('height',String(r.h));
   mapImage.setAttribute('aria-label',`Duygu's birthday quest map, ${active?`quest ${active} ready`:'all quests complete'}`);
 }
-function showQuestMap(){if(!isUnlocked()){showToast('The door is still locked...');return}state=loadState();entrance.hidden=true;document.getElementById('roadTripScreen')?.setAttribute('hidden','');questScreen.hidden=false;renderMap();window.scrollTo(0,0)}
+function showQuestMap(){if(!isUnlocked()){showToast('The door is still locked...');return}state=loadState();entrance.hidden=true;document.getElementById('roadTripScreen')?.setAttribute('hidden','');document.getElementById('paintItScreen')?.setAttribute('hidden','');document.getElementById('sucukMasterScreen')?.setAttribute('hidden','');document.getElementById('lokumChallengeScreen')?.setAttribute('hidden','');questScreen.hidden=false;renderMap();window.scrollTo(0,0)}
 window.showQuestMap=showQuestMap;
 function showEntrance(){questScreen.hidden=true;modal.hidden=true;entrance.hidden=false;previewGranted=false;refreshCountdown()}
 function handleDoorActivation(e){if(!modal.hidden)return;e.preventDefault();if(isUnlocked()){showQuestMap();return}const now=performance.now();if(!clickWindowStart||now-clickWindowStart>CLICK_WINDOW_MS){clickWindowStart=now;clickCount=1}else clickCount++;if(clickCount>=CLICK_LIMIT){clickCount=0;clickWindowStart=0;openPreviewModal();return}showToast(`The door remains sealed. ${CLICK_LIMIT-clickCount} more clicks...`)}
@@ -191,6 +191,47 @@ function ensureRoadTripLoaded(){
   });
   return roadTripLoadPromise;
 }
+let lokumChallengeLoadPromise=null;
+function ensureLokumChallengeLoaded(){
+  if(typeof window.showLokumChallengeScreen==='function')return Promise.resolve();
+  if(lokumChallengeLoadPromise)return lokumChallengeLoadPromise;
+  lokumChallengeLoadPromise=new Promise((resolve,reject)=>{
+    const existing=document.querySelector('script[data-lokumchallenge-loader]');
+    if(existing){existing.addEventListener('load',()=>typeof window.showLokumChallengeScreen==='function'?resolve():reject(new Error('lokumchallenge.js loaded without registering the quest')),{once:true});existing.addEventListener('error',()=>reject(new Error('lokumchallenge.js failed to load')),{once:true});return;}
+    const script=document.createElement('script');script.src=`lokumchallenge.js?v=${VERSION}`;script.defer=true;script.dataset.lokumchallengeLoader='true';
+    script.onload=()=>typeof window.showLokumChallengeScreen==='function'?resolve():reject(new Error('lokumchallenge.js loaded without registering the quest'));
+    script.onerror=()=>reject(new Error('lokumchallenge.js failed to load'));document.head.appendChild(script);
+  });
+  return lokumChallengeLoadPromise;
+}
+let sucukMasterLoadPromise=null;
+function ensureSucukMasterLoaded(){
+  if(typeof window.showSucukMasterScreen==='function')return Promise.resolve();
+  if(sucukMasterLoadPromise)return sucukMasterLoadPromise;
+  sucukMasterLoadPromise=new Promise((resolve,reject)=>{
+    const existing=document.querySelector('script[data-sucukmaster-loader]');
+    if(existing){existing.addEventListener('load',()=>typeof window.showSucukMasterScreen==='function'?resolve():reject(new Error('sucukmaster.js loaded without registering the quest')),{once:true});existing.addEventListener('error',()=>reject(new Error('sucukmaster.js failed to load')),{once:true});return;}
+    const script=document.createElement('script');script.src=`sucukmaster.js?v=${VERSION}`;script.defer=true;script.dataset.sucukmasterLoader='true';
+    script.onload=()=>typeof window.showSucukMasterScreen==='function'?resolve():reject(new Error('sucukmaster.js loaded without registering the quest'));
+    script.onerror=()=>reject(new Error('sucukmaster.js failed to load'));document.head.appendChild(script);
+  });
+  return sucukMasterLoadPromise;
+}
+let paintItLoadPromise=null;
+function ensurePaintItLoaded(){
+  if(typeof window.showPaintItScreen==='function')return Promise.resolve();
+  if(paintItLoadPromise)return paintItLoadPromise;
+  paintItLoadPromise=new Promise((resolve,reject)=>{
+    const existing=document.querySelector('script[data-paintit-loader]');
+    if(existing){existing.addEventListener('load',()=>typeof window.showPaintItScreen==='function'?resolve():reject(new Error('paintit.js loaded without registering the quest')),{once:true});existing.addEventListener('error',()=>reject(new Error('paintit.js failed to load')),{once:true});return;}
+    const script=document.createElement('script');
+    script.src=`paintit.js?v=${VERSION}`;script.defer=true;script.dataset.paintitLoader='true';
+    script.onload=()=>typeof window.showPaintItScreen==='function'?resolve():reject(new Error('paintit.js loaded without registering the quest'));
+    script.onerror=()=>reject(new Error('paintit.js failed to load'));
+    document.head.appendChild(script);
+  });
+  return paintItLoadPromise;
+}
 async function handleQuestActivation(n){
   const active=currentQuest();
   const reachable=active===null?7:active;
@@ -198,10 +239,19 @@ async function handleQuestActivation(n){
   if(n===1){
     try{await ensureRoadTripLoaded();window.showRoadTripScreen();}
     catch(err){console.error('[Quest I]',err);showToast('Quest I could not be loaded. Please refresh and try again.');}
+  }else if(n===2){
+    try{await ensurePaintItLoaded();window.showPaintItScreen();}
+    catch(err){console.error('[Quest II]',err);showToast('Quest II could not be loaded. Please refresh and try again.');}
+  }else if(n===3){
+    try{await ensureSucukMasterLoaded();window.showSucukMasterScreen();}
+    catch(err){console.error('[Quest III]',err);showToast('Quest III could not be loaded. Please refresh and try again.');}
+  }else if(n===4){
+    try{await ensureLokumChallengeLoaded();window.showLokumChallengeScreen();}
+    catch(err){console.error('[Quest IV]',err);showToast('Quest IV could not be loaded. Please refresh and try again.');}
   }
 }
 function handleFinalDoor(){showToast(state.completed.length===7?'The Final Door is ready to open.':'Complete each challenge. Claim every key. Close the circle.')}
-function handleReturn(){showEntrance();document.getElementById('roadTripScreen')?.setAttribute('hidden','')}
+function handleReturn(){showEntrance();document.getElementById('roadTripScreen')?.setAttribute('hidden','');document.getElementById('paintItScreen')?.setAttribute('hidden','')}
 
 window.__DUYGU_APP_VERSION__=VERSION;
 window.__DUYGU_SELF_TEST__=()=>({
@@ -209,6 +259,9 @@ window.__DUYGU_SELF_TEST__=()=>({
   securityCodeLength:ADMIN_CODE.length,
   questOneAvailable:typeof window.showRoadTripScreen==='function',
   questOneLoaderAvailable:typeof ensureRoadTripLoaded==='function',
+  questTwoLoaderAvailable:typeof ensurePaintItLoaded==='function',
+  questThreeLoaderAvailable:typeof ensureSucukMasterLoaded==='function',
+  questFourLoaderAvailable:typeof ensureLokumChallengeLoaded==='function',
   mapHotspots:document.querySelectorAll('.quest-hotspot').length,
   stateKey:STATE_KEY,
   lockoutAttemptLimit:LOCKOUT_ATTEMPT_LIMIT,

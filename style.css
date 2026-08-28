@@ -141,3 +141,88 @@
   .rt-rules{font-size:12px;gap:10px}
   .sprite-glyph{font-size:26px}
 }
+
+/* ==========================================================================
+   QUEST II — PAINT IT! — Arcade Edition (v1.10.0)
+   Baut auf der QUEST-I-Architektur auf: Prozentpositionierung, keine
+   gecachten Spielfeld-Maße, eigenständiges Modul (paintit.js).
+   Nutzt bewusst dieselben rt-* UI-Bausteine (Cabinet, Titel, Buttons, HUD-
+   Grundgerüst) für einen einheitlichen Arcade-Look über alle Quests hinweg.
+   ========================================================================== */
+.pi-hud{grid-template-columns:1fr 1fr}
+.pi-hud div:last-child{text-align:right;border-left:2px solid #3a2a5c}
+
+.pi-wall{position:relative;width:100%;aspect-ratio:4/3;background:linear-gradient(#241a38,#160f24 75%);
+  overflow:hidden;touch-action:none;outline:none;margin-top:2px;border:2px solid #3a2a5c}
+.pi-floor{position:absolute;left:0;right:0;bottom:0;height:14%;
+  background:linear-gradient(180deg,#3a2a44,#241a2c);border-top:2px solid rgba(255,255,255,.08)}
+.pi-box{position:absolute;bottom:2%;font-size:30px;opacity:.85;filter:drop-shadow(0 0 4px rgba(0,0,0,.6));z-index:1}
+.pi-box.a{left:3%}
+.pi-box.b{right:4%;font-size:24px}
+
+.pi-cells{position:absolute;left:3%;right:3%;top:4%;bottom:16%;display:grid;gap:3px;z-index:2}
+.pi-cell{position:relative;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);overflow:hidden}
+.pi-cell-paint{position:absolute;inset:0;background:var(--rt-cyan);opacity:0;
+  box-shadow:0 0 10px rgba(0,229,255,.5) inset;transition:opacity .12s linear}
+.pi-cell-paw{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:20px;filter:drop-shadow(0 0 4px rgba(0,0,0,.7));animation:piPawIn .25s ease}
+@keyframes piPawIn{from{transform:scale(1.6);opacity:0}to{transform:scale(1);opacity:1}}
+
+.pi-duygu{position:absolute;bottom:14%;width:20%;max-width:130px;transform:translate(-50%,0) scaleX(1);
+  transform-origin:center bottom;transition:left .5s cubic-bezier(.22,.8,.2,1);z-index:5;pointer-events:none;
+  filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
+.pi-lokum{position:absolute;width:13%;max-width:90px;transform:translate(-50%,-50%) scaleX(1);
+  transition:left .6s ease,top .6s ease;z-index:6;pointer-events:none;
+  filter:drop-shadow(0 3px 5px rgba(0,0,0,.5))}
+.pi-roller{position:absolute;width:16px;height:16px;border-radius:50%;transform:translate(-50%,-50%);
+  border:2px solid var(--rt-cyan);box-shadow:0 0 10px var(--rt-cyan);z-index:7;pointer-events:none}
+
+.pi-result-message{text-align:center;color:#c9bfe0;font-size:15px;margin:0 0 8px;padding:0 12px}
+
+@media (max-width:700px){
+  .pi-box{font-size:22px}
+  .pi-box.b{font-size:18px}
+  .pi-duygu{width:26%}
+  .pi-lokum{width:17%}
+}
+
+/* ==========================================================================\n   QUEST III — SUCUK MASTER — v1.11.0\n   ========================================================================== */
+.sm-game{padding-bottom:4px}.sm-hud{grid-template-columns:1fr 1fr}.sm-hud div:last-child{text-align:right;border-left:2px solid #3a2a5c}
+.sm-kitchen{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;margin-top:2px;border:2px solid #3a2a5c;background:#10091a;isolation:isolate}
+.sm-backdrop{position:absolute;inset:0;background:radial-gradient(circle at 50% 15%,rgba(0,229,255,.08),transparent 35%),linear-gradient(180deg,#21122d 0,#11091a 68%,#09050d 100%);z-index:0}
+.sm-backdrop:after{content:"";position:absolute;left:0;right:0;bottom:0;height:17%;background:linear-gradient(180deg,#2b1830,#120a18);border-top:2px solid rgba(255,255,255,.08)}
+.sm-slots{position:absolute;inset:8% 5% 23%;display:grid;grid-template-columns:repeat(2,1fr);gap:5%;z-index:2}
+.sm-slot{position:relative;min-width:0;border:2px solid #3a2a5c;background:rgba(4,3,8,.72);cursor:pointer;touch-action:manipulation;padding:5%;display:grid;place-items:center;overflow:hidden}
+.sm-slot:focus-visible{outline:2px solid var(--rt-cyan);outline-offset:2px}.sm-slot.active{box-shadow:inset 0 0 20px rgba(0,229,255,.05)}
+.sm-slot.burnt{border-color:var(--rt-pink);box-shadow:inset 0 0 22px rgba(255,46,136,.12)}.sm-slot.done{opacity:.45;pointer-events:none}
+.sm-slot .sm-pan{position:absolute;width:88%;height:88%;object-fit:contain;filter:drop-shadow(0 3px 5px rgba(0,0,0,.6));pointer-events:none}.sm-slot .sm-sucuk{position:absolute;width:54%;height:54%;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 3px 5px rgba(0,0,0,.65));transition:filter .15s ease,transform .15s ease;pointer-events:none}.sm-slot.active .sm-sucuk{filter:drop-shadow(0 0 5px rgba(255,210,63,.18))}.sm-slot:hover .sm-sucuk,.sm-slot:focus-visible .sm-sucuk{transform:scale(1.05);filter:drop-shadow(0 0 7px rgba(0,229,255,.45))}
+.sm-plate-wrap{position:absolute;left:50%;bottom:3%;transform:translateX(-50%);z-index:4;width:19%;min-width:76px;text-align:center}.sm-plate{display:block;width:100%;height:auto}.sm-plate-count{position:absolute;right:-5%;top:-12%;min-width:24px;padding:3px 5px;border:2px solid var(--rt-gold);background:#000;color:var(--rt-gold);font-family:'Press Start 2P',monospace;font-size:8px}
+.sm-lokum{position:absolute;right:4%;bottom:13%;z-index:8;width:22%;max-width:125px;padding:0;border:0;background:transparent;cursor:pointer;filter:drop-shadow(0 4px 7px rgba(0,0,0,.7));touch-action:manipulation}.sm-lokum img{display:block;width:100%;height:auto}.sm-lokum-pop{animation:smLokumPop .28s ease}.sm-lokum-warning{position:absolute;right:6%;top:5%;z-index:9;padding:6px 9px;background:#000;color:var(--rt-pink);border:2px solid var(--rt-pink);font-family:'Press Start 2P',monospace;font-size:8px;cursor:pointer;animation:smWarning .45s ease-in-out infinite alternate}
+@keyframes smLokumPop{from{transform:translateX(30%) scale(.7);opacity:0}to{transform:translateX(0) scale(1);opacity:1}}@keyframes smWarning{from{opacity:.65;transform:scale(.96)}to{opacity:1;transform:scale(1.04)}}
+@media(max-width:700px){.sm-slots{inset:8% 4% 23%;gap:4%}.sm-slot{padding:3%}.sm-plate-wrap{width:23%;min-width:64px}.sm-lokum{width:28%;right:1%;bottom:12%}.sm-lokum-warning{right:3%;font-size:7px}}
+
+/* ==========================================================================\n   QUEST IV — LOKUM'S CHALLENGE — v1.11.0\n   ========================================================================== */
+.lc-wrap{width:min(860px,96vw)}
+.lc-cabinet{padding:10px}
+.lc-intro{}
+.lc-game{padding:4px 0 0}
+.lc-hud{grid-template-columns:1fr 1fr 1fr}
+.lc-maze{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:#030508;touch-action:none;outline:none;user-select:none;-webkit-user-select:none}
+.lc-maze:focus-visible{box-shadow:inset 0 0 0 2px var(--rt-cyan),0 0 16px rgba(0,229,255,.35)}
+.lc-maze-image{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.lc-treats,.lc-lokum{position:absolute;inset:0;pointer-events:none}
+.lc-treat{position:absolute;width:6.8%;height:auto;transform:translate(-50%,-50%);filter:drop-shadow(0 0 5px rgba(255,46,136,.55));image-rendering:auto}
+.lc-lokum{width:7.2%;height:auto;object-fit:contain;transform:translate(-50%,-50%);z-index:5;filter:drop-shadow(0 0 5px rgba(0,229,255,.5))}
+.lc-game .rt-note{margin:7px 0 0;text-align:center}
+@media(max-width:700px){
+  .lc-wrap{width:100vw;max-width:none}
+  .lc-cabinet{width:100vw;height:100dvh;border-width:4px;border-radius:0;padding:7px}
+  .lc-game{padding-top:2px}
+  .lc-hud{font-size:8px}
+  .lc-hud div{padding:7px 5px}
+  .lc-hud label{font-size:7px}
+  .lc-hud strong{font-size:8px}
+  .lc-treat{width:7.4%}
+  .lc-lokum{width:8.2%}
+  .lc-game .rt-note{font-size:12px;line-height:1.1}
+}

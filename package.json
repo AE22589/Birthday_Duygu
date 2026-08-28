@@ -1,13 +1,13 @@
 {
   "name": "duygu-birthday-quest",
-  "version": "1.9.2",
+  "version": "1.11.0",
   "private": true,
   "description": "Duygu's 43rd Birthday Adventure",
   "scripts": {
     "qa:static": "node qa/static-check.mjs",
     "qa:e2e": "playwright test",
     "qa": "npm run qa:preflight && npm run qa:static && npm run qa:unit && npm run qa:e2e",
-    "qa:unit": "node tests/game-logic.test.cjs",
+    "qa:unit": "node tests/game-logic.test.cjs && node tests/paintit-logic.test.cjs && node tests/sucukmaster-logic.test.cjs && node tests/lokumchallenge-logic.test.cjs",
     "qa:preflight": "node qa/preflight.mjs"
   },
   "devDependencies": {
