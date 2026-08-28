@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict');
+const P=require('./puzzle.js');
+const solved=P.solvedBoard();
+assert.equal(P.canMove(solved,8),true);
+assert.equal(P.canMove(solved,7),false);
+assert.equal(P.canMove(solved,5),false);
+assert.strictEqual(P.move(solved,7),solved);
+const oneMove=P.move(solved,8);
+assert.deepEqual(oneMove.slice(-2),[11,8]);
+assert.equal(P.isSolved(solved),true);
+assert.equal(P.isSolved(oneMove),false);
+const shuffled=P.shuffle(()=>0.37,180);
+assert.equal(P.isSolved(shuffled),false);
+assert.equal(P.isSolvable(shuffled),true);
+console.log('PASS: Puzzle logic QA');

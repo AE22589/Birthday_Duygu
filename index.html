@@ -265,6 +265,30 @@
   </div></div>
 </section>
 
+<section id="puzzleScreen" class="screen roadtrip-screen" hidden aria-label="Quest VI Our Little Puzzle">
+  <div class="rt-wrap pz-wrap"><div class="rt-cabinet pz-cabinet"><div class="rt-scanlines"></div>
+    <section id="puzzleIntro" class="rt-view rt-intro" aria-labelledby="puzzleTitle">
+      <h1 class="rt-title" id="puzzleTitle">OUR LITTLE PUZZLE</h1>
+      <p class="rt-subtitle">✦ SLIDE EDITION ✦</p>
+      <p class="rt-hint">Slide a tile next to the empty space. Rebuild the whole picture.</p>
+      <div class="rt-rules"><span>▦ 3 × 4 GRID</span><span>🧩 11 TILES</span><span>∞ NO TIME LIMIT</span><span>☝ CLICK / TAP</span></div>
+      <button id="pzReadyButton" class="rt-btn" type="button">I'M READY</button>
+      <button id="pzBackButton" class="rt-textlink" type="button">BACK TO QUEST MAP</button>
+    </section>
+    <section id="puzzleGame" class="rt-view pz-game" hidden aria-label="Our Little Puzzle game">
+      <p class="pz-instruction">MOVE A TILE NEXT TO THE EMPTY SPACE</p>
+      <div id="pzBoard" class="pz-board" role="grid" aria-label="3 by 4 sliding puzzle"></div>
+      <button id="pzGameBackButton" class="rt-textlink" type="button">BACK TO QUEST MAP</button>
+    </section>
+    <section id="puzzleResult" class="rt-view rt-result" hidden>
+      <h1 class="rt-title">PICTURE PERFECT!</h1><p class="pi-result-message">Every piece is back where it belongs.</p>
+      <div class="rt-key-reward"><strong>KEY VI ACQUIRED</strong><span>THE SIXTH KEY IS YOURS.</span></div>
+      <button id="pzReturnButton" class="rt-btn" type="button">RETURN TO QUEST MAP</button>
+      <button id="pzRetryButton" class="rt-textlink" type="button">PLAY AGAIN</button>
+    </section>
+  </div></div>
+</section>
+
 <section id="memoryLaneScreen" class="screen roadtrip-screen" hidden aria-label="Quest V Memory Lane">
   <div class="rt-wrap ml-wrap"><div class="rt-cabinet ml-cabinet"><div class="rt-scanlines"></div>
     <section id="memoryLaneIntro" class="rt-view rt-intro" aria-labelledby="memoryLaneTitle">

@@ -112,6 +112,13 @@ open while non-matches turn back after a short delay. There is no time limit.
 Finding all eight pairs stores Quest 5 in the shared progress state and unlocks
 Quest VI through the existing map progression.
 
+QUEST VI — OUR LITTLE PUZZLE
+Quest VI is a lazy-loaded 3×4 sliding puzzle with eleven image tiles and one
+empty field. Click or tap only an orthogonally adjacent tile to slide it; there
+is no time limit and only the exact completed arrangement succeeds. Its solvable
+shuffle is generated through valid moves from the completed layout. Solving it
+stores Quest 6 in the shared progress state and unlocks Quest VII.
+
 QUEST IV — LOKUM'S CHALLENGE
 Quest IV uses the two approved arcade maze graphics and their matching data from
 quest4-maze-spec.json. Each arrow-key, WASD, or swipe input moves Lokum exactly
