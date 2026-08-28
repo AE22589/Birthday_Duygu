@@ -155,12 +155,12 @@ function buildLockedLayer(g,active){
   // and restore the intended READY label without changing the artwork.
   const statusBoxes = isMobile() ? [
     null,
-    {x:18,y:288,w:58,h:18}, {x:244,y:288,w:64,h:18}, {x:243,y:427,w:64,h:18},
-    {x:174,y:546,w:140,h:18}, {x:28,y:546,w:102,h:18}, {x:10,y:427,w:68,h:18}
+    {x:102,y:204,w:98,h:18}, {x:18,y:288,w:58,h:18}, {x:244,y:288,w:64,h:18},
+    {x:243,y:427,w:64,h:18}, {x:174,y:546,w:140,h:18}, {x:28,y:546,w:102,h:18}, {x:10,y:427,w:68,h:18}
   ] : [
     null,
-    {x:607,y:312,w:76,h:22}, {x:925,y:312,w:84,h:22}, {x:1140,y:458,w:105,h:22},
-    {x:1072,y:709,w:90,h:22}, {x:754,y:812,w:108,h:22}, {x:405,y:709,w:96,h:22}
+    {x:350,y:432,w:148,h:22}, {x:607,y:312,w:76,h:22}, {x:925,y:312,w:84,h:22},
+    {x:1140,y:458,w:105,h:22}, {x:1072,y:709,w:90,h:22}, {x:754,y:812,w:108,h:22}, {x:405,y:709,w:96,h:22}
   ];
   for(let n=1;n<=g.quests.length;n++){
     if(!isQuestReachable(n))continue;

@@ -3,8 +3,7 @@
    by script.js and uses the approved individual production assets.
 */
 'use strict';
-const VERSION='1.11.1';
-const SM_VERSION=VERSION;
+const SM_VERSION='1.11.1';
 
 const SM_CONFIG=Object.freeze({
   DURATION:60,
