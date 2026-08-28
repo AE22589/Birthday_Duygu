@@ -24,8 +24,6 @@ const MAZE_1=Object.freeze({
     [9,3,13,6,9,3,9,3,10],
     [14,12,5,5,6,12,6,12,6]
   ]),
-  boundsX:Object.freeze([75,166,257,348,439,530,621,712,803,894]),
-  boundsY:Object.freeze([229,320,411,502,593,684,775,866,957,1048]),
   treats:Object.freeze([
     [7,7],[2,2],[8,4],[3,6],[5,8],[5,1],[0,4],[0,0]
   ])
@@ -47,8 +45,6 @@ const MAZE_2=Object.freeze({
     [10,12,3,12,7,9,3,9,6,10,10],
     [14,13,4,5,5,6,12,6,13,4,6]
   ]),
-  boundsX:Object.freeze([82,164,234,311,385,458,533,607,682,757,836,919]),
-  boundsY:Object.freeze([212,299,376,452,532,609,686,762,837,916,995,1058]),
   treats:Object.freeze([
     [6,6],[1,1],[10,10],[9,4],[4,3],[3,8],[0,5],[7,9],[6,1],[3,5],[9,8],[4,10]
   ])
@@ -63,7 +59,7 @@ const LC_CONFIG=Object.freeze({
     'treat-heart.png','treat-ball.png'
   ])
 });
-const LC_GRID=Object.freeze({imageWidth:1600,imageHeight:1080,left:628,top:330,width:664,height:664});
+const LC_GRID=Object.freeze({left:39.25,top:30.5555555556,width:41.5,height:61.4814814815});
 
 function lcClamp(n,min=0,max=LC_CONFIG.DURATION){return Math.max(min,Math.min(max,n));}
 function lcCreateState(){
@@ -112,7 +108,7 @@ function lcFinish(state){return {...state,running:false,finished:true,failed:fal
 function lcFail(state){return {...state,running:false,finished:false,failed:true};}
 function lcSetElapsed(state,seconds){return {...state,elapsed:lcClamp(Number(seconds)||0)};}
 function lcCellPosition(maze,row,col){
-  return {x:(LC_GRID.left+(col+.5)*LC_GRID.width/maze.size)/LC_GRID.imageWidth*100,y:(LC_GRID.top+(row+.5)*LC_GRID.height/maze.size)/LC_GRID.imageHeight*100};
+  return {x:LC_GRID.left+(col+.5)*LC_GRID.width/maze.size,y:LC_GRID.top+(row+.5)*LC_GRID.height/maze.size};
 }
 
 const LokumChallengeLogic={

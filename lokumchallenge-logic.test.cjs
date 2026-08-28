@@ -75,6 +75,20 @@ for (let mazeIndex = 0; mazeIndex < L.CONFIG.MAZES.length; mazeIndex++) {
   assert.deepEqual([state.row, state.col], start);
 }
 
+let maze2State = { ...L.createState(), mazeIndex: 1, row: 10, col: 0, collected: [] };
+for (const direction of ['up', 'up', 'up', 'right']) {
+  const result = L.move(maze2State, direction);
+  assert.equal(result.changed, true);
+  maze2State = result.state;
+}
+assert.deepEqual([maze2State.row, maze2State.col], [7, 1]);
+for (const direction of ['left', 'down', 'down', 'down']) {
+  const result = L.move(maze2State, direction);
+  assert.equal(result.changed, true);
+  maze2State = result.state;
+}
+assert.deepEqual([maze2State.row, maze2State.col], [10, 0]);
+
 let state = L.createState();
 const blocked = L.move(state, 'left');
 assert.equal(blocked.changed, false);
