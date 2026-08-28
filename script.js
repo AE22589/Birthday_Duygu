@@ -116,7 +116,7 @@ function buildLockedLayer(g,active){
 
   g.quests.forEach((q,index)=>{
     const n=index+1;
-    if(n===active)return;
+    if(n<=active)return;
 
     // Use a real SVG image instance rather than <use>. Both the master image
     // and the locked image occupy the exact same user-space coordinates.
