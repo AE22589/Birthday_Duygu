@@ -58,8 +58,8 @@ const LC_CONFIG=Object.freeze({
   MAZES:Object.freeze([MAZE_1,MAZE_2]),
   RESULT:Object.freeze({LEGEND:18,MASTER:15,GOOD:11}),
   TREAT_ASSETS:Object.freeze([
-    'assets/quest-iv/treat-fish.png','assets/quest-iv/treat-pink-fish.png',
-    'assets/quest-iv/treat-heart.png','assets/quest-iv/treat-ball.png'
+    'treat-fish.png','treat-pink-fish.png',
+    'treat-heart.png','treat-ball.png'
   ])
 });
 
@@ -159,10 +159,10 @@ if(typeof document!=='undefined')(function(){
     const maze=lcMaze(state),p=lcCellPosition(maze,state.row,state.col);
     actorEl.style.left=p.x+'%';actorEl.style.top=p.y+'%';
     if(now-animAt>150){animIndex=(animIndex+1)%4;animAt=now;}
-    actorEl.src=`assets/quest-iv/lokum-${animIndex===0?'idle':`walk-${animIndex}`}.png`;
+    actorEl.src=`lokum-${animIndex===0?'idle':`walk-${animIndex}`}.png`;
   }
   function render(now=performance.now()){
-    const maze=lcMaze(state);loadAsset(`assets/quest-iv/maze-0${state.mazeIndex+1}.png`);
+    const maze=lcMaze(state);loadAsset(`maze-0${state.mazeIndex+1}.png`);
     mazeLabel.textContent=`MAZE ${state.mazeIndex+1}/2`;
     hudTime.textContent=String(Math.max(0,Math.ceil(LC_CONFIG.DURATION-state.elapsed)));
     hudTreats.textContent=`${lcTreatCount(state)} / 20`;
