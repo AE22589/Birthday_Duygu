@@ -77,7 +77,7 @@ if(typeof document!=='undefined')(function(){
     if(!el){el=document.createElement('button');el.type='button';el.className='sm-slot';el.dataset.slot=String(s.id);el.setAttribute('aria-label',`Pan ${s.id+1}`);slotsLayer.appendChild(el);}
     el.className=`sm-slot ${s.state}`;
     const progress=slotProgress(s,now);
-    const pan=document.createElement('img');pan.alt='';pan.draggable=false;pan.className='sm-pan';pan.src='pan.png';
+    const pan=document.createElement('img');pan.alt='';pan.draggable=false;pan.className='sm-pan';pan.src='pan-clean.png';
     const img=document.createElement('img');img.alt='';img.draggable=false;img.className='sm-sucuk';
     if(s.state==='burnt')img.src='sucuk-burnt.png';
     else img.src='sucuk-raw.png';
