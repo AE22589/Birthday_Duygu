@@ -53,7 +53,7 @@ const MAZE_2=Object.freeze({
 });
 
 const LC_CONFIG=Object.freeze({
-  DURATION:60,
+  DURATION:80,
   MAZES:Object.freeze([MAZE_1,MAZE_2]),
   RESULT:Object.freeze({LEGEND:18,MASTER:15,GOOD:11}),
   TREAT_ASSETS:Object.freeze([
@@ -132,11 +132,11 @@ if(typeof document!=='undefined')(function(){
   const QUEST_KEY='duyguBirthdayQuestState_v1',QUEST_NUMBER=4;
   const screenEl=$('lokumChallengeScreen');
   const views={intro:$('lokumChallengeIntro'),game:$('lokumChallengeGame'),result:$('lokumChallengeResult')};
-  const mazeEl=$('lcMaze'),mazeImage=$('lcMazeImage'),actorEl=$('lcLokum'),treatsEl=$('lcTreats');
+  const mazeEl=$('lcMaze'),mazeImage=$('lcMazeImage'),actorPositionEl=$('lcLokumPosition'),actorEl=$('lcLokum'),treatsEl=$('lcTreats');
   const hudTime=$('lcTimeCount'),hudTreats=$('lcTreatCount'),mazeLabel=$('lcMazeLabel');
   const readyBtn=$('lcReadyButton'),backBtn=$('lcBackToMapFromIntro'),retryBtn=$('lcRetry'),returnBtn=$('lcReturnToMapFromResult');
   const resultTitle=$('lcResultTitle'),resultTreats=$('lcResultTreats'),keyReward=$('lcKeyReward');
-  if(!screenEl||!mazeEl||!mazeImage||!actorEl||!treatsEl)return;
+  if(!screenEl||!mazeEl||!mazeImage||!actorPositionEl||!actorEl||!treatsEl)return;
 
   let view='intro',state=lcCreateState(),raf=0,startAt=0,animIndex=0,animAt=0,stepBusy=false,queuedDirection=null,stepTimer=0;
 
@@ -156,9 +156,7 @@ if(typeof document!=='undefined')(function(){
   }
   function renderActor(now=performance.now()){
     const maze=lcMaze(state),p=lcCellPosition(maze,state.row,state.col);
-    actorEl.style.left=p.x+'%';actorEl.style.top=p.y+'%';
-    if(now-animAt>150){animIndex=(animIndex+1)%4;animAt=now;}
-    actorEl.src=`lokum-${animIndex===0?'idle':`walk-${animIndex}`}.png`;
+    actorPositionEl.style.left=p.x+'%';actorPositionEl.style.top=p.y+'%';
   }
   function render(now=performance.now()){
     const maze=lcMaze(state);loadAsset(`maze-0${state.mazeIndex+1}-new.png`);
