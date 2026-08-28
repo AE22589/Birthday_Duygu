@@ -7,6 +7,8 @@ const LC_VERSION='1.11.1';
 
 const N=Object.freeze({N:1,E:2,S:4,W:8});
 const DIRECTION_VECTORS=Object.freeze({up:[-1,0],right:[0,1],down:[1,0],left:[0,-1]});
+const DIRECTION_BITS=Object.freeze({up:N.N,right:N.E,down:N.S,left:N.W});
+const OPPOSITE=Object.freeze({up:'down',right:'left',down:'up',left:'right'});
 
 const MAZE_1=Object.freeze({
   size:9,
@@ -74,8 +76,12 @@ function lcCanMove(maze,row,col,direction){
   if(!vector||row<0||col<0||row>=maze.size||col>=maze.size)return false;
   const [dr,dc]=vector,nr=row+dr,nc=col+dc;
   if(nr<0||nc<0||nr>=maze.size||nc>=maze.size)return false;
-  const bit={up:N.N,right:N.E,down:N.S,left:N.W}[direction];
-  return (maze.walls[row][col]&bit)===0;
+  return (maze.walls[row][col]&DIRECTION_BITS[direction])===0 && (maze.walls[nr][nc]&DIRECTION_BITS[OPPOSITE[direction]])===0;
+}
+function lcValidateMaze(maze){
+  const errors=[];let reachable=0;const seen=new Set(),queue=[[maze.start[0],maze.start[1]]];
+  while(queue.length){const [row,col]=queue.shift(),key=lcKey(row,col);if(seen.has(key))continue;seen.add(key);reachable++;for(const direction of Object.keys(DIRECTION_VECTORS)){const [dr,dc]=DIRECTION_VECTORS[direction],nr=row+dr,nc=col+dc;if(nr<0||nc<0||nr>=maze.size||nc>=maze.size)continue;const open=(maze.walls[row][col]&DIRECTION_BITS[direction])===0,backOpen=(maze.walls[nr][nc]&DIRECTION_BITS[OPPOSITE[direction]])===0;if(open!==backOpen)errors.push(`${row},${col}:${direction}`);if(open&&backOpen)queue.push([nr,nc]);}}
+  return {valid:errors.length===0&&seen.has(lcKey(maze.exit[0],maze.exit[1]))&&reachable===maze.size*maze.size,errors,reachable};
 }
 function lcMove(state,direction){
   if(!state||state.finished||state.failed)return {state,changed:false,collected:false,exit:false};
@@ -123,6 +129,7 @@ const LokumChallengeLogic={
   finish:lcFinish,
   fail:lcFail,
   setElapsed:lcSetElapsed,
+  validateMaze:lcValidateMaze,
   cellPosition:lcCellPosition
 };
 if(typeof module!=='undefined'&&module.exports){module.exports=LokumChallengeLogic;}
@@ -138,7 +145,7 @@ if(typeof document!=='undefined')(function(){
   const resultTitle=$('lcResultTitle'),resultTreats=$('lcResultTreats'),keyReward=$('lcKeyReward');
   if(!screenEl||!mazeEl||!mazeImage||!actorPositionEl||!actorEl||!treatsEl)return;
 
-  let view='intro',state=lcCreateState(),raf=0,startAt=0,animIndex=0,animAt=0,stepBusy=false,queuedDirection=null,stepTimer=0;
+  let view='intro',state=lcCreateState(),raf=0,startAt=0,animIndex=0,animAt=0;
 
   function setView(next){view=next;screenEl.hidden=false;Object.entries(views).forEach(([k,v])=>{if(v)v.hidden=k!==next;});}
   function loadAsset(url){mazeImage.src=url;}
@@ -174,9 +181,9 @@ if(typeof document!=='undefined')(function(){
   }
   function move(direction){
     if(!state.running)return;
-    if(stepBusy){if(!queuedDirection)queuedDirection=direction;return;}
-    const result=lcMove(state,direction);state=result.state;
-    if(result.changed){stepBusy=true;render();clearTimeout(stepTimer);stepTimer=setTimeout(()=>{stepBusy=false;const next=queuedDirection;queuedDirection=null;if(next)move(next)},180);if(result.exit)handleExit();}
+    const result=lcMove(state,direction);
+    if(!result.changed)return;
+    state=result.state;render();if(result.exit)handleExit();
   }
   function tick(now){
     if(!state.running)return;
@@ -184,7 +191,7 @@ if(typeof document!=='undefined')(function(){
     if(state.elapsed>=LC_CONFIG.DURATION){state.elapsed=LC_CONFIG.DURATION;fail();return;}
     render(now);raf=requestAnimationFrame(tick);
   }
-  function reset(){state=lcCreateState();if(raf)cancelAnimationFrame(raf);clearTimeout(stepTimer);raf=0;stepTimer=0;stepBusy=false;queuedDirection=null;startAt=0;animIndex=0;animAt=performance.now();render();}
+  function reset(){state=lcCreateState();if(raf)cancelAnimationFrame(raf);raf=0;startAt=0;animIndex=0;animAt=performance.now();render();}
   function start(){reset();setView('game');state.running=true;startAt=performance.now();raf=requestAnimationFrame(tick);mazeEl.focus();}
   function back(){reset();setView('intro');window.showQuestMap?.();}
   function keydown(e){

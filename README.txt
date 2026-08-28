@@ -116,7 +116,7 @@ QUEST IV — LOKUM'S CHALLENGE
 Quest IV uses the two approved arcade maze graphics and their matching data from
 quest4-maze-spec.json. Each arrow-key, WASD, or swipe input moves Lokum exactly
 one grid cell after a wall check; diagonal and free pixel movement are not used.
-During the short step animation, one next direction may be buffered. Lokum and
-every Treat stay centered in their grid cells, and idle/walk sprites use the same
-render size and anchor point.
+Every input is resolved as one immediate atomic grid step; there is no input
+buffer or intermediate position. Lokum and every Treat stay centered in their
+grid cells, and idle/walk sprites use the same render size and anchor point.
 The total Quest-IV round duration is 80 seconds.
