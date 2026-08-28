@@ -271,13 +271,14 @@
       <h1 class="rt-title" id="puzzleTitle">OUR LITTLE PUZZLE</h1>
       <p class="rt-subtitle">✦ SLIDE EDITION ✦</p>
       <p class="rt-hint">Slide a tile next to the empty space. Rebuild the whole picture.</p>
-      <div class="rt-rules"><span>▦ 3 × 4 GRID</span><span>🧩 11 TILES</span><span>∞ NO TIME LIMIT</span><span>☝ CLICK / TAP</span></div>
+      <div class="rt-rules"><span>▦ 2 × 3 GRID</span><span>🧩 5 TILES</span><span>∞ NO TIME LIMIT</span><span>☝ CLICK / TAP</span></div>
       <button id="pzReadyButton" class="rt-btn" type="button">I'M READY</button>
       <button id="pzBackButton" class="rt-textlink" type="button">BACK TO QUEST MAP</button>
     </section>
     <section id="puzzleGame" class="rt-view pz-game" hidden aria-label="Our Little Puzzle game">
       <p class="pz-instruction">MOVE A TILE NEXT TO THE EMPTY SPACE</p>
-      <div id="pzBoard" class="pz-board" role="grid" aria-label="3 by 4 sliding puzzle"></div>
+      <div class="pz-layout"><figure class="pz-reference"><figcaption>REFERENCE</figcaption><img src="assets/quest-vi/puzzle-source.jpeg" alt="Completed puzzle reference"></figure><div id="pzBoard" class="pz-board" role="grid" aria-label="2 by 3 sliding puzzle"></div></div>
+      <button id="pzHintButton" class="rt-textlink pz-hint-button" type="button">SHOW HINT</button>
       <button id="pzGameBackButton" class="rt-textlink" type="button">BACK TO QUEST MAP</button>
     </section>
     <section id="puzzleResult" class="rt-view rt-result" hidden>
