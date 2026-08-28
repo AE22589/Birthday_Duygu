@@ -54,7 +54,7 @@ function isMobile(){return window.matchMedia('(max-width:700px)').matches}
 function geometry(){return isMobile()?GEOMETRY.mobile:GEOMETRY.desktop}
 function mapState(){let n=0;while(state.completed.includes(n+1))n++;return n}
 function currentQuest(){const n=mapState();return n<7?n+1:null}
-function isQuestReachable(n){return n===1||state.completed.includes(n-1)}
+function isQuestReachable(n){return state.completed.includes(n)||n===currentQuest()}
 function questStatus(n){if(state.completed.includes(n))return 'completed';if(isQuestReachable(n))return 'ready';return 'locked'}
 function mapAsset(){return`assets/quest-map-${isMobile()?'mobile':'desktop'}.webp`}
 function showToast(message){toast.textContent=message;toast.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove('show'),2200)}
@@ -114,6 +114,7 @@ function createHotspot(questNumber,q,active){
 function setHover(on){mapShell.classList.toggle('is-hover',on)}
 function buildLockedLayer(g,active){
   lockedLayers.replaceChildren();
+  questStatusLayers.replaceChildren();
   svg.querySelectorAll('clipPath[id^=\"questClip-\"]').forEach(node=>node.remove());
   const defs=svg.querySelector('defs');
 
