@@ -81,6 +81,12 @@
       <div class="actions"><button id="cancel" type="button" class="secondary">CANCEL</button><button id="unlock" type="button" class="primary">UNLOCK</button></div>
       <small id="error"></small>
     </div>
+    <div id="wrongCodePopup" class="wrong-code-popup" hidden role="dialog" aria-modal="true" aria-labelledby="wrongCodeTitle">
+      <div class="wrong-code-window">
+        <div class="wrong-code-titlebar"><span>SECRET ACCESS</span><button id="wrongCodeClose" class="wrong-code-close" type="button" aria-label="Close">×</button></div>
+        <div class="wrong-code-content"><h2 id="wrongCodeTitle"></h2><p id="wrongCodeMessage"></p></div>
+      </div>
+    </div>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </main>

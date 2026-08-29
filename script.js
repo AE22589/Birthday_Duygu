@@ -8,12 +8,20 @@ const CLICK_LIMIT=5;
 const CLICK_WINDOW_MS=2500;
 const STATE_KEY='duyguBirthdayQuestState_v1';
 const QA_UNLOCK_KEY='duyguQaUnlockAll_v1';
+const WRONG_CODE_MESSAGES=[
+  ['Nice try. 👀','You’re pretty curious, aren’t you?\nBut this door is locked tighter than you think.'],
+  ['Caught you snooping. 👀','Nice try, but this door is very well locked.\nYou’ll have to wait.'],
+  ['Well, well, well... 👀','Someone’s getting curious.\nUnfortunately for you, this door knows how to keep a secret.'],
+  ['Access denied. 😏','Cute attempt. But this door isn’t giving up its secrets that easily.'],
+  ['Wrong code, detective. 🔐','Curiosity is encouraged.\nBreaking in is not.'],
+  ['Not today. 👀','The door has seen your little experiment — and remains unimpressed.']
+];
 const LOCKOUT_KEY='duyguAdminLockout_v1';
 const LOCKOUT_ATTEMPT_LIMIT=3;
 const LOCKOUT_DURATION_MS=24*60*60*1000;
 
 const $=id=>document.getElementById(id);
-const entrance=$('entrance'),questScreen=$('questScreen'),doorHit=$('doorHit'),modal=$('adminModal'),codeInput=$('adminCode'),unlockButton=$('unlock'),cancelButton=$('cancel'),error=$('error'),toast=$('toast'),lockTitle=$('lockTitle'),lockText=$('lockText'),mapShell=$('mapShell'),mapImage=$('mapImage'),svg=$('mapInteraction'),controlsGroup=$('questControls'),lockedLayers=$('lockedLayers'),questStatusLayers=$('questStatusLayers'),activeLayer=$('activeLayer'),activeRing=$('activeRing'),activeRingGlow=$('activeRingGlow'),finalDoorHotspot=$('finalDoorHotspot'),returnHotspot=$('returnHotspot'),countdown={days:$('days'),hours:$('hours'),minutes:$('minutes'),seconds:$('seconds')};
+const entrance=$('entrance'),questScreen=$('questScreen'),doorHit=$('doorHit'),modal=$('adminModal'),codeInput=$('adminCode'),unlockButton=$('unlock'),cancelButton=$('cancel'),error=$('error'),wrongCodePopup=$('wrongCodePopup'),wrongCodeTitle=$('wrongCodeTitle'),wrongCodeMessage=$('wrongCodeMessage'),wrongCodeClose=$('wrongCodeClose'),toast=$('toast'),lockTitle=$('lockTitle'),lockText=$('lockText'),mapShell=$('mapShell'),mapImage=$('mapImage'),svg=$('mapInteraction'),controlsGroup=$('questControls'),lockedLayers=$('lockedLayers'),questStatusLayers=$('questStatusLayers'),activeLayer=$('activeLayer'),activeRing=$('activeRing'),activeRingGlow=$('activeRingGlow'),finalDoorHotspot=$('finalDoorHotspot'),returnHotspot=$('returnHotspot'),countdown={days:$('days'),hours:$('hours'),minutes:$('minutes'),seconds:$('seconds')};
 if(!entrance||!questScreen||!doorHit||!mapImage||!svg||!controlsGroup||!lockedLayers||!questStatusLayers||!activeLayer||!activeRing||!activeRingGlow||!finalDoorHotspot||!returnHotspot)return;
 
 const NS='http://www.w3.org/2000/svg';
@@ -39,7 +47,7 @@ const GEOMETRY={
 };
 const ROMAN=['I','II','III','IV','V','VI','VII'];
 const NAMES=['The Road Trip','Paint It!','Sucuk Master',"Lokum's Challenge",'Memory Lane','Our Little Puzzle','German Word Challenge'];
-let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,lockoutTimer=null,mapQaClickCount=0,mapQaClickWindowStart=0,adminUnlockContext='entrance',state=loadState();
+let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,lockoutTimer=null,mapQaClickCount=0,mapQaClickWindowStart=0,adminUnlockContext='entrance',lastWrongCodeIndex=-1,state=loadState();
 
 function loadLockout(){try{const p=JSON.parse(localStorage.getItem(LOCKOUT_KEY)||'{}');return{attempts:Number.isInteger(p.attempts)?p.attempts:0,lockedUntil:Number.isFinite(p.lockedUntil)?p.lockedUntil:0}}catch{return{attempts:0,lockedUntil:0}}}
 function saveLockout(s){try{localStorage.setItem(LOCKOUT_KEY,JSON.stringify(s))}catch{}}
@@ -77,6 +85,7 @@ function updateLockoutUI(){
 }
 function openPreviewModal(context='entrance'){
   adminUnlockContext=context;
+  if(wrongCodePopup)wrongCodePopup.hidden=true;
   clickCount=0;clickWindowStart=0;modal.hidden=false;codeInput.value='';error.textContent='';
   if(isLockedOut()){
     updateLockoutUI();
@@ -87,6 +96,7 @@ function openPreviewModal(context='entrance'){
   }
 }
 function closePreviewModal(){modal.hidden=true;clickCount=0;clickWindowStart=0;adminUnlockContext='entrance';codeInput.value='';error.textContent='';if(lockoutTimer){clearInterval(lockoutTimer);lockoutTimer=null}}
+function showWrongCodePopup(){let index=Math.floor(Math.random()*WRONG_CODE_MESSAGES.length);if(WRONG_CODE_MESSAGES.length>1&&index===lastWrongCodeIndex)index=(index+1)%WRONG_CODE_MESSAGES.length;lastWrongCodeIndex=index;wrongCodeTitle.textContent=WRONG_CODE_MESSAGES[index][0];wrongCodeMessage.textContent=WRONG_CODE_MESSAGES[index][1];wrongCodePopup.hidden=false;wrongCodeClose.focus()}
 function setSvgGeometry(g){
   svg.setAttribute('viewBox',`0 0 ${g.width} ${g.height}`);
   svg.setAttribute('preserveAspectRatio','xMidYMid meet');
@@ -367,6 +377,7 @@ unlockButton.addEventListener('click',()=>{
   if(isLockedOut()){updateLockoutUI();return}
   if(codeInput.value.trim()!==ADMIN_CODE){
     registerWrongAttempt();
+    if(adminUnlockContext==='entrance'&&wrongCodePopup)showWrongCodePopup();
     if(isLockedOut()){
       updateLockoutUI();
       if(!lockoutTimer)lockoutTimer=setInterval(updateLockoutUI,1000);
@@ -384,6 +395,7 @@ unlockButton.addEventListener('click',()=>{
   }
 });
 cancelButton.addEventListener('click',closePreviewModal);
+wrongCodeClose?.addEventListener('click',()=>{wrongCodePopup.hidden=true;codeInput.focus()});
 codeInput.addEventListener('keydown',e=>{if(e.key==='Enter')unlockButton.click();if(e.key==='Escape')closePreviewModal()});
 modal.addEventListener('pointerup',e=>{if(e.target===modal)closePreviewModal()});
 window.addEventListener('resize',()=>{if(!questScreen.hidden)renderMap()});
