@@ -27,22 +27,22 @@ if(!entrance||!timeTravelScreen||!timeTravelText||!timeTravelStorm||!questScreen
 const NS='http://www.w3.org/2000/svg';
 const GEOMETRY={
   desktop:{
-    width:1672,height:941,
+    width:1536,height:1024,
     quests:[
-      {x:424,y:337,r:69},{x:646,y:214,r:66},{x:971,y:214,r:66},{x:1192,y:339,r:66},
-      {x:1127,y:590,r:66},{x:809,y:689,r:66},{x:456,y:590,r:66}
+      {x:150,y:650,r:105},{x:350,y:650,r:105},{x:550,y:650,r:105},{x:850,y:650,r:105},
+      {x:1050,y:650,r:105},{x:1250,y:650,r:105},{x:1400,y:650,r:95}
     ],
-    finalDoor:{x:806,y:573,r:82},
-    return:{x:1372,y:16,w:284,h:49}
+    finalDoor:{x:768,y:390,r:150},
+    return:{x:1250,y:30,w:250,h:55}
   },
   mobile:{
-    width:322,height:696,
+    width:1536,height:1024,
     quests:[
-      {x:151,y:157,r:42},{x:46,y:230,r:40},{x:275,y:230,r:40},{x:276,y:365,r:40},
-      {x:225,y:478,r:40},{x:78,y:487,r:36},{x:46,y:365,r:40}
+      {x:150,y:650,r:105},{x:350,y:650,r:105},{x:550,y:650,r:105},{x:850,y:650,r:105},
+      {x:1050,y:650,r:105},{x:1250,y:650,r:105},{x:1400,y:650,r:95}
     ],
-    finalDoor:{x:161,y:358,r:60},
-    return:{x:26,y:657,w:190,h:36}
+    finalDoor:{x:768,y:390,r:150},
+    return:{x:1250,y:30,w:250,h:55}
   }
 };
 const ROMAN=['I','II','III','IV','V','VI','VII'];
@@ -66,7 +66,7 @@ function mapState(){let n=0;while(state.completed.includes(n+1))n++;return n}
 function currentQuest(){const n=mapState();return n<7?n+1:null}
 function isQuestReachable(n){return state.completed.includes(n)||isQaUnlockAllActive()||n===currentQuest()}
 function questStatus(n){if(state.completed.includes(n))return 'completed';if(isQuestReachable(n))return 'ready';return 'locked'}
-function mapAsset(){return`assets/quest-map-${isMobile()?'mobile':'desktop'}.webp`}
+function mapAsset(){return'arcade map.gif'}
 function showToast(message){toast.textContent=message;toast.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove('show'),2200)}
 function setCountdown(ms){const t=Math.max(0,Math.floor(ms/1000));const d=Math.floor(t/86400),h=Math.floor(t%86400/3600),m=Math.floor(t%3600/60),s=t%60;countdown.days.textContent=String(d).padStart(2,'0');countdown.hours.textContent=String(h).padStart(2,'0');countdown.minutes.textContent=String(m).padStart(2,'0');countdown.seconds.textContent=String(s).padStart(2,'0')}
 function isUnlocked(){return previewGranted||Date.now()>=TARGET_MS}

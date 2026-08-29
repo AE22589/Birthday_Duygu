@@ -154,3 +154,11 @@ Every input is resolved as one immediate atomic grid step; there is no input
 buffer or intermediate position. Lokum and every Treat stay centered in their
 grid cells, and idle/walk sprites use the same render size and anchor point.
 The total Quest-IV round duration is 80 seconds.
+
+QUEST MAP — ARCADE HALL
+The Quest Map uses the animated `arcade map.gif` as its permanent 80s arcade
+background. The seven arcade machines are direct quest hotspots and the central
+Final Door remains a separate hotspot. READY, LOCKED, and DONE states are shown
+on or near the machines; the right-hand status legend is not rendered separately
+and the left hint box remains part of the artwork. Progression, completed-state
+storage, and the Map QA unlock remain unchanged.
