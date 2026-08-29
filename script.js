@@ -7,6 +7,7 @@ const ADMIN_CODE='1337';
 const CLICK_LIMIT=5;
 const CLICK_WINDOW_MS=2500;
 const STATE_KEY='duyguBirthdayQuestState_v1';
+const QA_UNLOCK_KEY='duyguQaUnlockAll_v1';
 const LOCKOUT_KEY='duyguAdminLockout_v1';
 const LOCKOUT_ATTEMPT_LIMIT=3;
 const LOCKOUT_DURATION_MS=24*60*60*1000;
@@ -38,7 +39,7 @@ const GEOMETRY={
 };
 const ROMAN=['I','II','III','IV','V','VI','VII'];
 const NAMES=['The Road Trip','Paint It!','Sucuk Master',"Lokum's Challenge",'Memory Lane','Our Little Puzzle','German Word Challenge'];
-let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,lockoutTimer=null,state=loadState();
+let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,lockoutTimer=null,mapQaClickCount=0,mapQaClickWindowStart=0,adminUnlockContext='entrance',state=loadState();
 
 function loadLockout(){try{const p=JSON.parse(localStorage.getItem(LOCKOUT_KEY)||'{}');return{attempts:Number.isInteger(p.attempts)?p.attempts:0,lockedUntil:Number.isFinite(p.lockedUntil)?p.lockedUntil:0}}catch{return{attempts:0,lockedUntil:0}}}
 function saveLockout(s){try{localStorage.setItem(LOCKOUT_KEY,JSON.stringify(s))}catch{}}
@@ -49,12 +50,13 @@ function formatLockoutRemaining(ms){const totalMinutes=Math.ceil(ms/60000);const
 function registerWrongAttempt(){const s=loadLockout();s.attempts=(s.attempts||0)+1;if(s.attempts>=LOCKOUT_ATTEMPT_LIMIT){s.lockedUntil=Date.now()+LOCKOUT_DURATION_MS;s.attempts=0}saveLockout(s)}
 
 function loadState(){try{const p=JSON.parse(localStorage.getItem(STATE_KEY)||'{}');const c=Array.isArray(p.completed)?p.completed.filter(n=>Number.isInteger(n)&&n>=1&&n<=7):[];return{completed:[...new Set(c)].sort((a,b)=>a-b)}}catch{return{completed:[]}}}
+function isQaUnlockAllActive(){try{return sessionStorage.getItem(QA_UNLOCK_KEY)==='1'}catch{return false}}
 function saveState(){try{localStorage.setItem(STATE_KEY,JSON.stringify({completed:state.completed}))}catch{}}
 function isMobile(){return window.matchMedia('(max-width:700px)').matches}
 function geometry(){return isMobile()?GEOMETRY.mobile:GEOMETRY.desktop}
 function mapState(){let n=0;while(state.completed.includes(n+1))n++;return n}
 function currentQuest(){const n=mapState();return n<7?n+1:null}
-function isQuestReachable(n){return state.completed.includes(n)||n===currentQuest()}
+function isQuestReachable(n){return state.completed.includes(n)||isQaUnlockAllActive()||n===currentQuest()}
 function questStatus(n){if(state.completed.includes(n))return 'completed';if(isQuestReachable(n))return 'ready';return 'locked'}
 function mapAsset(){return`assets/quest-map-${isMobile()?'mobile':'desktop'}.webp`}
 function showToast(message){toast.textContent=message;toast.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove('show'),2200)}
@@ -73,7 +75,8 @@ function updateLockoutUI(){
     if(lockoutTimer){clearInterval(lockoutTimer);lockoutTimer=null}
   }
 }
-function openPreviewModal(){
+function openPreviewModal(context='entrance'){
+  adminUnlockContext=context;
   clickCount=0;clickWindowStart=0;modal.hidden=false;codeInput.value='';error.textContent='';
   if(isLockedOut()){
     updateLockoutUI();
@@ -83,7 +86,7 @@ function openPreviewModal(){
     requestAnimationFrame(()=>codeInput.focus());
   }
 }
-function closePreviewModal(){modal.hidden=true;clickCount=0;clickWindowStart=0;codeInput.value='';error.textContent='';if(lockoutTimer){clearInterval(lockoutTimer);lockoutTimer=null}}
+function closePreviewModal(){modal.hidden=true;clickCount=0;clickWindowStart=0;adminUnlockContext='entrance';codeInput.value='';error.textContent='';if(lockoutTimer){clearInterval(lockoutTimer);lockoutTimer=null}}
 function setSvgGeometry(g){
   svg.setAttribute('viewBox',`0 0 ${g.width} ${g.height}`);
   svg.setAttribute('preserveAspectRatio','xMidYMid meet');
@@ -349,6 +352,13 @@ window.__DUYGU_SELF_TEST__=()=>({
 
 doorHit.addEventListener('touchend',e=>{lastTouchActivation=performance.now();handleDoorActivation(e)},{passive:false});
 doorHit.addEventListener('click',e=>{if(performance.now()-lastTouchActivation<450)return;handleDoorActivation(e)});
+svg.addEventListener('pointerup',e=>{
+  if(questScreen.hidden||modal.hidden===false)return;
+  if(e.target!==svg&&e.target!==mapImage)return;
+  const now=performance.now();
+  if(!mapQaClickWindowStart||now-mapQaClickWindowStart>CLICK_WINDOW_MS){mapQaClickWindowStart=now;mapQaClickCount=1}else mapQaClickCount++;
+  if(mapQaClickCount>=CLICK_LIMIT){mapQaClickCount=0;mapQaClickWindowStart=0;openPreviewModal('mapQa')}
+});
 finalDoorHotspot.addEventListener('click',e=>{e.preventDefault();handleFinalDoor()});
 finalDoorHotspot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleFinalDoor()}});
 returnHotspot.addEventListener('click',e=>{e.preventDefault();handleReturn()});
@@ -366,7 +376,12 @@ unlockButton.addEventListener('click',()=>{
     return;
   }
   clearLockout();
-  previewGranted=true;closePreviewModal();unlockEntrance();showQuestMap();showToast('Developer preview unlocked.');
+  if(adminUnlockContext==='mapQa'){
+    try{sessionStorage.setItem(QA_UNLOCK_KEY,'1')}catch{}
+    closePreviewModal();showQuestMap();showToast('Quest map QA unlock enabled.');
+  }else{
+    previewGranted=true;closePreviewModal();unlockEntrance();showQuestMap();showToast('Developer preview unlocked.');
+  }
 });
 cancelButton.addEventListener('click',closePreviewModal);
 codeInput.addEventListener('keydown',e=>{if(e.key==='Enter')unlockButton.click();if(e.key==='Escape')closePreviewModal()});

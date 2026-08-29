@@ -132,6 +132,13 @@ of 10. Results are KEEP LEARNING! (0–5), GOOD JOB! (6–7), VERY IMPRESSIVE!
 (8–9) or GERMAN MASTER! (10); FAST VERDÄCHTIG is shown for scores 8–10.
 After the complete quiz, Quest 7 is stored in the shared progress state.
 
+QA-DEVELOPER-HINWEIS
+Auf der Quest Map fünfmal auf den freien Hintergrund klicken oder tippen und
+den Code 1337 eingeben, um alle Quests für die aktuelle Browser-Session
+startbar zu machen. Der temporäre Unlock liegt ausschließlich in
+sessionStorage (`duyguQaUnlockAll_v1`); der echte completed-State bleibt
+unverändert. Reguläre Quest-Abschlüsse werden weiterhin normal gespeichert.
+
 QUEST IV — LOKUM'S CHALLENGE
 Quest IV uses the two approved arcade maze graphics and their matching data from
 quest4-maze-spec.json. Each arrow-key, WASD, or swipe input moves Lokum exactly
