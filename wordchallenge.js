@@ -35,6 +35,7 @@ if (typeof document !== 'undefined') (function () {
   let questionIndex = 0;
   let score = 0;
   let answered = false;
+  let answerResults = [];
   let phase = 'INTRO';
 
   function setView(view) {
@@ -61,9 +62,11 @@ if (typeof document !== 'undefined') (function () {
   function renderProgress() {
     Array.from(progress.querySelectorAll('[data-gw-progress]')).forEach(segment => {
       const index = Number(segment.dataset.gwProgress);
-      segment.classList.toggle('progress-completed', index < questionIndex);
-      segment.classList.toggle('progress-current', index === questionIndex);
-      segment.classList.toggle('progress-upcoming', index > questionIndex);
+      segment.classList.remove('progress-correct', 'progress-wrong', 'progress-current', 'progress-upcoming');
+      if (answerResults[index] === 'correct') segment.classList.add('progress-correct');
+      else if (answerResults[index] === 'wrong') segment.classList.add('progress-wrong');
+      else if (index === questionIndex) segment.classList.add('progress-current');
+      else segment.classList.add('progress-upcoming');
     });
     progress.setAttribute('aria-valuenow', String(questionIndex));
   }
@@ -92,9 +95,11 @@ if (typeof document !== 'undefined') (function () {
     const correctButton = answers.find(item => item.dataset.gwAnswer === current.correct);
     if (choice === current.correct) {
       score += 1;
+      answerResults[questionIndex] = 'correct';
       button.classList.add('selected-correct');
       feedback.textContent = `✓ CORRECT!\n${current.word} = ${current.answers[current.correct.charCodeAt(0) - 65]}`;
     } else {
+      answerResults[questionIndex] = 'wrong';
       button.classList.add('selected-wrong');
       correctButton?.classList.add('selected-correct');
       feedback.textContent = `✕ NOT QUITE!\nThe correct answer is: ${current.answers[current.correct.charCodeAt(0) - 65]}`;
@@ -129,6 +134,7 @@ if (typeof document !== 'undefined') (function () {
     questionIndex = 0;
     score = 0;
     answered = false;
+    answerResults = [];
     phase = 'INTRO';
     resultMessage.textContent = '';
     resetAnswerButtons();
