@@ -186,6 +186,8 @@ function renderFinalDoorProgress(){
 }
 
 function renderMap(){
+  // Always render badges and Final-Door slots from the persisted source of truth.
+  state=loadState();
   const g=geometry();
   const active=currentQuest();
   setSvgGeometry(g);
