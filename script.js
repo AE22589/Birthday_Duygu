@@ -49,7 +49,7 @@ const ROMAN=['I','II','III','IV','V','VI','VII'];
 const NAMES=['The Road Trip','Paint It!','Sucuk Master',"Lokum's Challenge",'Memory Lane','Our Little Puzzle','German Word Challenge'];
 const CHECKMARK_ANCHORS=[{x:190,y:665},{x:390,y:655},{x:535,y:645},{x:875,y:645},{x:1030,y:650},{x:1195,y:655},{x:1355,y:670}];
 const FINAL_DOOR_PROGRESS_SLOTS=[{x:630,y:201,width:30,height:48},{x:665,y:201,width:30,height:48},{x:699,y:201,width:30,height:48},{x:733,y:201,width:30,height:48},{x:767,y:201,width:30,height:48},{x:802,y:201,width:29,height:48},{x:835,y:201,width:30,height:48}];
-const STATUS_BADGE_ANCHORS=[{x:197,y:700},{x:404,y:697},{x:562,y:679},{x:916,y:679},{x:1072,y:683},{x:1229,y:694},{x:1386,y:715}];
+const STATUS_BADGE_ANCHORS=[{x:197,y:700},{x:404,y:700},{x:562,y:700},{x:916,y:700},{x:1072,y:700},{x:1229,y:700},{x:1386,y:700}];
 let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,lockoutTimer=null,mapQaClickCount=0,mapQaClickWindowStart=0,adminUnlockContext='entrance',lastWrongCodeIndex=-1,transitionRunning=false,state=loadState();
 
 function loadLockout(){try{const p=JSON.parse(localStorage.getItem(LOCKOUT_KEY)||'{}');return{attempts:Number.isInteger(p.attempts)?p.attempts:0,lockedUntil:Number.isFinite(p.lockedUntil)?p.lockedUntil:0}}catch{return{attempts:0,lockedUntil:0}}}
