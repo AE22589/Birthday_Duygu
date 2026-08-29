@@ -132,6 +132,13 @@ of 10. Results are KEEP LEARNING! (0–5), GOOD JOB! (6–7), VERY IMPRESSIVE!
 (8–9) or GERMAN MASTER! (10); FAST VERDÄCHTIG is shown for scores 8–10.
 After the complete quiz, Quest 7 is stored in the shared progress state.
 
+ENTRANCE-ZEITREISE
+Nach dem regulären Öffnen der Entrance-Tür oder dem Entrance-Developer-Hack
+mit 5 Klicks und Code 1337 erscheint vor der Quest Map eine gemeinsame
+Zeitreise-Transition: vier atmosphärische Texttafeln, danach das Gewitter-GIF,
+die Abschlusszeile „I don’t think we’re in 2026 anymore.“ und anschließend die
+Quest Map. Die Transition läuft einmalig und verändert keinen Progress-State.
+
 QA-DEVELOPER-HINWEIS
 Auf der Quest Map fünfmal auf den freien Hintergrund klicken oder tippen und
 den Code 1337 eingeben, um alle Quests für die aktuelle Browser-Session

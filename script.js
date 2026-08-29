@@ -21,8 +21,8 @@ const LOCKOUT_ATTEMPT_LIMIT=3;
 const LOCKOUT_DURATION_MS=24*60*60*1000;
 
 const $=id=>document.getElementById(id);
-const entrance=$('entrance'),questScreen=$('questScreen'),doorHit=$('doorHit'),modal=$('adminModal'),codeInput=$('adminCode'),unlockButton=$('unlock'),cancelButton=$('cancel'),error=$('error'),wrongCodePopup=$('wrongCodePopup'),wrongCodeTitle=$('wrongCodeTitle'),wrongCodeMessage=$('wrongCodeMessage'),wrongCodeClose=$('wrongCodeClose'),toast=$('toast'),lockTitle=$('lockTitle'),lockText=$('lockText'),mapShell=$('mapShell'),mapImage=$('mapImage'),svg=$('mapInteraction'),controlsGroup=$('questControls'),lockedLayers=$('lockedLayers'),questStatusLayers=$('questStatusLayers'),activeLayer=$('activeLayer'),activeRing=$('activeRing'),activeRingGlow=$('activeRingGlow'),finalDoorHotspot=$('finalDoorHotspot'),returnHotspot=$('returnHotspot'),countdown={days:$('days'),hours:$('hours'),minutes:$('minutes'),seconds:$('seconds')};
-if(!entrance||!questScreen||!doorHit||!mapImage||!svg||!controlsGroup||!lockedLayers||!questStatusLayers||!activeLayer||!activeRing||!activeRingGlow||!finalDoorHotspot||!returnHotspot)return;
+const entrance=$('entrance'),timeTravelScreen=$('timeTravelScreen'),timeTravelText=$('timeTravelText'),timeTravelStorm=$('timeTravelStorm'),questScreen=$('questScreen'),doorHit=$('doorHit'),modal=$('adminModal'),codeInput=$('adminCode'),unlockButton=$('unlock'),cancelButton=$('cancel'),error=$('error'),wrongCodePopup=$('wrongCodePopup'),wrongCodeTitle=$('wrongCodeTitle'),wrongCodeMessage=$('wrongCodeMessage'),wrongCodeClose=$('wrongCodeClose'),toast=$('toast'),lockTitle=$('lockTitle'),lockText=$('lockText'),mapShell=$('mapShell'),mapImage=$('mapImage'),svg=$('mapInteraction'),controlsGroup=$('questControls'),lockedLayers=$('lockedLayers'),questStatusLayers=$('questStatusLayers'),activeLayer=$('activeLayer'),activeRing=$('activeRing'),activeRingGlow=$('activeRingGlow'),finalDoorHotspot=$('finalDoorHotspot'),returnHotspot=$('returnHotspot'),countdown={days:$('days'),hours:$('hours'),minutes:$('minutes'),seconds:$('seconds')};
+if(!entrance||!timeTravelScreen||!timeTravelText||!timeTravelStorm||!questScreen||!doorHit||!mapImage||!svg||!controlsGroup||!lockedLayers||!questStatusLayers||!activeLayer||!activeRing||!activeRingGlow||!finalDoorHotspot||!returnHotspot)return;
 
 const NS='http://www.w3.org/2000/svg';
 const GEOMETRY={
@@ -47,7 +47,7 @@ const GEOMETRY={
 };
 const ROMAN=['I','II','III','IV','V','VI','VII'];
 const NAMES=['The Road Trip','Paint It!','Sucuk Master',"Lokum's Challenge",'Memory Lane','Our Little Puzzle','German Word Challenge'];
-let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,lockoutTimer=null,mapQaClickCount=0,mapQaClickWindowStart=0,adminUnlockContext='entrance',lastWrongCodeIndex=-1,state=loadState();
+let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,lockoutTimer=null,mapQaClickCount=0,mapQaClickWindowStart=0,adminUnlockContext='entrance',lastWrongCodeIndex=-1,transitionRunning=false,state=loadState();
 
 function loadLockout(){try{const p=JSON.parse(localStorage.getItem(LOCKOUT_KEY)||'{}');return{attempts:Number.isInteger(p.attempts)?p.attempts:0,lockedUntil:Number.isFinite(p.lockedUntil)?p.lockedUntil:0}}catch{return{attempts:0,lockedUntil:0}}}
 function saveLockout(s){try{localStorage.setItem(LOCKOUT_KEY,JSON.stringify(s))}catch{}}
@@ -215,10 +215,11 @@ function renderMap(){
   returnHotspot.setAttribute('x',String(r.x));returnHotspot.setAttribute('y',String(r.y));returnHotspot.setAttribute('width',String(r.w));returnHotspot.setAttribute('height',String(r.h));
   mapImage.setAttribute('aria-label',`Duygu's birthday quest map, ${active?`quest ${active} ready`:'all quests complete'}`);
 }
-function showQuestMap(){if(!isUnlocked()){showToast('The door is still locked...');return}state=loadState();entrance.hidden=true;document.getElementById('roadTripScreen')?.setAttribute('hidden','');document.getElementById('paintItScreen')?.setAttribute('hidden','');document.getElementById('sucukMasterScreen')?.setAttribute('hidden','');document.getElementById('lokumChallengeScreen')?.setAttribute('hidden','');document.getElementById('memoryLaneScreen')?.setAttribute('hidden','');document.getElementById('puzzleScreen')?.setAttribute('hidden','');document.getElementById('wordChallengeScreen')?.setAttribute('hidden','');questScreen.hidden=false;renderMap();window.scrollTo(0,0)}
+function showQuestMap(){if(!isUnlocked()){showToast('The door is still locked...');return}state=loadState();entrance.hidden=true;timeTravelScreen.hidden=true;document.getElementById('roadTripScreen')?.setAttribute('hidden','');document.getElementById('paintItScreen')?.setAttribute('hidden','');document.getElementById('sucukMasterScreen')?.setAttribute('hidden','');document.getElementById('lokumChallengeScreen')?.setAttribute('hidden','');document.getElementById('memoryLaneScreen')?.setAttribute('hidden','');document.getElementById('puzzleScreen')?.setAttribute('hidden','');document.getElementById('wordChallengeScreen')?.setAttribute('hidden','');questScreen.hidden=false;renderMap();window.scrollTo(0,0)}
+async function startTimeTravelTransition(){if(transitionRunning)return;transitionRunning=true;entrance.hidden=true;questScreen.hidden=true;timeTravelScreen.hidden=false;timeTravelStorm.hidden=true;timeTravelText.className='time-travel-text';const lines=["There’s so much fog...","Wait. I can see lightning.","Okay... this is getting weird.","Oh my God — what is happening?!"];const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));for(const line of lines){timeTravelText.textContent=line;timeTravelText.classList.remove('is-visible');void timeTravelText.offsetWidth;timeTravelText.classList.add('is-visible');await wait(3600);timeTravelText.classList.remove('is-visible');await wait(350)}timeTravelStorm.hidden=false;await wait(4300);timeTravelText.className='time-travel-text time-travel-storm-message';timeTravelText.textContent="I don’t think we’re in 2026 anymore.";void timeTravelText.offsetWidth;timeTravelText.classList.add('is-visible');await wait(3600);timeTravelText.classList.remove('is-visible');await wait(500);timeTravelStorm.hidden=true;timeTravelScreen.hidden=true;transitionRunning=false;showQuestMap()}
 window.showQuestMap=showQuestMap;
 function showEntrance(){questScreen.hidden=true;modal.hidden=true;entrance.hidden=false;previewGranted=false;refreshCountdown()}
-function handleDoorActivation(e){if(!modal.hidden)return;e.preventDefault();if(isUnlocked()){showQuestMap();return}const now=performance.now();if(!clickWindowStart||now-clickWindowStart>CLICK_WINDOW_MS){clickWindowStart=now;clickCount=1}else clickCount++;if(clickCount>=CLICK_LIMIT){clickCount=0;clickWindowStart=0;openPreviewModal();return}showToast(`The door remains sealed. ${CLICK_LIMIT-clickCount} more clicks...`)}
+function handleDoorActivation(e){if(!modal.hidden||transitionRunning)return;e.preventDefault();if(isUnlocked()){startTimeTravelTransition();return}const now=performance.now();if(!clickWindowStart||now-clickWindowStart>CLICK_WINDOW_MS){clickWindowStart=now;clickCount=1}else clickCount++;if(clickCount>=CLICK_LIMIT){clickCount=0;clickWindowStart=0;openPreviewModal();return}showToast(`The door remains sealed. ${CLICK_LIMIT-clickCount} more clicks...`)}
 let roadTripLoadPromise=null;
 function ensureRoadTripLoaded(){
   if(typeof window.showRoadTripScreen==='function')return Promise.resolve();
@@ -391,7 +392,7 @@ unlockButton.addEventListener('click',()=>{
     try{sessionStorage.setItem(QA_UNLOCK_KEY,'1')}catch{}
     closePreviewModal();showQuestMap();showToast('Quest map QA unlock enabled.');
   }else{
-    previewGranted=true;closePreviewModal();unlockEntrance();showQuestMap();showToast('Developer preview unlocked.');
+    previewGranted=true;closePreviewModal();unlockEntrance();startTimeTravelTransition();
   }
 });
 cancelButton.addEventListener('click',closePreviewModal);
