@@ -47,7 +47,6 @@ const GEOMETRY={
 };
 const ROMAN=['I','II','III','IV','V','VI','VII'];
 const NAMES=['The Road Trip','Paint It!','Sucuk Master',"Lokum's Challenge",'Memory Lane','Our Little Puzzle','German Word Challenge'];
-const MARQUEE_ANCHORS=[{x:150,y:520},{x:350,y:520},{x:550,y:520},{x:850,y:520},{x:1050,y:520},{x:1250,y:520},{x:1400,y:520}];
 let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,lockoutTimer=null,mapQaClickCount=0,mapQaClickWindowStart=0,adminUnlockContext='entrance',lastWrongCodeIndex=-1,transitionRunning=false,state=loadState();
 
 function loadLockout(){try{const p=JSON.parse(localStorage.getItem(LOCKOUT_KEY)||'{}');return{attempts:Number.isInteger(p.attempts)?p.attempts:0,lockedUntil:Number.isFinite(p.lockedUntil)?p.lockedUntil:0}}catch{return{attempts:0,lockedUntil:0}}}
@@ -170,12 +169,11 @@ function buildLockedLayer(g,active){
   });
 
   for(let n=1;n<=g.quests.length;n++){
-    const status=questStatus(n), anchor=MARQUEE_ANCHORS[n-1];
-    if(status==='completed'){
-      const check=document.createElementNS(NS,'text');check.classList.add('map-status-marker','map-status-completed');check.setAttribute('x',anchor.x+18);check.setAttribute('y',anchor.y);check.setAttribute('pointer-events','none');check.textContent='✓';questStatusLayers.appendChild(check);
-    }else if(status==='ready'&&n===currentQuest()){
-      const arrow=document.createElementNS(NS,'text');arrow.classList.add('map-status-marker','map-status-current');arrow.setAttribute('x',anchor.x);arrow.setAttribute('y',anchor.y-12);arrow.setAttribute('pointer-events','none');arrow.textContent='▼';questStatusLayers.appendChild(arrow);
-    }
+    const status=questStatus(n),b=cabinetBounds(g.quests[n-1]);
+    const asset=status==='completed'?'checkmark.png':status==='ready'&&n===currentQuest()?'insertcoin.png':status==='locked'?'locked.png':null;
+    if(!asset)continue;
+    const image=document.createElementNS(NS,'image');image.classList.add('map-status-marker');image.setAttribute('href',asset);image.setAttributeNS('http://www.w3.org/1999/xlink','href',asset);image.setAttribute('pointer-events','none');
+    const w=status==='completed'?34:status==='ready'?92:82,h=status==='completed'?34:status==='ready'?69:62;image.setAttribute('x',b.x+b.w/2-w/2);image.setAttribute('y',b.y+b.h-h-12);image.setAttribute('width',w);image.setAttribute('height',h);image.setAttribute('preserveAspectRatio','xMidYMid meet');questStatusLayers.appendChild(image);
   }
 }
 
