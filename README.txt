@@ -162,3 +162,5 @@ Final Door remains a separate hotspot. READY, LOCKED, and DONE states are shown
 on or near the machines; the right-hand status legend is not rendered separately
 and the left hint box remains part of the artwork. Progression, completed-state
 storage, and the Map QA unlock remain unchanged.
+Completed quests also light the seven key slots above the Final Door from left to
+right; this uses only unique completed quest IDs 1–7, and QA unlocks do not count.

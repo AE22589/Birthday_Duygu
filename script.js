@@ -47,6 +47,8 @@ const GEOMETRY={
 };
 const ROMAN=['I','II','III','IV','V','VI','VII'];
 const NAMES=['The Road Trip','Paint It!','Sucuk Master',"Lokum's Challenge",'Memory Lane','Our Little Puzzle','German Word Challenge'];
+const CHECKMARK_ANCHORS=[{x:190,y:665},{x:390,y:655},{x:535,y:645},{x:875,y:645},{x:1030,y:650},{x:1195,y:655},{x:1355,y:670}];
+const FINAL_DOOR_PROGRESS_SLOTS=[{x:700,y:300,w:24,h:18},{x:735,y:300,w:24,h:18},{x:770,y:300,w:24,h:18},{x:805,y:300,w:24,h:18},{x:840,y:300,w:24,h:18},{x:875,y:300,w:24,h:18},{x:910,y:300,w:24,h:18}];
 const STATUS_BADGE_ANCHORS=[{x:197,y:700},{x:404,y:697},{x:562,y:679},{x:916,y:679},{x:1072,y:683},{x:1229,y:694},{x:1386,y:715}];
 let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,lockoutTimer=null,mapQaClickCount=0,mapQaClickWindowStart=0,adminUnlockContext='entrance',lastWrongCodeIndex=-1,transitionRunning=false,state=loadState();
 
@@ -174,8 +176,13 @@ function buildLockedLayer(g,active){
     const asset=status==='completed'?'checkmark.png':status==='ready'&&n===currentQuest()?'insertcoin.png':status==='locked'?'locked.png':null;
     if(!asset)continue;
     const image=document.createElementNS(NS,'image');image.classList.add('map-status-marker');image.setAttribute('href',asset);image.setAttributeNS('http://www.w3.org/1999/xlink','href',asset);image.setAttribute('pointer-events','none');
-    const w=status==='completed'?68:status==='ready'?184:164,h=status==='completed'?68:status==='ready'?138:124;image.setAttribute('x',anchor.x-w/2);image.setAttribute('y',anchor.y-h/2);image.setAttribute('width',w);image.setAttribute('height',h);image.setAttribute('preserveAspectRatio','xMidYMid meet');questStatusLayers.appendChild(image);
+    const w=status==='completed'?68:status==='ready'?184:164,h=status==='completed'?68:status==='ready'?138:124;const point=status==='completed'?CHECKMARK_ANCHORS[n-1]:anchor;image.setAttribute('x',point.x-w/2);image.setAttribute('y',point.y-h/2);image.setAttribute('width',w);image.setAttribute('height',h);image.setAttribute('preserveAspectRatio','xMidYMid meet');questStatusLayers.appendChild(image);
   }
+}
+function renderFinalDoorProgress(){
+  let layer=document.getElementById('finalDoorProgress');if(!layer){layer=document.createElementNS(NS,'g');layer.id='finalDoorProgress';layer.setAttribute('pointer-events','none');svg.appendChild(layer)}layer.replaceChildren();
+  const count=new Set(state.completed.filter(n=>Number.isInteger(n)&&n>=1&&n<=7)).size;
+  FINAL_DOOR_PROGRESS_SLOTS.slice(0,count).forEach(slot=>{const rect=document.createElementNS(NS,'rect');rect.setAttribute('x',slot.x);rect.setAttribute('y',slot.y);rect.setAttribute('width',slot.w);rect.setAttribute('height',slot.h);rect.setAttribute('rx','3');rect.setAttribute('fill','rgba(114,240,164,.72)');rect.setAttribute('stroke','#d9ff9a');rect.setAttribute('stroke-width','1.5');rect.setAttribute('pointer-events','none');layer.appendChild(rect)});
 }
 
 function renderMap(){
@@ -185,6 +192,7 @@ function renderMap(){
   setHover(false);
   controlsGroup.replaceChildren();
   buildLockedLayer(g,active);
+  renderFinalDoorProgress();
   g.quests.forEach((q,index)=>{const n=index+1;controlsGroup.appendChild(createHotspot(n,q,n===active && isQuestReachable(n)))});
   const target=active?g.quests[active-1]:g.finalDoor;
   activeRing.setAttribute('cx',String(target.x));
