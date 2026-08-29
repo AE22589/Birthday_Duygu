@@ -164,3 +164,6 @@ and the left hint box remains part of the artwork. Progression, completed-state
 storage, and the Map QA unlock remain unchanged.
 Completed quests also light the seven key slots above the Final Door from left to
 right; this uses only unique completed quest IDs 1–7, and QA unlocks do not count.
+The Final Door stays locked until all seven real completions are present. Before
+then it shows “The door needs all seven keys.” At 7/7 it opens the final popup;
+`OPEN THE FINAL DOOR` is reserved for the later return journey.

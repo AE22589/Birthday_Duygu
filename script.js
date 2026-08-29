@@ -21,7 +21,7 @@ const LOCKOUT_ATTEMPT_LIMIT=3;
 const LOCKOUT_DURATION_MS=24*60*60*1000;
 
 const $=id=>document.getElementById(id);
-const entrance=$('entrance'),timeTravelScreen=$('timeTravelScreen'),timeTravelText=$('timeTravelText'),timeTravelStorm=$('timeTravelStorm'),questScreen=$('questScreen'),doorHit=$('doorHit'),modal=$('adminModal'),codeInput=$('adminCode'),unlockButton=$('unlock'),cancelButton=$('cancel'),error=$('error'),wrongCodePopup=$('wrongCodePopup'),wrongCodeTitle=$('wrongCodeTitle'),wrongCodeMessage=$('wrongCodeMessage'),wrongCodeClose=$('wrongCodeClose'),toast=$('toast'),lockTitle=$('lockTitle'),lockText=$('lockText'),mapShell=$('mapShell'),mapImage=$('mapImage'),svg=$('mapInteraction'),controlsGroup=$('questControls'),lockedLayers=$('lockedLayers'),questStatusLayers=$('questStatusLayers'),activeLayer=$('activeLayer'),activeRing=$('activeRing'),activeRingGlow=$('activeRingGlow'),finalDoorHotspot=$('finalDoorHotspot'),returnHotspot=$('returnHotspot'),countdown={days:$('days'),hours:$('hours'),minutes:$('minutes'),seconds:$('seconds')};
+const entrance=$('entrance'),timeTravelScreen=$('timeTravelScreen'),timeTravelText=$('timeTravelText'),timeTravelStorm=$('timeTravelStorm'),questScreen=$('questScreen'),doorHit=$('doorHit'),modal=$('adminModal'),finalDoorModal=$('finalDoorModal'),openFinalDoor=$('openFinalDoor'),codeInput=$('adminCode'),unlockButton=$('unlock'),cancelButton=$('cancel'),error=$('error'),wrongCodePopup=$('wrongCodePopup'),wrongCodeTitle=$('wrongCodeTitle'),wrongCodeMessage=$('wrongCodeMessage'),wrongCodeClose=$('wrongCodeClose'),toast=$('toast'),lockTitle=$('lockTitle'),lockText=$('lockText'),mapShell=$('mapShell'),mapImage=$('mapImage'),svg=$('mapInteraction'),controlsGroup=$('questControls'),lockedLayers=$('lockedLayers'),questStatusLayers=$('questStatusLayers'),activeLayer=$('activeLayer'),activeRing=$('activeRing'),activeRingGlow=$('activeRingGlow'),finalDoorHotspot=$('finalDoorHotspot'),returnHotspot=$('returnHotspot'),countdown={days:$('days'),hours:$('hours'),minutes:$('minutes'),seconds:$('seconds')};
 if(!entrance||!timeTravelScreen||!timeTravelText||!timeTravelStorm||!questScreen||!doorHit||!mapImage||!svg||!controlsGroup||!lockedLayers||!questStatusLayers||!activeLayer||!activeRing||!activeRingGlow||!finalDoorHotspot||!returnHotspot)return;
 
 const NS='http://www.w3.org/2000/svg';
@@ -340,7 +340,8 @@ async function handleQuestActivation(n){
     catch(err){console.error('[Quest VII]',err);showToast('Quest VII could not be loaded. Please refresh and try again.');}
   }
 }
-function handleFinalDoor(){showToast(state.completed.length===7?'The Final Door is ready to open.':'Complete each challenge. Claim every key. Close the circle.')}
+function startReturnTimeTravel(){showToast('The return journey is coming soon.')}
+function handleFinalDoor(){const completedCount=new Set(state.completed.filter(n=>Number.isInteger(n)&&n>=1&&n<=7)).size;if(completedCount<7){showToast('The door needs all seven keys.');return}finalDoorModal.hidden=false;openFinalDoor.focus()}
 function handleReturn(){showEntrance();document.getElementById('roadTripScreen')?.setAttribute('hidden','');document.getElementById('paintItScreen')?.setAttribute('hidden','');document.getElementById('memoryLaneScreen')?.setAttribute('hidden','');document.getElementById('puzzleScreen')?.setAttribute('hidden','');document.getElementById('wordChallengeScreen')?.setAttribute('hidden','')}
 
 window.__DUYGU_APP_VERSION__=VERSION;
@@ -372,6 +373,8 @@ finalDoorHotspot.addEventListener('click',e=>{e.preventDefault();handleFinalDoor
 finalDoorHotspot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleFinalDoor()}});
 returnHotspot.addEventListener('click',e=>{e.preventDefault();handleReturn()});
 returnHotspot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleReturn()}});
+openFinalDoor.addEventListener('click',startReturnTimeTravel);
+finalDoorModal.addEventListener('pointerup',e=>{if(e.target===finalDoorModal)finalDoorModal.hidden=true});
 unlockButton.addEventListener('click',()=>{
   if(isLockedOut()){updateLockoutUI();return}
   if(codeInput.value.trim()!==ADMIN_CODE){
