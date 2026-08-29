@@ -107,9 +107,10 @@ function setSvgGeometry(g){
   mapImage.setAttributeNS('http://www.w3.org/1999/xlink','href',asset);
 }
 function createHotspot(questNumber,q,active){
-  const circle=document.createElementNS(NS,'circle');
+  const circle=document.createElementNS(NS,'rect');
   circle.classList.add('svg-hotspot','quest-hotspot');
-  circle.setAttribute('cx',q.x);circle.setAttribute('cy',q.y);circle.setAttribute('r',Math.max(18,q.r-2));
+  const w=q.w||q.r*1.8,h=q.h||q.r*2.5;
+  circle.setAttribute('x',q.x-w/2);circle.setAttribute('y',q.y-h/2);circle.setAttribute('width',w);circle.setAttribute('height',h);circle.setAttribute('rx',8);
   circle.setAttribute('role','button');circle.setAttribute('tabindex',active?'0':'-1');
   const status=questStatus(questNumber);
   circle.setAttribute('aria-label',`Quest ${ROMAN[questNumber-1]}: ${NAMES[questNumber-1]}, ${status}`);
@@ -163,30 +164,11 @@ function buildLockedLayer(g,active){
     lockedLayers.appendChild(lockedImage);
   });
 
-  // The supplied map artwork contains the word LOCKED baked into every
-  // future quest plaque. Cover only that status line for reachable quests
-  // and restore the intended READY label without changing the artwork.
-  const statusBoxes = isMobile() ? [
-    null,
-    {x:102,y:204,w:98,h:18}, {x:18,y:288,w:58,h:18}, {x:244,y:288,w:64,h:18},
-    {x:243,y:427,w:64,h:18}, {x:174,y:546,w:140,h:18}, {x:28,y:546,w:102,h:18}, {x:10,y:427,w:68,h:18}
-  ] : [
-    null,
-    {x:350,y:432,w:148,h:22}, {x:607,y:312,w:76,h:22}, {x:925,y:312,w:84,h:22},
-    {x:1140,y:458,w:105,h:22}, {x:1072,y:709,w:90,h:22}, {x:754,y:812,w:108,h:22}, {x:405,y:709,w:96,h:22}
-  ];
   for(let n=1;n<=g.quests.length;n++){
-    if(!isQuestReachable(n))continue;
-    const box=statusBoxes[n]; if(!box)continue;
-    const rect=document.createElementNS(NS,'rect');
-    rect.setAttribute('x',box.x);rect.setAttribute('y',box.y);rect.setAttribute('width',box.w);rect.setAttribute('height',box.h);
-    rect.setAttribute('rx','3');rect.setAttribute('fill','#101317');rect.setAttribute('opacity','.97');
-    questStatusLayers.appendChild(rect);
+    const q=g.quests[n-1], status=questStatus(n);
     const text=document.createElementNS(NS,'text');
-    text.setAttribute('x',box.x+box.w/2);text.setAttribute('y',box.y+box.h*.72);
-    text.setAttribute('text-anchor','middle');text.setAttribute('fill','#d9b76b');
-    text.setAttribute('font-size',isMobile()?'5.5':'8');text.setAttribute('font-family','serif');text.setAttribute('letter-spacing','1');
-    text.textContent=state.completed.includes(n)?'DONE':'READY';questStatusLayers.appendChild(text);
+    text.classList.add('map-status-marker',`map-status-${status}`);text.setAttribute('x',q.x-q.r*.72);text.setAttribute('y',q.y-q.r*.95);text.setAttribute('pointer-events','none');
+    text.textContent=status==='completed'?'✓':status==='ready'?(n===currentQuest()?'PRESS START':'PLAY'):'🔒';questStatusLayers.appendChild(text);
   }
 }
 
@@ -206,7 +188,7 @@ function renderMap(){
   activeRingGlow.setAttribute('cx',String(target.x));
   activeRingGlow.setAttribute('cy',String(target.y));
   activeRingGlow.setAttribute('r',String(ringRadius));
-  activeLayer.style.display=active?'block':'none';
+  activeLayer.style.display='none';
   const d=g.finalDoor;
   finalDoorHotspot.setAttribute('x',String(d.x-d.r));finalDoorHotspot.setAttribute('y',String(d.y-d.r*.72));
   finalDoorHotspot.setAttribute('width',String(d.r*2));finalDoorHotspot.setAttribute('height',String(d.r*1.44));

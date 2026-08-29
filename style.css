@@ -243,3 +243,5 @@
 /* Arcade map uses the single 3:2 GIF composition on every viewport. */
 .map-shell{width:min(100vw,calc(100dvh * 3 / 2));height:min(100dvh,calc(100vw * 2 / 3));aspect-ratio:3/2}
 @media(max-width:700px){.map-shell{width:min(100vw,calc(100dvh * 3 / 2));height:min(100dvh,calc(100vw * 2 / 3));aspect-ratio:3/2}}
+/* Compact, non-interactive status markers anchored to each arcade cabinet. */
+.map-status-marker{pointer-events:none;text-anchor:middle;font-family:Montserrat,Arial,sans-serif;font-weight:700;letter-spacing:.08em;font-size:14px}.map-status-completed{fill:#72f0a4;filter:drop-shadow(0 0 5px rgba(114,240,164,.85))}.map-status-ready{fill:#00e5ff;filter:drop-shadow(0 0 5px rgba(0,229,255,.8))}.map-status-locked{fill:#d4d7dc;opacity:.75}.map-status-ready:first-letter{fill:#ffd23f}@media(max-width:700px){.map-status-marker{font-size:11px}}
