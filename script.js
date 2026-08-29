@@ -47,6 +47,7 @@ const GEOMETRY={
 };
 const ROMAN=['I','II','III','IV','V','VI','VII'];
 const NAMES=['The Road Trip','Paint It!','Sucuk Master',"Lokum's Challenge",'Memory Lane','Our Little Puzzle','German Word Challenge'];
+const STATUS_BADGE_ANCHORS=[{x:197,y:700},{x:404,y:697},{x:562,y:679},{x:916,y:679},{x:1072,y:683},{x:1229,y:694},{x:1386,y:715}];
 let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,lockoutTimer=null,mapQaClickCount=0,mapQaClickWindowStart=0,adminUnlockContext='entrance',lastWrongCodeIndex=-1,transitionRunning=false,state=loadState();
 
 function loadLockout(){try{const p=JSON.parse(localStorage.getItem(LOCKOUT_KEY)||'{}');return{attempts:Number.isInteger(p.attempts)?p.attempts:0,lockedUntil:Number.isFinite(p.lockedUntil)?p.lockedUntil:0}}catch{return{attempts:0,lockedUntil:0}}}
@@ -125,7 +126,7 @@ function createHotspot(questNumber,q,active){
   }
   return circle;
 }
-function cabinetBounds(q){const w=q.w||q.r*1.8,h=q.h||q.r*2.5;return{x:q.x-w/2,y:q.y-h/2,w,h}}
+function cabinetBounds(q){const w=q.w||q.r*1.8,oldH=q.h||q.r*2.5,h=oldH*4/3;return{x:q.x-w/2,y:q.y+oldH/2-h,w,h}}
 function setHover(on){mapShell.classList.toggle('is-hover',on)}
 function buildLockedLayer(g,active){
   lockedLayers.replaceChildren();
@@ -169,11 +170,11 @@ function buildLockedLayer(g,active){
   });
 
   for(let n=1;n<=g.quests.length;n++){
-    const status=questStatus(n),b=cabinetBounds(g.quests[n-1]);
+    const status=questStatus(n),anchor=STATUS_BADGE_ANCHORS[n-1];
     const asset=status==='completed'?'checkmark.png':status==='ready'&&n===currentQuest()?'insertcoin.png':status==='locked'?'locked.png':null;
     if(!asset)continue;
     const image=document.createElementNS(NS,'image');image.classList.add('map-status-marker');image.setAttribute('href',asset);image.setAttributeNS('http://www.w3.org/1999/xlink','href',asset);image.setAttribute('pointer-events','none');
-    const w=status==='completed'?34:status==='ready'?92:82,h=status==='completed'?34:status==='ready'?69:62;image.setAttribute('x',b.x+b.w/2-w/2);image.setAttribute('y',b.y+b.h-h-12);image.setAttribute('width',w);image.setAttribute('height',h);image.setAttribute('preserveAspectRatio','xMidYMid meet');questStatusLayers.appendChild(image);
+    const w=status==='completed'?68:status==='ready'?184:164,h=status==='completed'?68:status==='ready'?138:124;image.setAttribute('x',anchor.x-w/2);image.setAttribute('y',anchor.y-h/2);image.setAttribute('width',w);image.setAttribute('height',h);image.setAttribute('preserveAspectRatio','xMidYMid meet');questStatusLayers.appendChild(image);
   }
 }
 
