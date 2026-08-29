@@ -109,10 +109,10 @@ function setSvgGeometry(g){
 function createHotspot(questNumber,q,active){
   const circle=document.createElementNS(NS,'rect');
   circle.classList.add('svg-hotspot','quest-hotspot');
-  const w=q.w||q.r*1.8,h=q.h||q.r*2.5;
-  circle.setAttribute('x',q.x-w/2);circle.setAttribute('y',q.y-h/2);circle.setAttribute('width',w);circle.setAttribute('height',h);circle.setAttribute('rx',8);
+  const b=cabinetBounds(q),status=questStatus(questNumber);
+  circle.classList.add(`status-${status}`);
+  circle.setAttribute('x',b.x);circle.setAttribute('y',b.y);circle.setAttribute('width',b.w);circle.setAttribute('height',b.h);circle.setAttribute('rx',8);
   circle.setAttribute('role','button');circle.setAttribute('tabindex',active?'0':'-1');
-  const status=questStatus(questNumber);
   circle.setAttribute('aria-label',`Quest ${ROMAN[questNumber-1]}: ${NAMES[questNumber-1]}, ${status}`);
   circle.dataset.quest=String(questNumber);
   circle.addEventListener('click',()=>handleQuestActivation(questNumber));
@@ -125,6 +125,7 @@ function createHotspot(questNumber,q,active){
   }
   return circle;
 }
+function cabinetBounds(q){const w=q.w||q.r*1.8,h=q.h||q.r*2.5;return{x:q.x-w/2,y:q.y-h/2,w,h}}
 function setHover(on){mapShell.classList.toggle('is-hover',on)}
 function buildLockedLayer(g,active){
   lockedLayers.replaceChildren();
@@ -170,8 +171,17 @@ function buildLockedLayer(g,active){
   for(let n=1;n<=g.quests.length;n++){
     const q=g.quests[n-1], status=questStatus(n);
     const text=document.createElementNS(NS,'text');
-    text.classList.add('map-status-marker',`map-status-${status}`);text.setAttribute('x',q.x-q.r*.72);text.setAttribute('y',q.y-q.r*.95);text.setAttribute('pointer-events','none');
-    text.textContent=status==='completed'?'✓':status==='ready'?(n===currentQuest()?'PRESS START':'PLAY'):'🔒';questStatusLayers.appendChild(text);
+    const b=cabinetBounds(q);
+    text.classList.add('map-status-marker',`map-status-${status}`);text.setAttribute('pointer-events','none');
+    if(status==='completed'){text.setAttribute('x',b.x+b.w-12);text.setAttribute('y',b.y+20);text.textContent='✓';questStatusLayers.appendChild(text)}
+    else if(status==='locked'){
+      const lock=document.createElementNS(NS,'g');
+      lock.classList.add('map-status-marker','map-status-locked');lock.setAttribute('pointer-events','none');lock.setAttribute('color','#d4d7dc');
+      const body=document.createElementNS(NS,'rect');body.setAttribute('x',b.x+b.w-25);body.setAttribute('y',b.y+10);body.setAttribute('width','16');body.setAttribute('height','13');body.setAttribute('rx','2');
+      const shackle=document.createElementNS(NS,'path');shackle.setAttribute('d',`M ${b.x+b.w-21} ${b.y+10} V ${b.y+5} H ${b.x+b.w-13} V ${b.y+10}`);shackle.setAttribute('fill','none');shackle.setAttribute('stroke','currentColor');shackle.setAttribute('stroke-width','3');
+      lock.append(body,shackle);questStatusLayers.appendChild(lock);
+    }
+    else if(status==='ready'&&n===currentQuest()){text.setAttribute('x',b.x+b.w/2);text.setAttribute('y',b.y+14);text.textContent='PRESS START';questStatusLayers.appendChild(text)}
   }
 }
 
