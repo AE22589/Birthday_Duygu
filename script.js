@@ -176,7 +176,7 @@ function buildLockedLayer(g,active){
     const asset=status==='completed'?'checkmark.png':status==='ready'&&n===currentQuest()?'insertcoin.png':status==='locked'?'locked.png':null;
     if(!asset)continue;
     const image=document.createElementNS(NS,'image');image.classList.add('map-status-marker');image.setAttribute('href',asset);image.setAttributeNS('http://www.w3.org/1999/xlink','href',asset);image.setAttribute('pointer-events','none');
-    const w=status==='completed'?68:status==='ready'?184:164,h=status==='completed'?68:status==='ready'?138:124;const point=status==='completed'?CHECKMARK_ANCHORS[n-1]:anchor;image.setAttribute('x',point.x-w/2);image.setAttribute('y',point.y-h/2);image.setAttribute('width',w);image.setAttribute('height',h);image.setAttribute('preserveAspectRatio','xMidYMid meet');questStatusLayers.appendChild(image);
+    const w=status==='completed'?68:status==='ready'?140:124,h=status==='completed'?68:status==='ready'?105:93;const point=status==='completed'?CHECKMARK_ANCHORS[n-1]:anchor;image.setAttribute('x',point.x-w/2);image.setAttribute('y',point.y-h/2);image.setAttribute('width',w);image.setAttribute('height',h);image.setAttribute('preserveAspectRatio','xMidYMid meet');questStatusLayers.appendChild(image);
   }
 }
 function renderFinalDoorProgress(){
