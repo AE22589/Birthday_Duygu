@@ -48,7 +48,7 @@ const GEOMETRY={
 const ROMAN=['I','II','III','IV','V','VI','VII'];
 const NAMES=['The Road Trip','Paint It!','Sucuk Master',"Lokum's Challenge",'Memory Lane','Our Little Puzzle','German Word Challenge'];
 const CHECKMARK_ANCHORS=[{x:190,y:665},{x:390,y:655},{x:535,y:645},{x:875,y:645},{x:1030,y:650},{x:1195,y:655},{x:1355,y:670}];
-const FINAL_DOOR_PROGRESS_SLOTS=[{x:700,y:300,w:24,h:18},{x:735,y:300,w:24,h:18},{x:770,y:300,w:24,h:18},{x:805,y:300,w:24,h:18},{x:840,y:300,w:24,h:18},{x:875,y:300,w:24,h:18},{x:910,y:300,w:24,h:18}];
+const FINAL_DOOR_PROGRESS_SLOTS=[{x:630,y:201,width:30,height:48},{x:665,y:201,width:30,height:48},{x:699,y:201,width:30,height:48},{x:733,y:201,width:30,height:48},{x:767,y:201,width:30,height:48},{x:802,y:201,width:29,height:48},{x:835,y:201,width:30,height:48}];
 const STATUS_BADGE_ANCHORS=[{x:197,y:700},{x:404,y:697},{x:562,y:679},{x:916,y:679},{x:1072,y:683},{x:1229,y:694},{x:1386,y:715}];
 let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,lockoutTimer=null,mapQaClickCount=0,mapQaClickWindowStart=0,adminUnlockContext='entrance',lastWrongCodeIndex=-1,transitionRunning=false,state=loadState();
 
@@ -180,9 +180,9 @@ function buildLockedLayer(g,active){
   }
 }
 function renderFinalDoorProgress(){
-  let layer=document.getElementById('finalDoorProgress');if(!layer){layer=document.createElementNS(NS,'g');layer.id='finalDoorProgress';layer.setAttribute('pointer-events','none');svg.appendChild(layer)}layer.replaceChildren();
+  let layer=document.getElementById('finalDoorProgress');if(!layer){layer=document.createElementNS(NS,'g');layer.id='finalDoorProgress';layer.setAttribute('pointer-events','none');svg.insertBefore(layer,controlsGroup)}layer.replaceChildren();
   const count=new Set(state.completed.filter(n=>Number.isInteger(n)&&n>=1&&n<=7)).size;
-  FINAL_DOOR_PROGRESS_SLOTS.slice(0,count).forEach(slot=>{const rect=document.createElementNS(NS,'rect');rect.setAttribute('x',slot.x);rect.setAttribute('y',slot.y);rect.setAttribute('width',slot.w);rect.setAttribute('height',slot.h);rect.setAttribute('rx','3');rect.setAttribute('fill','rgba(114,240,164,.72)');rect.setAttribute('stroke','#d9ff9a');rect.setAttribute('stroke-width','1.5');rect.setAttribute('pointer-events','none');layer.appendChild(rect)});
+  FINAL_DOOR_PROGRESS_SLOTS.slice(0,count).forEach(slot=>{const rect=document.createElementNS(NS,'rect');rect.setAttribute('x',slot.x+5);rect.setAttribute('y',slot.y+5);rect.setAttribute('width',slot.width-10);rect.setAttribute('height',slot.height-10);rect.setAttribute('rx','3');rect.setAttribute('fill','rgba(114,240,164,.72)');rect.setAttribute('pointer-events','none');layer.appendChild(rect)});
 }
 
 function renderMap(){
