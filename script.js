@@ -170,18 +170,14 @@ function buildLockedLayer(g,active){
 
   for(let n=1;n<=g.quests.length;n++){
     const q=g.quests[n-1], status=questStatus(n);
-    const text=document.createElementNS(NS,'text');
     const b=cabinetBounds(q);
-    text.classList.add('map-status-marker',`map-status-${status}`);text.setAttribute('pointer-events','none');
-    if(status==='completed'){text.setAttribute('x',b.x+b.w-12);text.setAttribute('y',b.y+20);text.textContent='✓';questStatusLayers.appendChild(text)}
-    else if(status==='locked'){
-      const lock=document.createElementNS(NS,'g');
-      lock.classList.add('map-status-marker','map-status-locked');lock.setAttribute('pointer-events','none');lock.setAttribute('color','#d4d7dc');
-      const body=document.createElementNS(NS,'rect');body.setAttribute('x',b.x+b.w-25);body.setAttribute('y',b.y+10);body.setAttribute('width','16');body.setAttribute('height','13');body.setAttribute('rx','2');
-      const shackle=document.createElementNS(NS,'path');shackle.setAttribute('d',`M ${b.x+b.w-21} ${b.y+10} V ${b.y+5} H ${b.x+b.w-13} V ${b.y+10}`);shackle.setAttribute('fill','none');shackle.setAttribute('stroke','currentColor');shackle.setAttribute('stroke-width','3');
-      lock.append(body,shackle);questStatusLayers.appendChild(lock);
+    if(status==='completed'){
+      const check=document.createElementNS(NS,'text');check.classList.add('map-status-marker','map-status-completed');check.setAttribute('x',b.x+b.w-10);check.setAttribute('y',b.y+18);check.setAttribute('pointer-events','none');check.textContent='✓';questStatusLayers.appendChild(check);
+    }else if(status==='locked'){
+      const shade=document.createElementNS(NS,'rect');shade.classList.add('map-status-marker','map-status-locked');shade.setAttribute('x',b.x);shade.setAttribute('y',b.y);shade.setAttribute('width',b.w);shade.setAttribute('height',b.h);shade.setAttribute('pointer-events','none');questStatusLayers.appendChild(shade);
+    }else if(status==='ready'&&n===currentQuest()){
+      const frame=document.createElementNS(NS,'rect');frame.classList.add('map-status-marker','map-status-current');frame.setAttribute('x',b.x);frame.setAttribute('y',b.y);frame.setAttribute('width',b.w);frame.setAttribute('height',b.h);frame.setAttribute('rx','8');frame.setAttribute('pointer-events','none');questStatusLayers.appendChild(frame);
     }
-    else if(status==='ready'&&n===currentQuest()){text.setAttribute('x',b.x+b.w/2);text.setAttribute('y',b.y+14);text.textContent='PRESS START';questStatusLayers.appendChild(text)}
   }
 }
 
