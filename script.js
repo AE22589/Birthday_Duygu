@@ -128,6 +128,9 @@ function createHotspot(questNumber,q,active){
 function setHover(on){mapShell.classList.toggle('is-hover',on)}
 function buildLockedLayer(g,active){
   lockedLayers.replaceChildren();
+  // The arcade GIF is the complete map artwork; legacy clipped image copies
+  // would create black/circular masks and must remain disabled.
+  lockedLayers.style.display='none';
   questStatusLayers.replaceChildren();
   svg.querySelectorAll('clipPath[id^=\"questClip-\"]').forEach(node=>node.remove());
   const defs=svg.querySelector('defs');
