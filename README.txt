@@ -121,6 +121,17 @@ a free slot, with placed pieces returnable to the palette. There is no time limi
 and the quest succeeds only when all six pieces occupy their exact matching slots.
 Solving it stores Quest 6 in the shared progress state and unlocks Quest VII.
 
+QUEST VII — GERMAN WORD CHALLENGE
+Quest VII uses ten fixed German words in this order: LÜFTEN, GARDINE,
+PÜNKTLICH, SCHMETTERLING, SCHUBLADE, GEMÜTLICH, STUR, QUATSCH, FEIERABEND,
+ZWICKMÜHLE. Each question has exactly three fixed English answers A, B and C;
+neither the questions nor the answer order is randomized. There is no timer.
+Each selection gives immediate CORRECT/Wrong feedback and locks the question.
+The player advances only with NEXT WORD, never automatically. The score is out
+of 10. Results are KEEP LEARNING! (0–5), GOOD JOB! (6–7), VERY IMPRESSIVE!
+(8–9) or GERMAN MASTER! (10); FAST VERDÄCHTIG is shown for scores 8–10.
+After the complete quiz, Quest 7 is stored in the shared progress state.
+
 QUEST IV — LOKUM'S CHALLENGE
 Quest IV uses the two approved arcade maze graphics and their matching data from
 quest4-maze-spec.json. Each arrow-key, WASD, or swipe input moves Lokum exactly

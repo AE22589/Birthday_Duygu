@@ -202,7 +202,7 @@ function renderMap(){
   returnHotspot.setAttribute('x',String(r.x));returnHotspot.setAttribute('y',String(r.y));returnHotspot.setAttribute('width',String(r.w));returnHotspot.setAttribute('height',String(r.h));
   mapImage.setAttribute('aria-label',`Duygu's birthday quest map, ${active?`quest ${active} ready`:'all quests complete'}`);
 }
-function showQuestMap(){if(!isUnlocked()){showToast('The door is still locked...');return}state=loadState();entrance.hidden=true;document.getElementById('roadTripScreen')?.setAttribute('hidden','');document.getElementById('paintItScreen')?.setAttribute('hidden','');document.getElementById('sucukMasterScreen')?.setAttribute('hidden','');document.getElementById('lokumChallengeScreen')?.setAttribute('hidden','');document.getElementById('memoryLaneScreen')?.setAttribute('hidden','');document.getElementById('puzzleScreen')?.setAttribute('hidden','');questScreen.hidden=false;renderMap();window.scrollTo(0,0)}
+function showQuestMap(){if(!isUnlocked()){showToast('The door is still locked...');return}state=loadState();entrance.hidden=true;document.getElementById('roadTripScreen')?.setAttribute('hidden','');document.getElementById('paintItScreen')?.setAttribute('hidden','');document.getElementById('sucukMasterScreen')?.setAttribute('hidden','');document.getElementById('lokumChallengeScreen')?.setAttribute('hidden','');document.getElementById('memoryLaneScreen')?.setAttribute('hidden','');document.getElementById('puzzleScreen')?.setAttribute('hidden','');document.getElementById('wordChallengeScreen')?.setAttribute('hidden','');questScreen.hidden=false;renderMap();window.scrollTo(0,0)}
 window.showQuestMap=showQuestMap;
 function showEntrance(){questScreen.hidden=true;modal.hidden=true;entrance.hidden=false;previewGranted=false;refreshCountdown()}
 function handleDoorActivation(e){if(!modal.hidden)return;e.preventDefault();if(isUnlocked()){showQuestMap();return}const now=performance.now();if(!clickWindowStart||now-clickWindowStart>CLICK_WINDOW_MS){clickWindowStart=now;clickCount=1}else clickCount++;if(clickCount>=CLICK_LIMIT){clickCount=0;clickWindowStart=0;openPreviewModal();return}showToast(`The door remains sealed. ${CLICK_LIMIT-clickCount} more clicks...`)}
@@ -260,6 +260,19 @@ function ensurePuzzleLoaded(){
   });
   return puzzleLoadPromise;
 }
+let wordChallengeLoadPromise=null;
+function ensureWordChallengeLoaded(){
+  if(typeof window.showWordChallengeScreen==='function')return Promise.resolve();
+  if(wordChallengeLoadPromise)return wordChallengeLoadPromise;
+  wordChallengeLoadPromise=new Promise((resolve,reject)=>{
+    const existing=document.querySelector('script[data-wordchallenge-loader]');
+    if(existing){existing.addEventListener('load',()=>typeof window.showWordChallengeScreen==='function'?resolve():reject(new Error('wordchallenge.js loaded without registering the quest')),{once:true});existing.addEventListener('error',()=>reject(new Error('wordchallenge.js failed to load')),{once:true});return;}
+    const script=document.createElement('script');script.src=`wordchallenge.js?v=${VERSION}`;script.defer=true;script.dataset.wordchallengeLoader='true';
+    script.onload=()=>typeof window.showWordChallengeScreen==='function'?resolve():reject(new Error('wordchallenge.js loaded without registering the quest'));
+    script.onerror=()=>reject(new Error('wordchallenge.js failed to load'));document.head.appendChild(script);
+  });
+  return wordChallengeLoadPromise;
+}
 let sucukMasterLoadPromise=null;
 function ensureSucukMasterLoaded(){
   if(typeof window.showSucukMasterScreen==='function')return Promise.resolve();
@@ -310,10 +323,13 @@ async function handleQuestActivation(n){
   }else if(n===6){
     try{await ensurePuzzleLoaded();window.showPuzzleScreen();}
     catch(err){console.error('[Quest VI]',err);showToast('Quest VI could not be loaded. Please refresh and try again.');}
+  }else if(n===7){
+    try{await ensureWordChallengeLoaded();window.showWordChallengeScreen();}
+    catch(err){console.error('[Quest VII]',err);showToast('Quest VII could not be loaded. Please refresh and try again.');}
   }
 }
 function handleFinalDoor(){showToast(state.completed.length===7?'The Final Door is ready to open.':'Complete each challenge. Claim every key. Close the circle.')}
-function handleReturn(){showEntrance();document.getElementById('roadTripScreen')?.setAttribute('hidden','');document.getElementById('paintItScreen')?.setAttribute('hidden','');document.getElementById('memoryLaneScreen')?.setAttribute('hidden','');document.getElementById('puzzleScreen')?.setAttribute('hidden','')}
+function handleReturn(){showEntrance();document.getElementById('roadTripScreen')?.setAttribute('hidden','');document.getElementById('paintItScreen')?.setAttribute('hidden','');document.getElementById('memoryLaneScreen')?.setAttribute('hidden','');document.getElementById('puzzleScreen')?.setAttribute('hidden','');document.getElementById('wordChallengeScreen')?.setAttribute('hidden','')}
 
 window.__DUYGU_APP_VERSION__=VERSION;
 window.__DUYGU_SELF_TEST__=()=>({

@@ -289,6 +289,34 @@
   </div></div>
 </section>
 
+<section id="wordChallengeScreen" class="screen roadtrip-screen" hidden aria-label="Quest VII German Word Challenge">
+  <div class="rt-wrap gw-wrap"><div class="rt-cabinet gw-cabinet"><div class="rt-scanlines"></div>
+    <section id="wordChallengeGame" class="rt-view gw-game" aria-labelledby="wordChallengeTitle">
+      <header class="gw-header">
+        <p class="gw-quest-label">QUEST VII</p>
+        <h1 class="rt-title" id="wordChallengeTitle">GERMAN WORD CHALLENGE</h1>
+        <div class="gw-hud" aria-live="polite"><strong id="gwWordCounter">WORD --/10</strong><strong id="gwScoreCounter">SCORE --/10</strong></div>
+      </header>
+      <div id="gwProgress" class="gw-progress" role="progressbar" aria-label="Question progress" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0">
+        <span class="gw-progress-segment" data-gw-progress="0"></span><span class="gw-progress-segment" data-gw-progress="1"></span><span class="gw-progress-segment" data-gw-progress="2"></span><span class="gw-progress-segment" data-gw-progress="3"></span><span class="gw-progress-segment" data-gw-progress="4"></span><span class="gw-progress-segment" data-gw-progress="5"></span><span class="gw-progress-segment" data-gw-progress="6"></span><span class="gw-progress-segment" data-gw-progress="7"></span><span class="gw-progress-segment" data-gw-progress="8"></span><span class="gw-progress-segment" data-gw-progress="9"></span>
+      </div>
+      <div class="gw-word-panel"><p class="gw-prompt">PICK THE MEANING</p><p id="gwWord" class="gw-word" aria-live="polite"></p></div>
+      <div id="gwAnswers" class="gw-answers" role="group" aria-label="Answer choices">
+        <button class="gw-answer" data-gw-answer="A" type="button"><span class="gw-answer-key">A</span><span class="gw-answer-text"></span></button>
+        <button class="gw-answer" data-gw-answer="B" type="button"><span class="gw-answer-key">B</span><span class="gw-answer-text"></span></button>
+        <button class="gw-answer" data-gw-answer="C" type="button"><span class="gw-answer-key">C</span><span class="gw-answer-text"></span></button>
+      </div>
+      <div id="gwFeedback" class="gw-feedback" role="status" aria-live="polite"></div>
+      <button id="gwNextButton" class="rt-btn gw-next" type="button">NEXT WORD ▶</button>
+    </section>
+    <section id="wordChallengeResult" class="rt-view rt-result" hidden aria-labelledby="gwResultTitle">
+      <h2 class="rt-title" id="gwResultTitle">GERMAN WORD CHALLENGE</h2>
+      <p id="gwResultMessage" class="pi-result-message"></p>
+      <button id="gwBackToMap" class="rt-btn" type="button">BACK TO MAP</button>
+    </section>
+  </div></div>
+</section>
+
 <section id="memoryLaneScreen" class="screen roadtrip-screen" hidden aria-label="Quest V Memory Lane">
   <div class="rt-wrap ml-wrap"><div class="rt-cabinet ml-cabinet"><div class="rt-scanlines"></div>
     <section id="memoryLaneIntro" class="rt-view rt-intro" aria-labelledby="memoryLaneTitle">
