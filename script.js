@@ -128,7 +128,7 @@ function createHotspot(questNumber,q,active){
   }
   return circle;
 }
-function cabinetBounds(q){const w=q.w||q.r*1.8,oldH=q.h||q.r*2.5,h=oldH*4/3;return{x:q.x-w/2,y:q.y+oldH/2-h,w,h}}
+function cabinetBounds(q){const w=q.w||q.r*1.8,oldH=q.h||q.r*2.5,h=oldH*1.75;return{x:q.x-w/2,y:q.y-oldH/2-oldH*.75,w,h}}
 function setHover(on){mapShell.classList.toggle('is-hover',on)}
 function buildLockedLayer(g,active){
   lockedLayers.replaceChildren();
@@ -341,7 +341,7 @@ async function handleQuestActivation(n){
   }
 }
 function startReturnTimeTravel(){showToast('The return journey is coming soon.')}
-function handleFinalDoor(){const completedCount=new Set(state.completed.filter(n=>Number.isInteger(n)&&n>=1&&n<=7)).size;if(completedCount<7){showToast('The door needs all seven keys.');return}finalDoorModal.hidden=false;openFinalDoor.focus()}
+function handleFinalDoor(){const completedCount=new Set(state.completed.filter(n=>Number.isInteger(n)&&n>=1&&n<=7)).size;if(completedCount<7){toast.classList.add('final-door-locked');showToast('FINAL DOOR LOCKED\nThe door needs all seven keys.');setTimeout(()=>toast.classList.remove('final-door-locked'),2300);return}finalDoorModal.hidden=false;openFinalDoor.focus()}
 function handleReturn(){showEntrance();document.getElementById('roadTripScreen')?.setAttribute('hidden','');document.getElementById('paintItScreen')?.setAttribute('hidden','');document.getElementById('memoryLaneScreen')?.setAttribute('hidden','');document.getElementById('puzzleScreen')?.setAttribute('hidden','');document.getElementById('wordChallengeScreen')?.setAttribute('hidden','')}
 
 window.__DUYGU_APP_VERSION__=VERSION;
