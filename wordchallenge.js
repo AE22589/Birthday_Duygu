@@ -75,8 +75,8 @@ if (typeof document !== 'undefined') (function () {
     wordCounter.textContent = `WORD ${String(questionIndex + 1).padStart(2, '0')}/10`;
     scoreCounter.textContent = `SCORE ${score}/10`;
     word.textContent = current.word;
-    answers.forEach((button, index) => { button.querySelector('.gw-answer-text').textContent = current.answers[index]; });
     resetAnswerButtons();
+    answers.forEach((button, index) => { button.querySelector('.gw-answer-text').textContent = current.answers[index]; });
     feedback.textContent = '';
     next.disabled = true;
     next.hidden = true;
