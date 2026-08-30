@@ -20,4 +20,10 @@
   .rt-touch-controls{padding-bottom:max(8px,env(safe-area-inset-bottom));}
   .lc-dpad{margin-bottom:max(10px,env(safe-area-inset-bottom));}
   .return-video-panel{padding-bottom:max(8px,env(safe-area-inset-bottom));}
+
+  /* Keep entrance guidance readable without changing desktop typography. */
+  #entrance .count-label,
+  #entrance .countdown span{font-size:11px}
+  #entrance .lock-plaque p{font-size:11px}
+  #entrance .lock-plaque h2{font-size:21px}
 }
