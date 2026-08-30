@@ -154,6 +154,12 @@ Every input is resolved as one immediate atomic grid step; there is no input
 buffer or intermediate position. Lokum and every Treat stay centered in their
 grid cells, and idle/walk sprites use the same render size and anchor point.
 The total Quest-IV round duration is 80 seconds.
+Mobile Quest IV (up to 700px): a large, nearly full-width maze, compact
+MAZE/TIME/TREATS status, D-pad + Swipe, and the unchanged legend below the
+maze/D-pad. Each D-pad tap uses the existing one-cell, wall-checked move.
+The mobile cabinet follows its content and respects iPhone safe areas;
+desktop presentation, both mazes, timer, treats and completion stay unchanged.
+Mobile styles are isolated in lokumchallenge-mobile.css; style.css is untouched.
 
 QUEST MAP — ARCADE HALL
 The Quest Map uses the animated `arcade map.gif` as its permanent 80s arcade

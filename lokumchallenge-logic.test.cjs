@@ -16,7 +16,7 @@ assert.equal(L.CONFIG.MAZES[1].treats.length, 12);
 function pathToExit(maze) {
   const start = maze.start.join(',');
   const target = maze.exit.join(',');
-  const queue = [[maze.start[0], maze.start[1]];
+  const queue = [[maze.start[0], maze.start[1]]];
   const previous = new Map([[start, null]]);
   while (queue.length) {
     const [row, col] = queue.shift();
@@ -102,3 +102,66 @@ assert.equal(L.grade(0).title, 'NICE HUNT!');
 assert.equal(L.setElapsed(state, 90).elapsed, 80);
 
 console.log('PASS: Lokum Challenge movement regression QA');
+
+// Exercise the production DOM event wiring, including a touch/pointer/click
+// sequence, against the real movement function (no second movement model).
+const vm = require('node:vm');
+const fs = require('node:fs');
+function element() {
+  const listeners = new Map();
+  return {
+    hidden: false, style: {}, dataset: {}, children: [],
+    addEventListener(type, callback) {
+      if (!listeners.has(type)) listeners.set(type, []);
+      listeners.get(type).push(callback);
+    },
+    emit(type, event = {}) { for (const callback of listeners.get(type) || []) callback(event); },
+    replaceChildren() { this.children = []; },
+    appendChild(child) { this.children.push(child); },
+    focus() {}, setPointerCapture() {}
+  };
+}
+const nodes = new Map();
+const dom = {
+  getElementById(id) {
+    if (!nodes.has(id)) nodes.set(id, element());
+    return nodes.get(id);
+  },
+  createElement: element
+};
+const buttons = directions.map(direction => Object.assign(element(), { dataset: { lcDirection: direction } }));
+dom.getElementById('lokumChallengeScreen').querySelectorAll = () => buttons;
+let mobile = true;
+const win = Object.assign(element(), { matchMedia: () => ({ matches: mobile }) });
+vm.runInNewContext(fs.readFileSync(require.resolve('./lokumchallenge.js'), 'utf8'), {
+  document: dom, window: win, performance: { now: () => 0 },
+  requestAnimationFrame: () => 1, cancelAnimationFrame() {},
+  localStorage: { getItem: () => null, setItem() {} }
+});
+const game = win.__LOKUMCHALLENGE__;
+const position = () => { const s = game.getState(); return [s.row, s.col]; };
+function tap(direction) {
+  const button = buttons.find(b => b.dataset.lcDirection === direction);
+  for (const type of ['touchstart', 'pointerdown', 'touchend', 'pointerup', 'click']) button.emit(type);
+}
+game.start();
+game.forceExit(); // Maze 2 begins with a long corridor: a duplicate step is observable.
+assert.deepEqual(position(), [10, 0]);
+tap('up'); assert.deepEqual(position(), [9, 0], 'one tap must produce exactly one step');
+tap('down'); assert.deepEqual(position(), [10, 0]);
+tap('up'); tap('up'); tap('up');
+tap('right'); assert.deepEqual(position(), [7, 1]);
+tap('left'); assert.deepEqual(position(), [7, 0]);
+const mazeNode = dom.getElementById('lcMaze');
+mazeNode.emit('pointerdown', { pointerId: 1, clientX: 100, clientY: 100 });
+mazeNode.emit('pointerup', { pointerId: 1, clientX: 100, clientY: 150 });
+assert.deepEqual(position(), [8, 0], 'swipe still uses one grid step');
+tap('left'); assert.deepEqual(position(), [8, 0], 'D-pad cannot cross walls');
+mobile = false;
+tap('down'); assert.deepEqual(position(), [8, 0], 'D-pad is inactive on desktop');
+win.emit('keydown', { key: 'ArrowDown', preventDefault() {} });
+assert.deepEqual(position(), [9, 0], 'desktop arrow keys are unchanged');
+mobile = true;
+dom.getElementById('lokumChallengeScreen').hidden = true;
+tap('down'); assert.deepEqual(position(), [9, 0], 'hidden quest ignores D-pad input');
+console.log('PASS: Quest IV D-pad single-step, walls, swipe, desktop and visibility guards');

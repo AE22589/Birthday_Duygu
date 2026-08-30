@@ -7,6 +7,7 @@
 <meta name="description" content="Duygu's 43rd Birthday Adventure">
 <title>Duygu's 43rd Birthday Quest</title>
 <link rel="stylesheet" href="style.css?v=1.11.1">
+<link rel="stylesheet" href="lokumchallenge-mobile.css?v=1">
 </head>
 <body>
 <main id="app">
@@ -282,13 +283,37 @@
       <button id="lcBackToMapFromIntro" class="rt-textlink" type="button">BACK TO QUEST MAP</button>
     </section>
     <section id="lokumChallengeGame" class="rt-view lc-game" hidden aria-label="Lokum's Challenge game">
-      <div id="lcMaze" class="lc-maze" tabindex="0" role="application" aria-label="Maze. Use arrow keys or swipe to move Lokum.">
-        <img id="lcMazeImage" class="lc-maze-image" src="maze-01-new.png" alt="Lokum's Challenge maze">
+      <h2 class="lc-mobile-title">IV · LOKUM'S CHALLENGE</h2>
+      <div class="lc-stage">
         <div class="lc-image-hud" aria-live="polite"><strong id="lcMazeLabel" class="lc-image-hud-maze">1 / 2</strong><strong id="lcTimeCount" class="lc-image-hud-time">80</strong><strong id="lcTreatCount" class="lc-image-hud-treats">0 / 20</strong></div>
-        <div id="lcTreats" class="lc-treats" aria-hidden="true"></div>
-        <div id="lcLokumPosition" class="lc-lokum-position"><img id="lcLokum" class="lc-lokum" src="lokum-idle.png" alt="Lokum"></div>
-        <div class="lc-legend-toy" aria-label="Toy ball"><img src="treat-ball.png" alt=""><span>TOY BALL</span></div>
+        <div class="lc-maze-viewport">
+          <div id="lcMaze" class="lc-maze" tabindex="0" role="application" aria-label="Maze. Use arrow keys or swipe to move Lokum.">
+            <img id="lcMazeImage" class="lc-maze-image" src="maze-01-new.png" alt="Lokum's Challenge maze">
+            <div id="lcTreats" class="lc-treats" aria-hidden="true"></div>
+            <div id="lcLokumPosition" class="lc-lokum-position"><img id="lcLokum" class="lc-lokum" src="lokum-idle.png" alt="Lokum"></div>
+            <div class="lc-legend-toy" aria-label="Toy ball"><img src="treat-ball.png" alt=""><span>TOY BALL</span></div>
+          </div>
+        </div>
       </div>
+      <div class="lc-dpad" role="group" aria-label="Move Lokum">
+        <button type="button" data-lc-direction="up" aria-label="Move up">↑</button>
+        <button type="button" data-lc-direction="left" aria-label="Move left">←</button>
+        <span class="lc-dpad-center" aria-hidden="true">●</span>
+        <button type="button" data-lc-direction="right" aria-label="Move right">→</button>
+        <button type="button" data-lc-direction="down" aria-label="Move down">↓</button>
+      </div>
+      <section class="lc-mobile-legend" aria-label="Legend">
+        <h3>LEGEND</h3>
+        <ul>
+          <li><img src="lokum-idle.png" alt="">LOKUM / START</li>
+          <li><span class="lc-legend-exit" aria-hidden="true"></span>EXIT</li>
+          <li><span class="lc-legend-wall" aria-hidden="true"></span>WALL</li>
+          <li><img src="treat-fish.png" alt="">FISH TREAT</li>
+          <li><img src="treat-pink-fish.png" alt="">PINK FISH</li>
+          <li><img src="treat-heart.png" alt="">HEART TREAT</li>
+          <li><img src="treat-ball.png" alt="">TOY BALL</li>
+        </ul>
+      </section>
     </section>
     <section id="lokumChallengeResult" class="rt-view rt-result" hidden>
       <h1 class="rt-title" id="lcResultTitle">NICE HUNT!</h1>

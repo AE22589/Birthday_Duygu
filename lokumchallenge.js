@@ -196,6 +196,14 @@ if(typeof document!=='undefined')(function(){
   let swipeStart=null;
   mazeEl.addEventListener('pointerdown',e=>{if(!state.running)return;swipeStart={id:e.pointerId,x:e.clientX,y:e.clientY};mazeEl.setPointerCapture?.(e.pointerId);});
   mazeEl.addEventListener('pointerup',e=>{if(!swipeStart||swipeStart.id!==e.pointerId)return;const dx=e.clientX-swipeStart.x,dy=e.clientY-swipeStart.y;swipeStart=null;const threshold=22;if(Math.max(Math.abs(dx),Math.abs(dy))<threshold)return;move(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'));});
+  // One click event per tap; reuse the same wall-checked move as keyboard/swipe.
+  screenEl.querySelectorAll('[data-lc-direction]').forEach(button=>{
+    button.addEventListener('click',()=>{
+      if(view==='game'&&!screenEl.hidden&&window.matchMedia('(max-width:700px)').matches){
+        move(button.dataset.lcDirection);
+      }
+    });
+  });
   window.addEventListener('keydown',keydown);
   readyBtn?.addEventListener('click',start);retryBtn?.addEventListener('click',start);backBtn?.addEventListener('click',back);returnBtn?.addEventListener('click',back);
 

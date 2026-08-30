@@ -1,0 +1,40 @@
+/* Quest IV only. Keep existing style.css edits separate from this feature. */
+.lc-mobile-title,.lc-dpad,.lc-mobile-legend{display:none}
+.lc-stage{position:relative}
+
+@media(max-width:700px){
+  #lokumChallengeScreen{display:block;overflow-y:auto;overflow-x:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  #lokumChallengeScreen .lc-wrap{width:100%;max-width:100%}
+  #lokumChallengeScreen .lc-cabinet{width:100%;height:auto;min-height:0;border-width:2px;padding:6px;box-shadow:none}
+  #lokumChallengeScreen .lc-game{padding:0}
+  .lc-mobile-title{display:block;margin:6px 0 12px;color:#ff65ce;text-align:center;font:700 clamp(17px,4.5vw,21px)/1.2 monospace}
+  .lc-stage>.lc-image-hud{position:static;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:10px;font:700 16px/1.2 monospace}
+  .lc-stage>.lc-image-hud strong{position:static;width:auto;height:auto;padding:6px 2px;border:1px solid #00e5ff;border-radius:5px;background:#050815}
+  .lc-stage>.lc-image-hud strong:before{display:block;margin-bottom:3px;color:#00e5ff;font:700 11px/1 monospace}
+  .lc-image-hud-maze:before{content:'MAZE'}
+  .lc-image-hud-time:before{content:'TIME'}
+  .lc-image-hud-treats:before{content:'TREATS'}
+  /* Crop the existing 1600x1080 artwork to x=620,y=322,w=h=680.
+     Maze walls and all percentage-based game coordinates remain unchanged. */
+  .lc-maze-viewport{position:relative;width:100%;aspect-ratio:1;overflow:hidden;background:#030508}
+  .lc-maze-viewport .lc-maze{position:absolute;width:235.2941176471%;left:-91.1764705882%;top:-47.3529411765%;aspect-ratio:1600/1080}
+  .lc-maze .lc-lokum-position{width:4.4%;height:6.5185185185%}
+  .lc-maze .lc-treat{width:2.5%}
+  .lc-maze .lc-legend-toy{display:none}
+  .lc-dpad{display:grid;grid-template-columns:repeat(3,50px);grid-template-rows:repeat(3,50px);gap:4px;justify-content:center;margin:10px auto}
+  .lc-dpad button{width:50px;height:50px;min-width:44px;min-height:44px;padding:0;border:2px solid #00e5ff;border-radius:8px;background:#070b1a;color:#c9fbff;font:700 28px/1 monospace;touch-action:manipulation;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .lc-dpad button:active{background:#291333;box-shadow:0 0 10px #ff2e88,inset 0 0 10px #00e5ff}
+  .lc-dpad button:focus-visible{outline:2px solid #ff65ce;outline-offset:2px}
+  .lc-dpad [data-lc-direction=up]{grid-area:1/2}
+  .lc-dpad [data-lc-direction=left]{grid-area:2/1}
+  .lc-dpad [data-lc-direction=right]{grid-area:2/3}
+  .lc-dpad [data-lc-direction=down]{grid-area:3/2}
+  .lc-dpad-center{grid-area:2/2;display:grid;place-items:center;color:#ff65ce;font-size:22px}
+  .lc-mobile-legend{display:block;padding:8px;border:1px solid #ff2e88;border-radius:7px;background:#050815}
+  .lc-mobile-legend h3{margin:0 0 5px;color:#ff65ce;font:700 13px/1 monospace}
+  .lc-mobile-legend ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 8px;margin:0;padding:0;list-style:none}
+  .lc-mobile-legend li{display:flex;align-items:center;gap:7px;min-height:24px;color:#f1f4ff;font:700 11px/1.2 monospace}
+  .lc-mobile-legend img{width:24px;height:24px;object-fit:contain}
+  .lc-legend-wall{width:24px;border-top:3px solid #00e5ff}
+  .lc-legend-exit{width:15px;height:21px;margin:0 5px 0 4px;border:3px double #df00ff;border-radius:3px;box-shadow:0 0 4px #df00ff}
+}
