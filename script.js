@@ -223,7 +223,12 @@ function renderMap(){
   finalDoorHotspot.setAttribute('width',String(d.r*2));finalDoorHotspot.setAttribute('height',String(d.r*1.44));
   finalDoorHotspot.setAttribute('aria-label',state.completed.length===7?'The Final Door, unlocked':'The Final Door, locked');
   const r=g.return;
-  returnHotspot.setAttribute('x',String(r.x));returnHotspot.setAttribute('y',String(r.y));returnHotspot.setAttribute('width',String(r.w));returnHotspot.setAttribute('height',String(r.h));
+  const mobileReturnHit=window.matchMedia('(max-width:700px)').matches;
+  const returnHitHeight=mobileReturnHit?118:r.h;
+  returnHotspot.setAttribute('x',String(r.x));
+  returnHotspot.setAttribute('y',String(r.y-(returnHitHeight-r.h)/2));
+  returnHotspot.setAttribute('width',String(r.w));
+  returnHotspot.setAttribute('height',String(returnHitHeight));
   mapImage.setAttribute('aria-label',`Duygu's birthday quest map, ${active?`quest ${active} ready`:'all quests complete'}`);
 }
 function showQuestMap(){if(!isUnlocked()){showToast('The door is still locked...');return}state=loadState();entrance.hidden=true;timeTravelScreen.hidden=true;document.getElementById('roadTripScreen')?.setAttribute('hidden','');document.getElementById('paintItScreen')?.setAttribute('hidden','');document.getElementById('sucukMasterScreen')?.setAttribute('hidden','');document.getElementById('lokumChallengeScreen')?.setAttribute('hidden','');document.getElementById('memoryLaneScreen')?.setAttribute('hidden','');document.getElementById('puzzleScreen')?.setAttribute('hidden','');document.getElementById('wordChallengeScreen')?.setAttribute('hidden','');questScreen.hidden=false;renderMap();window.scrollTo(0,0)}
