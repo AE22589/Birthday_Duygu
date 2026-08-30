@@ -178,3 +178,7 @@ die Final Door. Nach der Rueckreise bleiben WELCOME BACK. und There's one last t
 gemeinsam sichtbar; der Videoscreen folgt spaeter.
 Beim Wechsel auf effektives 7/7 reagieren die Keyholes nach einer kurzen Pause
 nacheinander, bevor der permanente Final-Door-CTA erscheint.
+Der grosse Circle-Glow ist entfernt. Nach der ca. 280-ms-Keyhole-Sequenz erscheint
+das rein dekorative `final-door-animated-overlay.apng` (`pointer-events:none`);
+der vorhandene Final-Door-Hotspot bleibt die einzige Interaktion. Der CTA bleibt
+erhalten und die Nutzerin oeffnet die Tuer weiterhin selbst.
