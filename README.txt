@@ -173,3 +173,8 @@ remains visible; a personal video will be added in a later step.
 Before 8 September 2026 00:00, five quick Final Door clicks can open the existing
 admin dialog; code 1337 enables the session-only `duyguQaFinalComplete_v1` test
 state. It simulates 7/7 without changing `completed` and is inert after the cutoff.
+Bei effektivem 7/7 markiert ein permanenter SVG-CTA THE FINAL DOOR IS READY / OPEN THE DOOR
+die Final Door. Nach der Rueckreise bleiben WELCOME BACK. und There's one last thing for you.
+gemeinsam sichtbar; der Videoscreen folgt spaeter.
+Beim Wechsel auf effektives 7/7 reagieren die Keyholes nach einer kurzen Pause
+nacheinander, bevor der permanente Final-Door-CTA erscheint.
