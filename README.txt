@@ -170,3 +170,6 @@ then it shows “The door needs all seven keys.” At 7/7 it opens the final pop
 After activation, the return journey shows three text beats, then `returntime.gif`,
 followed by `WELCOME BACK.` and `There's one last thing for you.` The endscreen
 remains visible; a personal video will be added in a later step.
+Before 8 September 2026 00:00, five quick Final Door clicks can open the existing
+admin dialog; code 1337 enables the session-only `duyguQaFinalComplete_v1` test
+state. It simulates 7/7 without changing `completed` and is inert after the cutoff.

@@ -8,6 +8,7 @@ const CLICK_LIMIT=5;
 const CLICK_WINDOW_MS=2500;
 const STATE_KEY='duyguBirthdayQuestState_v1';
 const QA_UNLOCK_KEY='duyguQaUnlockAll_v1';
+const QA_FINAL_KEY='duyguQaFinalComplete_v1';
 const WRONG_CODE_MESSAGES=[
   ['Nice try. 👀','You’re pretty curious, aren’t you?\nBut this door is locked tighter than you think.'],
   ['Caught you snooping. 👀','Nice try, but this door is very well locked.\nYou’ll have to wait.'],
@@ -50,7 +51,7 @@ const NAMES=['The Road Trip','Paint It!','Sucuk Master',"Lokum's Challenge",'Mem
 const CHECKMARK_ANCHORS=[{x:190,y:665},{x:390,y:655},{x:535,y:645},{x:875,y:645},{x:1030,y:650},{x:1195,y:655},{x:1355,y:670}];
 const FINAL_DOOR_PROGRESS_SLOTS=[{x:630,y:201,width:30,height:48},{x:665,y:201,width:30,height:48},{x:699,y:201,width:30,height:48},{x:733,y:201,width:30,height:48},{x:767,y:201,width:30,height:48},{x:802,y:201,width:29,height:48},{x:835,y:201,width:30,height:48}];
 const STATUS_BADGE_ANCHORS=[{x:197,y:700},{x:404,y:700},{x:562,y:700},{x:916,y:700},{x:1072,y:700},{x:1229,y:700},{x:1386,y:700}];
-let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,lockoutTimer=null,mapQaClickCount=0,mapQaClickWindowStart=0,adminUnlockContext='entrance',lastWrongCodeIndex=-1,transitionRunning=false,state=loadState();
+let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,lockoutTimer=null,mapQaClickCount=0,mapQaClickWindowStart=0,finalQaClickCount=0,finalQaClickWindowStart=0,adminUnlockContext='entrance',lastWrongCodeIndex=-1,transitionRunning=false,state=loadState();
 
 function loadLockout(){try{const p=JSON.parse(localStorage.getItem(LOCKOUT_KEY)||'{}');return{attempts:Number.isInteger(p.attempts)?p.attempts:0,lockedUntil:Number.isFinite(p.lockedUntil)?p.lockedUntil:0}}catch{return{attempts:0,lockedUntil:0}}}
 function saveLockout(s){try{localStorage.setItem(LOCKOUT_KEY,JSON.stringify(s))}catch{}}
@@ -62,6 +63,8 @@ function registerWrongAttempt(){const s=loadLockout();s.attempts=(s.attempts||0)
 
 function loadState(){try{const p=JSON.parse(localStorage.getItem(STATE_KEY)||'{}');const c=Array.isArray(p.completed)?p.completed.filter(n=>Number.isInteger(n)&&n>=1&&n<=7):[];return{completed:[...new Set(c)].sort((a,b)=>a-b)}}catch{return{completed:[]}}}
 function isQaUnlockAllActive(){try{return sessionStorage.getItem(QA_UNLOCK_KEY)==='1'}catch{return false}}
+function isQaFinalActive(){if(Date.now()>=TARGET_MS)return false;try{return sessionStorage.getItem(QA_FINAL_KEY)==='1'}catch{return false}}
+function effectiveCompleted(){const c=new Set(state.completed);if(isQaFinalActive())for(let n=1;n<=7;n++)c.add(n);return c}
 function saveState(){try{localStorage.setItem(STATE_KEY,JSON.stringify({completed:state.completed}))}catch{}}
 function isMobile(){return window.matchMedia('(max-width:700px)').matches}
 function geometry(){return isMobile()?GEOMETRY.mobile:GEOMETRY.desktop}
@@ -172,7 +175,8 @@ function buildLockedLayer(g,active){
   });
 
   for(let n=1;n<=g.quests.length;n++){
-    const status=questStatus(n),anchor=STATUS_BADGE_ANCHORS[n-1];
+    const effective=effectiveCompleted(),anchor=STATUS_BADGE_ANCHORS[n-1];
+    const status=effective.has(n)?'completed':(n===currentQuest()?'ready':isQuestReachable(n)?'ready':'locked');
     const asset=status==='completed'?'checkmark.png':status==='ready'&&n===currentQuest()?'insertcoin.png':status==='locked'?'locked.png':null;
     if(!asset)continue;
     const image=document.createElementNS(NS,'image');image.classList.add('map-status-marker');image.setAttribute('href',asset);image.setAttributeNS('http://www.w3.org/1999/xlink','href',asset);image.setAttribute('pointer-events','none');
@@ -181,7 +185,7 @@ function buildLockedLayer(g,active){
 }
 function renderFinalDoorProgress(){
   let layer=document.getElementById('finalDoorProgress');if(!layer){layer=document.createElementNS(NS,'g');layer.id='finalDoorProgress';layer.setAttribute('pointer-events','none');svg.insertBefore(layer,controlsGroup)}layer.replaceChildren();
-  const count=new Set(state.completed.filter(n=>Number.isInteger(n)&&n>=1&&n<=7)).size;
+  const count=[...effectiveCompleted()].filter(n=>Number.isInteger(n)&&n>=1&&n<=7).length;
   FINAL_DOOR_PROGRESS_SLOTS.slice(0,count).forEach(slot=>{const rect=document.createElementNS(NS,'rect');rect.setAttribute('x',slot.x+5);rect.setAttribute('y',slot.y+5);rect.setAttribute('width',slot.width-10);rect.setAttribute('height',slot.height-10);rect.setAttribute('rx','3');rect.setAttribute('fill','rgba(114,240,164,.72)');rect.setAttribute('pointer-events','none');layer.appendChild(rect)});
 }
 
@@ -341,7 +345,7 @@ async function handleQuestActivation(n){
   }
 }
 async function startReturnTimeTravel(){finalDoorModal.hidden=true;returnTravelScreen.hidden=false;returnTravelGif.hidden=true;returnTravelText.className='return-travel-text';const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));for(const line of ['Well... you know the drill.','Hold on.',"Let's get you back home."]){returnTravelText.textContent=line;returnTravelText.classList.remove('is-visible');void returnTravelText.offsetWidth;returnTravelText.classList.add('is-visible');await wait(2500);returnTravelText.classList.remove('is-visible');await wait(250)}returnTravelText.hidden=true;returnTravelGif.hidden=false;await wait(4800);returnTravelGif.hidden=true;returnTravelText.hidden=false;returnTravelText.className='return-travel-text return-end-title';returnTravelText.textContent='WELCOME BACK.';returnTravelText.classList.add('is-visible');await wait(3000);returnTravelText.className='return-travel-text return-end-subtitle';returnTravelText.textContent="There's one last thing for you.";returnTravelText.classList.add('is-visible')}
-function handleFinalDoor(){const completedCount=new Set(state.completed.filter(n=>Number.isInteger(n)&&n>=1&&n<=7)).size;if(completedCount<7){toast.classList.add('final-door-locked');showToast('FINAL DOOR LOCKED\nThe door needs all seven keys.');setTimeout(()=>toast.classList.remove('final-door-locked'),2300);return}finalDoorModal.hidden=false;openFinalDoor.focus()}
+function handleFinalDoor(){const completedCount=[...effectiveCompleted()].filter(n=>Number.isInteger(n)&&n>=1&&n<=7).length;if(completedCount<7){toast.classList.add('final-door-locked');showToast('FINAL DOOR LOCKED\nThe door needs all seven keys.');setTimeout(()=>toast.classList.remove('final-door-locked'),2300);return}finalDoorModal.hidden=false;openFinalDoor.focus()}
 function handleReturn(){showEntrance();document.getElementById('roadTripScreen')?.setAttribute('hidden','');document.getElementById('paintItScreen')?.setAttribute('hidden','');document.getElementById('memoryLaneScreen')?.setAttribute('hidden','');document.getElementById('puzzleScreen')?.setAttribute('hidden','');document.getElementById('wordChallengeScreen')?.setAttribute('hidden','')}
 
 window.__DUYGU_APP_VERSION__=VERSION;
@@ -369,7 +373,7 @@ svg.addEventListener('pointerup',e=>{
   if(!mapQaClickWindowStart||now-mapQaClickWindowStart>CLICK_WINDOW_MS){mapQaClickWindowStart=now;mapQaClickCount=1}else mapQaClickCount++;
   if(mapQaClickCount>=CLICK_LIMIT){mapQaClickCount=0;mapQaClickWindowStart=0;openPreviewModal('mapQa')}
 });
-finalDoorHotspot.addEventListener('click',e=>{e.preventDefault();handleFinalDoor()});
+finalDoorHotspot.addEventListener('click',e=>{e.preventDefault();if(Date.now()<TARGET_MS){const now=performance.now();if(!finalQaClickWindowStart||now-finalQaClickWindowStart>CLICK_WINDOW_MS){finalQaClickWindowStart=now;finalQaClickCount=1}else finalQaClickCount++;if(finalQaClickCount>=CLICK_LIMIT){finalQaClickCount=0;finalQaClickWindowStart=0;openPreviewModal('finalDoorQa');return}}handleFinalDoor()});
 finalDoorHotspot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleFinalDoor()}});
 returnHotspot.addEventListener('click',e=>{e.preventDefault();handleReturn()});
 returnHotspot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleReturn()}});
@@ -392,6 +396,9 @@ unlockButton.addEventListener('click',()=>{
   if(adminUnlockContext==='mapQa'){
     try{sessionStorage.setItem(QA_UNLOCK_KEY,'1')}catch{}
     closePreviewModal();showQuestMap();showToast('Quest map QA unlock enabled.');
+  }else if(adminUnlockContext==='finalDoorQa'){
+    try{sessionStorage.setItem(QA_FINAL_KEY,'1')}catch{}
+    closePreviewModal();showQuestMap();showToast('Final Door QA mode enabled.');
   }else{
     previewGranted=true;closePreviewModal();unlockEntrance();startTimeTravelTransition();
   }
