@@ -18,9 +18,15 @@ async function prepare(page) {
   await page.addInitScript(() => {
     Date.now = () => new Date('2026-09-09T12:00:00+02:00').getTime();
     localStorage.clear();
-    localStorage.setItem('duyguBirthdayQuestState_v1', JSON.stringify({ completed: [1, 2, 3, 4, 5, 6, 7] }));
   });
   await page.goto('/index.html');
+  await expect(page.locator('#entrance')).toBeVisible();
+  await expect(page.locator('#questScreen')).toBeHidden();
+  await page.locator('#doorHit').click({ clickCount: 5, delay: 80, force: true });
+  await expect(page.locator('#adminModal')).toBeVisible();
+  await page.locator('#adminCode').fill('1337');
+  await page.locator('#unlock').click();
+  await expect(page.locator('#questScreen')).toBeVisible({ timeout: 12000 });
 }
 
 for (const viewport of viewports) {
@@ -30,11 +36,7 @@ for (const viewport of viewports) {
     test('Entrance, Map, Quest screens and final video remain usable', async ({ page }) => {
       const errors = monitor(page);
       await prepare(page);
-      await expect(page.locator('#entrance')).toBeVisible();
-      await expect(page.locator('#questScreen')).toBeHidden();
-      await page.locator('#doorHit').click({ force: true });
-      await expect(page.locator('#questScreen')).toBeVisible({ timeout: 12000 });
-
+      await expect(page.locator('#questScreen')).toBeVisible();
       const result = await page.evaluate(() => {
         const visible = [...document.querySelectorAll('body *')].filter(el => {
           const style = getComputedStyle(el); const r = el.getBoundingClientRect();
@@ -56,8 +58,6 @@ test.describe('Mobile release WebKit', () => {
   test('390x844 entrance and map smoke', async ({ page }) => {
     const errors = monitor(page);
     await prepare(page);
-    await expect(page.locator('#entrance')).toBeVisible();
-    await page.locator('#doorHit').click({ force: true });
     await expect(page.locator('#questScreen')).toBeVisible({ timeout: 12000 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     expect(errors).toEqual([]);
