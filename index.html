@@ -53,7 +53,7 @@
   </div>
   <section id="returnTravelScreen" class="return-travel-screen" hidden aria-live="polite">
     <p id="returnTravelText" class="return-travel-text"></p>
-    <div id="returnTravelGif" class="return-travel-gif" hidden><img src="returntime.gif" alt="Return journey"></div>
+    <div id="returnTravelGif" class="return-travel-gif" hidden><img data-src="returntime.gif" alt="Return journey"></div>
     <div id="returnVideoPanel" class="return-video-panel" hidden>
       <p class="return-end-title">WELCOME BACK.</p>
       <p class="return-end-subtitle">There's one last thing for you.</p>
@@ -66,7 +66,7 @@
   <section id="timeTravelScreen" class="time-travel-screen" hidden aria-live="polite" aria-label="A mysterious transition">
     <div class="time-travel-atmosphere" aria-hidden="true"></div>
     <p id="timeTravelText" class="time-travel-text"></p>
-    <div id="timeTravelStorm" class="time-travel-storm" hidden><picture><source media="(max-width: 700px)" srcset="Gewitter-mobile.gif"><img src="Gewitter.gif" alt="Lightning storm"></picture></div>
+    <div id="timeTravelStorm" class="time-travel-storm" hidden><picture><source media="(max-width: 700px)" data-srcset="Gewitter-mobile.gif"><img data-src="Gewitter.gif" alt="Lightning storm"></picture></div>
   </section>
 
   <section id="questScreen" class="screen quest-screen" hidden aria-label="Quest map">
@@ -87,7 +87,7 @@
               <feMerge><feMergeNode in="blur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
             </filter>
           </defs>
-          <image id="mapImage" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none" href="arcade map.gif" aria-hidden="true"></image>
+          <image id="mapImage" x="0" y="0" width="1536" height="1024" preserveAspectRatio="none" data-href="arcade map.gif" aria-hidden="true"></image>
           <image id="finalDoorAnimatedOverlay" x="675" y="260" width="190" height="255" preserveAspectRatio="xMidYMid meet" href="final-door-energy-effects-overlay-large.apng" aria-hidden="true" pointer-events="none"></image>
           <g id="activeLayer" aria-hidden="true">
             <circle id="activeRingGlow" class="active-ring-glow" cx="151" cy="157" r="38"></circle>
