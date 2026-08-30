@@ -22,9 +22,12 @@ jobs:
             npm install
           fi
       - run: npx playwright install --with-deps chromium webkit
-      - run: npx playwright test tests/e2e/mobile-release.spec.js --project=mobile-390 --project=mobile-430 --project=mobile-390-webkit
+      - name: Run mobile Playwright tests
+        env:
+          PLAYWRIGHT_FORCE_TTY: '1'
+        run: npx playwright test tests/e2e/mobile-release.spec.js --project=mobile-390 --project=mobile-430 --project=mobile-390-webkit --reporter=line
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
           name: mobile-release-playwright-artifacts
           path: |
