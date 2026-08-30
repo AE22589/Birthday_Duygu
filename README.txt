@@ -32,6 +32,10 @@ ARCHITEKTUR
   Wechseln.
 
 SPIELABLAUF
+Quest I: central spawn validation checks full future sprite paths, with larger
+spacing near the car and a reaction gap between stars and hazards. Unsafe spawns
+are skipped. The larger stars, detailed CSS arcade car and layered neon skyline
+use roadtrip-visual.css; controls, hitboxes, timer and rewards remain unchanged.
 - 3 Fahrspuren, Pfeiltasten (← →) oder Wischen zum Spurwechsel.
 - Sterne sammeln, Tonnen/Katzen ausweichen.
 - 60 Sekunden, 3 Leben, 15 Sterne zum Freischalten von Schlüssel I.

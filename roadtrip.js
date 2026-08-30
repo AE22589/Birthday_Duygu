@@ -49,9 +49,60 @@ function rtComputeVisual(progress, lane){
 }
 function rtIsInCollisionZone(y){ return y > RT_CONFIG.COLLISION_MIN_Y && y < RT_CONFIG.COLLISION_MAX_Y; }
 
+const RT_SPRITES = Object.freeze({
+  star: Object.freeze({ size:44, travelMs:2500 }),
+  barrel: Object.freeze({ size:34, travelMs:2850 }),
+  cat: Object.freeze({ size:34, travelMs:2850 })
+});
+const RT_SPAWN = Object.freeze({
+  // Conservative envelope also covers smaller mobile boards and rotation.
+  BOARD_WIDTH:240, BOARD_HEIGHT:180, STEP_MS:20, REACTION_MS:350
+});
+function rtSpriteBounds(o, progress=o.progress, boardWidth=RT_SPAWN.BOARD_WIDTH, boardHeight=RT_SPAWN.BOARD_HEIGHT){
+  const v=rtComputeVisual(progress,o.lane),size=RT_SPRITES[o.type].size;
+  const x=v.x*boardWidth/100,y=v.y*boardHeight/100;
+  // Matches transform-origin:center bottom, including a halo around the glyph.
+  return {left:x-size*v.scale/2-4,right:x+size*v.scale/2+4,
+    top:y+size*(1-v.scale)-4,bottom:y+size+4};
+}
+function rtCollisionWindow(o){
+  const entry=Math.pow((RT_CONFIG.COLLISION_MIN_Y-RT_CONFIG.HORIZON_Y)/(RT_CONFIG.CAR_Y-RT_CONFIG.HORIZON_Y),1/RT_CONFIG.EASE);
+  return {start:Math.max(0,(entry-o.progress)*o.travelMs),end:(1-o.progress)*o.travelMs};
+}
+function rtCanSpawn(candidate, active, boardWidth=RT_SPAWN.BOARD_WIDTH, boardHeight=RT_SPAWN.BOARD_HEIGHT){
+  if(!RT_SPRITES[candidate.type]||![0,1,2].includes(candidate.lane)||candidate.progress!==0)return false;
+  // Never weaken mobile spacing on a large screen. Read dimensions only at spawn.
+  const width=Math.min(boardWidth,RT_SPAWN.BOARD_WIDTH),height=Math.min(boardHeight,RT_SPAWN.BOARD_HEIGHT);
+  if(!(width>0&&height>0))return false;
+  return active.filter(o=>!o.hit&&o.progress<1).every(other=>{
+    const a=rtCollisionWindow(candidate),b=rtCollisionWindow(other);
+    const starHazard=(candidate.type==='star')!==(other.type==='star');
+    // A collectable never lures the player into a simultaneous hazard, in any lane.
+    if((candidate.lane===other.lane||starHazard)&&
+      a.start<b.end+RT_SPAWN.REACTION_MS&&b.start<a.end+RT_SPAWN.REACTION_MS)return false;
+    const until=Math.min(a.end,b.end);
+    for(let ms=0;ms<until;ms+=RT_SPAWN.STEP_MS){
+      const end=Math.min(until,ms+RT_SPAWN.STEP_MS);
+      const swept=o=>{
+        const first=rtSpriteBounds(o,o.progress+ms/o.travelMs,width,height);
+        const last=rtSpriteBounds(o,o.progress+end/o.travelMs,width,height);
+        return {left:Math.min(first.left,last.left),right:Math.max(first.right,last.right),
+          top:Math.min(first.top,last.top),bottom:Math.max(first.bottom,last.bottom)};
+      };
+      const x=swept(candidate),y=swept(other);
+      // Increasing safety margin towards the car. Swept bounds cover BETWEEN samples.
+      const depth=Math.max(candidate.progress+end/candidate.travelMs,other.progress+end/other.travelMs);
+      const gap=3+9*depth*depth;
+      if(x.left<y.right+gap&&x.right+gap>y.left&&x.top<y.bottom+gap&&x.bottom+gap>y.top)return false;
+    }
+    return true;
+  });
+}
+
 const RoadTripLogic = {
   CONFIG: RT_CONFIG, clampLane: rtClampLane, moveLane: rtMoveLane, swipeDirection: rtSwipeDirection,
-  advanceProgress: rtAdvanceProgress, computeVisual: rtComputeVisual, isInCollisionZone: rtIsInCollisionZone
+  advanceProgress: rtAdvanceProgress, computeVisual: rtComputeVisual, isInCollisionZone: rtIsInCollisionZone,
+  SPRITES:RT_SPRITES, SPAWN:RT_SPAWN, spriteBounds:rtSpriteBounds, collisionWindow:rtCollisionWindow, canSpawn:rtCanSpawn
 };
 if (typeof module !== 'undefined' && module.exports) module.exports = RoadTripLogic;
 
@@ -110,11 +161,16 @@ if (typeof document !== 'undefined') (function(){
   }
 
   function spawn(type, ln){
+    const config=RT_SPRITES[type];
+    if(!config)return null;
+    const o={type,lane:ln,progress:0,travelMs:config.travelMs,hit:false};
+    if(!rtCanSpawn(o,sprites,board.clientWidth,board.clientHeight))return null;
     const el = document.createElement('div');
     el.className = `sprite ${classFor(type)}`;
+    el.style.setProperty('--rt-sprite-size',config.size+'px');
     el.innerHTML = `<span class="sprite-glyph">${glyphFor(type)}</span>`;
     spritesLayer.appendChild(el);
-    const o = { type, lane: ln, progress: 0, travelMs: type === 'star' ? 2500 : 2850, hit: false, el };
+    o.el=el;
     sprites.push(o);
     paintSprite(o);
     return o;
@@ -297,17 +353,17 @@ if (typeof document !== 'undefined') (function(){
     [['skylineLeft', false], ['skylineRight', true]].forEach(([id, mirrored]) => {
       const layer = $(id);
       if (!layer) return;
-      const count = 6;
+      const count = 12;
       for (let i = 0; i < count; i++) {
         const b = document.createElement('div');
-        b.className = 'rt-building';
+        b.className = 'rt-building'+(i%2===0?' rt-building-far':' rt-building-near');
         const w = 10 + (i % 3) * 6;
         const h = 30 + ((i * 37) % 60);
         const leftPct = (i / count) * 100;
         b.style.width = w + '%';
         b.style.height = h + '%';
         b.style.left = (mirrored ? (100 - leftPct - w) : leftPct) + '%';
-        const windowCount = 2 + (i % 3);
+        const windowCount = 5 + (i % 4);
         for (let w2 = 0; w2 < windowCount; w2++) {
           const win = document.createElement('i');
           if ((i + w2) % 2 === 0) win.classList.add('pink');
