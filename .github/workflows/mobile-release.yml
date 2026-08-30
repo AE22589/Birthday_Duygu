@@ -50,16 +50,22 @@ jobs:
             first_error=$(grep -n -m1 -E 'Error:|\bFAIL\b|[0-9]+ failed' mobile-release.log | cut -d: -f1 || true)
             if [ -n "$first_error" ]; then
               end=$((first_error + 24))
-              sed -n "${first_error},${end}p" mobile-release.log
+              failure_block=$(sed -n "${first_error},${end}p" mobile-release.log)
+              printf '%s\n' "$failure_block"
+              annotation=$(printf '%s' "$failure_block" | tr '\n' ' ' | tr '\r' ' ' | cut -c1-900)
+              printf '::error title=First Playwright failure::%s\n' "$annotation"
               {
                 echo '### First Playwright failure'
-                sed -n "${first_error},${end}p" mobile-release.log
+                printf '%s\n' "$failure_block"
               } >> "$GITHUB_STEP_SUMMARY"
             else
-              tail -n 30 mobile-release.log
+              failure_block=$(tail -n 30 mobile-release.log)
+              printf '%s\n' "$failure_block"
+              annotation=$(printf '%s' "$failure_block" | tr '\n' ' ' | tr '\r' ' ' | cut -c1-900)
+              printf '::error title=Playwright failure fallback::%s\n' "$annotation"
               {
                 echo '### Playwright failure fallback'
-                tail -n 30 mobile-release.log
+                printf '%s\n' "$failure_block"
               } >> "$GITHUB_STEP_SUMMARY"
             fi
           else
