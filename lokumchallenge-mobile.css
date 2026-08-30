@@ -30,7 +30,7 @@
   .lc-dpad [data-lc-direction=right]{grid-area:2/3}
   .lc-dpad [data-lc-direction=down]{grid-area:3/2}
   .lc-dpad-center{grid-area:2/2;display:grid;place-items:center;color:#ff65ce;font-size:22px}
-  .lc-mobile-legend{display:block;padding:8px;border:1px solid #ff2e88;border-radius:7px;background:#050815}
+  .lc-mobile-legend{display:none}
   .lc-mobile-legend h3{margin:0 0 5px;color:#ff65ce;font:700 13px/1 monospace}
   .lc-mobile-legend ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 8px;margin:0;padding:0;list-style:none}
   .lc-mobile-legend li{display:flex;align-items:center;gap:7px;min-height:24px;color:#f1f4ff;font:700 11px/1.2 monospace}
