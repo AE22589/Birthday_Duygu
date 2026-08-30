@@ -16,11 +16,11 @@ function monitor(page) {
 
 async function prepare(page) {
   await page.addInitScript(() => {
-    Date.now = () => new Date('2026-09-09T12:00:00+02:00').getTime();
     localStorage.clear();
   });
   await page.goto('/index.html');
   await expect(page.locator('#entrance')).toBeVisible();
+  await expect(page.locator('#doorHit')).toBeVisible();
   await expect(page.locator('#questScreen')).toBeHidden();
   for (let i = 0; i < 5; i++) {
     await page.locator('#doorHit').click({ force: true });
