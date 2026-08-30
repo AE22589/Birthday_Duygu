@@ -311,7 +311,8 @@ if (typeof document !== 'undefined') (function(){
   }
   document.addEventListener('keydown', onKey);
   document.querySelectorAll('.rt-touch-controls button').forEach(btn => {
-    btn.addEventListener('click', () => move(Number(btn.dataset.move)));
+    btn.addEventListener('pointerdown', e => { e.preventDefault(); move(Number(btn.dataset.move)); }, { passive:false });
+    btn.addEventListener('click', e => { if (e.detail === 0) move(Number(btn.dataset.move)); });
   });
   board.addEventListener('pointerdown', e => { touchStartX = e.clientX; });
   board.addEventListener('pointerup', e => {

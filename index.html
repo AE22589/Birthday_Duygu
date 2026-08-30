@@ -101,6 +101,7 @@
           <rect id="returnHotspot" class="svg-hotspot return-hotspot-svg" x="26" y="657" width="190" height="36" rx="4" role="button" tabindex="0" aria-label="Return to the door"></rect>
         </svg>
       </div>
+      <div id="mobileFinalDoorCta" class="mobile-final-door-cta" hidden><strong>THE FINAL DOOR IS READY</strong><button id="mobileFinalDoorButton" type="button">OPEN THE DOOR</button></div>
     </div>
   </section>
 
@@ -221,7 +222,9 @@
           <img id="piDuygu" class="pi-duygu" src="duygu.png" alt="">
           <div id="piRoller" class="pi-roller"></div>
         </div>
+        <p id="piPaintLegend" class="pi-paint-legend">Paint each tile to fully cover it.</p>
         <p class="rt-note">Drag to paint. Lokum may undo a finished tile now and then.</p>
+        <p id="piPawHint" class="pi-paw-hint" aria-live="polite" hidden>Oh no — Lokum left paw prints! Paint over them again.</p>
       </section>
 
       <section id="paintItResult" class="rt-view rt-result" hidden>
@@ -245,7 +248,7 @@
       <p class="rt-subtitle">✦ ARCADE EDITION ✦</p>
       <p class="rt-hint">Take each sucuk out in the golden window. Too early has no penalty — keep browning until it is ready.</p>
       <p class="rt-hint">Miss the window and the sucuk burns. A burnt pan stays blocked until you clear it.</p>
-      <div class="rt-rules"><span>🍳 4 pans</span><span>⏱ 60 seconds</span><span>✨ Golden window</span><span>🔥 Clear burnt pans</span></div>
+      <div class="rt-rules"><span>🍳 4 pans</span><span>⏱ 60 seconds</span><span>✨ Golden window</span><span>🔥 Clear burnt pans</span><span id="smGoalLegend">Serve 5 sucuk successfully to feed everyone!</span></div>
       <button id="smReadyButton" class="rt-btn" type="button">I'M READY</button>
       <button id="smBackToMapFromIntro" class="rt-textlink" type="button">BACK TO QUEST MAP</button>
     </section>
@@ -327,13 +330,13 @@
     <section id="puzzleIntro" class="rt-view rt-intro" aria-labelledby="puzzleTitle">
       <h1 class="rt-title" id="puzzleTitle">OUR LITTLE PUZZLE</h1>
       <p class="rt-subtitle">✦ PLACE EDITION ✦</p>
-      <p class="rt-hint">Place every picture piece in its matching position. Use drag and drop, or tap a piece and then a free slot.</p>
+      <p class="rt-hint">Place every picture piece in its matching position. Tap a piece, then tap a free slot.</p>
       <div class="rt-rules"><span>▦ 2 × 3 GRID</span><span>🧩 6 PIECES</span><span>∞ NO TIME LIMIT</span><span>☝ DRAG / TAP</span></div>
       <button id="pzReadyButton" class="rt-btn" type="button">I'M READY</button>
       <button id="pzBackButton" class="rt-textlink" type="button">BACK TO QUEST MAP</button>
     </section>
     <section id="puzzleGame" class="rt-view pz-game" hidden aria-label="Our Little Puzzle game">
-      <p class="pz-instruction">PLACE ALL SIX PIECES IN THE RIGHT SPOTS</p>
+      <p class="pz-instruction">Tap a piece, then tap a free slot.</p>
       <div class="pz-layout"><figure class="pz-reference"><figcaption>REFERENCE</figcaption><img src="assets/quest-vi/puzzle-source.jpeg" alt="Completed puzzle reference"></figure><div id="pzBoard" class="pz-board" role="grid" aria-label="Empty 2 by 3 puzzle board"></div><div class="pz-palette-wrap"><div id="pzPalette" class="pz-palette" role="list" aria-label="Puzzle pieces"></div><button id="pzReturnPiece" class="rt-textlink pz-return-piece" type="button" hidden>RETURN SELECTED PIECE</button></div></div>
       <button id="pzGameBackButton" class="rt-textlink" type="button">BACK TO QUEST MAP</button>
     </section>

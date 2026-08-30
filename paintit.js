@@ -90,11 +90,13 @@ if (typeof document !== 'undefined') (function(){
   const readyBtn = $('piReadyButton'), backFromIntro = $('piBackToMapFromIntro');
   const retryBtn = $('piRetry'), returnBtn = $('piReturnToMapFromResult');
   const resultTitle = $('piResultTitle'), resultMessage = $('piResultMessage'), resultCoverage = $('piResultCoverage'), keyReward = $('piKeyReward');
+  const pawHint = $('piPawHint'), paintLegend = $('piPaintLegend');
 
   if (!screenEl || !wall || !cellsLayer) return; // defensiv: Seite unvollständig geladen
+  if (paintLegend) paintLegend.textContent = `Paint each tile ${PASSES} times to fully cover it.`;
 
   let view = 'intro';
-  let running = false, timerHandle = null, pawHandle = null, startAt = 0, elapsed = 0;
+  let running = false, timerHandle = null, pawHandle = null, pawHintHandle = null, startAt = 0, elapsed = 0;
   let grid = piCreateGrid(COLS, ROWS);
   let pawFlags = piCreateGrid(COLS, ROWS).map(() => false);
   let cellEls = [];
@@ -197,6 +199,7 @@ if (typeof document !== 'undefined') (function(){
       pawFlags[index] = true;
       cellEls[index].paint.style.opacity = String(grid[index] / PASSES);
       cellEls[index].paw.hidden = false;
+      if (pawHint) { pawHint.hidden = false; clearTimeout(pawHintHandle); pawHintHandle = setTimeout(() => { pawHint.hidden = true; }, 2800); }
       updateHud();
       scheduleNextPaw();
     });

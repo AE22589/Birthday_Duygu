@@ -78,6 +78,7 @@ if (typeof document !== 'undefined') (function () {
     wordCounter.textContent = `WORD ${String(questionIndex + 1).padStart(2, '0')}/10`;
     scoreCounter.textContent = `SCORE ${score}/10`;
     word.textContent = current.word;
+    word.classList.toggle('long-word', current.word.length > 10);
     resetAnswerButtons();
     answers.forEach((button, index) => { button.querySelector('.gw-answer-text').textContent = current.answers[index]; });
     feedback.textContent = '';

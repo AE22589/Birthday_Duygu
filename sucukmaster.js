@@ -62,7 +62,9 @@ if(typeof document!=='undefined')(function(){
   const hudTime=$('smTimeCount'),hudPerfect=$('smPerfectCount');
   const readyBtn=$('smReadyButton'),backBtn=$('smBackToMapFromIntro'),retryBtn=$('smRetry'),returnBtn=$('smReturnToMapFromResult');
   const resultTitle=$('smResultTitle'),resultPerfect=$('smResultPerfect'),keyReward=$('smKeyReward');
+  const goalLegend=$('smGoalLegend');
   if(!screenEl||!slotsLayer||!plateEl)return;
+  if(goalLegend)goalLegend.textContent=`Serve ${SM_CONFIG.RESULT.WELL} sucuk successfully to feed everyone!`;
 
   let view='intro',running=false,raf=0,startAt=0,elapsed=0,lastSpawnAt=0,nextSpawnDelay=2500;
   let slots=smCreateSlots(),perfectSucuks=0,plateCount=0;

@@ -67,6 +67,8 @@ Rollen-Cursor trägt die tatsächliche Mal-Interaktion.
 - Unter 90% bei Zeitablauf: "NOT QUITE THERE", kein Schlüssel, sofort
   erneut spielbar (kein Reset nötig).
 - Einzelne Wandfarbe (Cyan), passend zum bestehenden Arcade-Farbschema.
+- Die Spielansicht zeigt dauerhaft die tatsächlichen 4 Durchgänge pro Feld;
+  bei neuen Pfotenabdrücken erscheint ein kurzer Hinweis zum Überstreichen.
 
 ARCHITEKTURREGEL FÜR QUESTS II–VII (verbindlich, siehe
 PROJECT_REQUIREMENTS.docx Abschnitt 9) — bei QUEST-002 erstmals
@@ -105,6 +107,7 @@ individual production assets from the project root. The pure timing/state logic 
 unit-tested and the browser flow has a dedicated Playwright E2E suite. Quest III uses
 four pan slots, one browning cycle per sucuk, a 65–90% golden success window, a
 60-second round, and the approved result/key thresholds from the current design concept.
+The intro legend states the actual minimum of five successfully served sucuks.
 
 The current approved gameplay/design source is PROJECT_REQUIREMENTS.docx (concept v2.0).
 
@@ -124,6 +127,8 @@ the shuffled palette into any free slot and back; on mobile, tap a piece and the
 a free slot, with placed pieces returnable to the palette. There is no time limit,
 and the quest succeeds only when all six pieces occupy their exact matching slots.
 Solving it stores Quest 6 in the shared progress state and unlocks Quest VII.
+The mobile game view keeps a compact tap instruction visible and uses a larger
+single-column layout for the three puzzle panels.
 
 QUEST VII — GERMAN WORD CHALLENGE
 Quest VII uses ten fixed German words in this order: LÜFTEN, GARDINE,
@@ -192,8 +197,8 @@ Der grosse Circle-Glow ist entfernt. Nach der ca. 280-ms-Keyhole-Sequenz erschei
 das rein dekorative Effect-only-Overlay `final-door-energy-effects-overlay-large.apng`
 mit transparenten Licht-/Energieeffekten (`pointer-events:none`), das erst nach der
 Keyhole-Unlock-Sequenz bei effektivem 7/7 eingeblendet wird;
-der vorhandene Final-Door-Hotspot bleibt die einzige Interaktion. Der CTA bleibt
-erhalten und die Nutzerin oeffnet die Tuer weiterhin selbst.
+der vorhandene Final-Door-Hotspot bleibt unverändert; mobil ergänzt ein großer
+CTA dieselbe Öffnen-Aktion außerhalb der Map.
 Der erste Rueckreise-Text lautet `One last trip.`. Der finale Return-Endscreen zeigt anschliessend dauerhaft `WELCOME BACK.`, den
 ruhigen Videoscreen mit dem Label `A MESSAGE FROM HOME`, dem Platzhalter `Testvideo.mp4` und dem manuellen Button
 `PLAY MY MESSAGE` (mit `Turn the sound on.`). Das Video startet nicht automatisch,
