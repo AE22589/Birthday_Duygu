@@ -167,3 +167,6 @@ right; this uses only unique completed quest IDs 1–7, and QA unlocks do not co
 The Final Door stays locked until all seven real completions are present. Before
 then it shows “The door needs all seven keys.” At 7/7 it opens the final popup;
 `OPEN THE FINAL DOOR` is reserved for the later return journey.
+After activation, the return journey shows three text beats, then `returntime.gif`,
+followed by `WELCOME BACK.` and `There's one last thing for you.` The endscreen
+remains visible; a personal video will be added in a later step.
