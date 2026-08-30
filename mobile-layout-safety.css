@@ -1,5 +1,6 @@
 /* Mobile viewport safety; desktop rules remain untouched. */
 @media (max-width:700px){
+  #entrance .entrance-bg{background-image:url('entrance-scene-mobile.gif')}
   html,body{overflow-x:hidden}
   #entrance,
   #roadTripScreen,
