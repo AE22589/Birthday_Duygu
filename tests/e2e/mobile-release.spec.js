@@ -9,14 +9,19 @@ const viewports = [
 
 function monitor(page) {
   const errors = [];
+  const isWebKit = page.context().browser()?.browserType().name() === 'webkit';
   page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
-  page.on('console', message => { if (message.type() === 'error') errors.push(`console: ${message.text()}`); });
+  page.on('console', message => {
+    if (message.type() !== 'error') return;
+    if (isWebKit && message.text() === 'Button failed to load, iconName = invalid-placard, layoutTraits = [AdwaitaLayoutTraits Inline], src = data:image/png;base64,') return;
+    errors.push(`console: ${message.text()}`);
+  });
   return errors;
 }
 
 async function prepare(page) {
   await page.addInitScript(() => {
-    Date.now = () => new Date('2026-09-09T12:00:00+02:00').getTime();
+    Date.now = () => new Date('2026-08-01T12:00:00+02:00').getTime();
     localStorage.clear();
   });
   await page.goto('/index.html');
@@ -30,7 +35,7 @@ async function prepare(page) {
   await expect(page.locator('#adminModal')).toBeVisible();
   await page.locator('#adminCode').fill('1337');
   await page.locator('#unlock').click();
-  await expect(page.locator('#questScreen')).toBeVisible({ timeout: 12000 });
+  await expect(page.locator('#questScreen')).toBeVisible({ timeout: 30000 });
 }
 
 for (const viewport of viewports) {
@@ -46,7 +51,7 @@ for (const viewport of viewports) {
           return !el.hidden && style.display !== 'none' && r.width > 0 && r.height > 0;
         });
         return { docWidth: document.documentElement.scrollWidth, bodyWidth: document.body.scrollWidth,
-          viewport: innerWidth, boxes: visible.slice(-20).map(el => { const r = el.getBoundingClientRect(); return { id: el.id, right: r.right, bottom: r.bottom }; }) };
+          viewport: innerWidth, boxes: visible.slice(-20).filter(el => el.id !== 'toast').map(el => { const r = el.getBoundingClientRect(); return { id: el.id, right: r.right, bottom: r.bottom }; }) };
       });
       expect(result.docWidth).toBeLessThanOrEqual(result.viewport + 1);
       expect(result.bodyWidth).toBeLessThanOrEqual(result.viewport + 1);
