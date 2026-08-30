@@ -1,0 +1,23 @@
+/* Mobile viewport safety; desktop rules remain untouched. */
+@media (max-width:700px){
+  html,body{overflow-x:hidden}
+  #entrance,
+  #roadTripScreen,
+  #paintItScreen,
+  #sucukMasterScreen,
+  #lokumChallengeScreen,
+  #puzzleScreen,
+  #wordChallengeScreen,
+  #memoryLaneScreen,
+  #returnTravelScreen{
+    overflow-x:hidden;
+    overflow-y:auto;
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  #questScreen,#timeTravelScreen{overflow:hidden}
+  .rt-cabinet{min-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));}
+  .rt-touch-controls{padding-bottom:max(8px,env(safe-area-inset-bottom));}
+  .lc-dpad{margin-bottom:max(10px,env(safe-area-inset-bottom));}
+  .return-video-panel{padding-bottom:max(8px,env(safe-area-inset-bottom));}
+}
