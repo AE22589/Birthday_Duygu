@@ -7,13 +7,14 @@
 /* The element keeps the original 34x56 gameplay anchor/hitbox; only the
    transparent, proportional artwork extends around that anchor visually. */
 #roadTripScreen #playerCar.rt-car{overflow:visible}
-#roadTripScreen .rt-car-image{position:absolute;left:50%;top:0;width:56px;height:56px;transform:translateX(-50%);display:block;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
+#roadTripScreen .rt-car-image{position:absolute;left:50%;top:0;width:56px;height:56px;transform:translateX(-50%) rotate(180deg);display:block;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
 
 /* Keep the car's existing dimensions, lane anchors and hitbox. */
 #roadTripScreen .rt-horizon-glow{width:90%;height:38%;top:0;background:radial-gradient(ellipse at 50% 35%,#ff2e883d,transparent 62%),radial-gradient(ellipse at 30% 70%,#00e5ff1f,transparent 65%)}
 #roadTripScreen .rt-skyline{width:27%;height:72%}
 #roadTripScreen .rt-building{border-top:2px solid #69418a;border-left:1px solid #653768;background:linear-gradient(90deg,#191831,#201733 55%,#100d23);box-shadow:inset -3px 0 #090c1d}
 #roadTripScreen .rt-building-far{bottom:15%;opacity:.45;transform:scale(.85);transform-origin:bottom;filter:saturate(.65)}
+#roadTripScreen .rt-building-mid{bottom:7%;opacity:.72;transform:scale(.93);transform-origin:bottom;filter:saturate(.82)}
 #roadTripScreen .rt-building-near{z-index:1;border-top-color:#884478}
 #roadTripScreen .rt-building-near:before{content:'';position:absolute;top:-10px;left:30%;height:9px;width:2px;background:#99548a;box-shadow:0 -2px 3px #ff65ce}
 #roadTripScreen .rt-building i{width:3px;height:5px;background:#ffd78f;box-shadow:0 0 4px currentColor;color:#ffd78f;animation:rtWindowPulse 4.8s steps(1,end) infinite}

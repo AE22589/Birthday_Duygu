@@ -353,10 +353,11 @@ if (typeof document !== 'undefined') (function(){
     [['skylineLeft', false], ['skylineRight', true]].forEach(([id, mirrored]) => {
       const layer = $(id);
       if (!layer) return;
-      const count = 12;
+      const count = 18;
       for (let i = 0; i < count; i++) {
         const b = document.createElement('div');
-        b.className = 'rt-building'+(i%2===0?' rt-building-far':' rt-building-near');
+        const depth = i % 3;
+        b.className = 'rt-building ' + (depth===0 ? 'rt-building-far' : depth===1 ? 'rt-building-mid' : 'rt-building-near');
         const w = 10 + (i % 3) * 6;
         const h = 30 + ((i * 37) % 60);
         const leftPct = (i / count) * 100;
