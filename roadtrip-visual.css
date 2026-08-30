@@ -7,7 +7,7 @@
 /* The element keeps the original 34x56 gameplay anchor/hitbox; only the
    transparent, proportional artwork extends around that anchor visually. */
 #roadTripScreen #playerCar.rt-car{overflow:visible}
-#roadTripScreen .rt-car-image{position:absolute;left:50%;top:0;width:56px;height:56px;transform:translateX(-50%) rotate(180deg);display:block;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
+#roadTripScreen .rt-car-image{position:absolute;left:50%;top:0;width:56px;height:56px;transform:translateX(-50%) rotateZ(180deg);display:block;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
 
 /* Keep the car's existing dimensions, lane anchors and hitbox. */
 #roadTripScreen .rt-horizon-glow{width:90%;height:38%;top:0;background:radial-gradient(ellipse at 50% 35%,#ff2e883d,transparent 62%),radial-gradient(ellipse at 30% 70%,#00e5ff1f,transparent 65%)}
