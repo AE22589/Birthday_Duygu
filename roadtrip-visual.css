@@ -4,15 +4,12 @@
 #roadTripScreen .sprite.star{color:#ffe66b;text-shadow:0 2px 0 #b87515,0 0 5px #ffcf45}
 #roadTripScreen .sprite.star .sprite-glyph{font-family:Arial,sans-serif}
 
-/* Keep the car's existing dimensions, lane anchors and hitbox. */
-#roadTripScreen .car-body{border-radius:5px 5px 2px 2px;border-color:#470f40;background:linear-gradient(90deg,#9b255e 0 12%,#ff498c 12% 25%,#ff86b6 25% 32%,#ed347c 32% 75%,#a82b71 75%);box-shadow:inset 0 3px #ffc5e3,inset 0 -5px #481e53,0 2px #090d24}
-#roadTripScreen .car-body:before{content:'';position:absolute;left:1px;right:1px;top:4px;height:4px;background:linear-gradient(90deg,#e1ffff 0 25%,transparent 25% 75%,#e1ffff 75%);filter:drop-shadow(0 0 3px #00e5ff)}
-#roadTripScreen .car-body:after{content:'';position:absolute;left:-3px;right:-3px;bottom:3px;height:5px;border-top:2px solid #ffa1cf;background:linear-gradient(90deg,#ff315c 0 22%,#331431 22% 78%,#ff315c 78%);box-shadow:0 2px #120d26}
-#roadTripScreen .car-windshield{top:18%;height:24%;border:1px solid #145478;border-radius:2px;background:linear-gradient(135deg,#dcffff 0 15%,#56cfef 16% 35%,#21507c 36% 75%,#071a37 76%);box-shadow:0 1px #fc9ccf}
-#roadTripScreen .car-roof{top:47%;height:22%;left:20%;right:20%;background:linear-gradient(90deg,#b92871,#ff72a5 35%,#da327c);border:1px solid #812055;box-shadow:0 4px #12314e}
-#roadTripScreen .car-stripe{width:4px;background:#ffb5da;opacity:.8}
-#roadTripScreen .wheel{border-radius:1px;background:linear-gradient(90deg,#080918,#343251,#080918);box-shadow:inset 0 2px #726285,inset 0 -2px #020412}
+/* The element keeps the original 34x56 gameplay anchor/hitbox; only the
+   transparent, proportional artwork extends around that anchor visually. */
+#roadTripScreen #playerCar.rt-car{overflow:visible}
+#roadTripScreen .rt-car-image{position:absolute;left:50%;top:0;width:56px;height:56px;transform:translateX(-50%);display:block;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
 
+/* Keep the car's existing dimensions, lane anchors and hitbox. */
 #roadTripScreen .rt-horizon-glow{width:90%;height:38%;top:0;background:radial-gradient(ellipse at 50% 35%,#ff2e883d,transparent 62%),radial-gradient(ellipse at 30% 70%,#00e5ff1f,transparent 65%)}
 #roadTripScreen .rt-skyline{width:27%;height:72%}
 #roadTripScreen .rt-building{border-top:2px solid #69418a;border-left:1px solid #653768;background:linear-gradient(90deg,#191831,#201733 55%,#100d23);box-shadow:inset -3px 0 #090c1d}
