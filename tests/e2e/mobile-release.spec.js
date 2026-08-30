@@ -22,7 +22,10 @@ async function prepare(page) {
   await page.goto('/index.html');
   await expect(page.locator('#entrance')).toBeVisible();
   await expect(page.locator('#questScreen')).toBeHidden();
-  await page.locator('#doorHit').click({ clickCount: 5, delay: 80, force: true });
+  for (let i = 0; i < 5; i++) {
+    await page.locator('#doorHit').click({ force: true });
+    await page.waitForTimeout(100);
+  }
   await expect(page.locator('#adminModal')).toBeVisible();
   await page.locator('#adminCode').fill('1337');
   await page.locator('#unlock').click();
