@@ -41,6 +41,32 @@ jobs:
           else
             echo "mobile-release.log not found"
           fi
+      - name: Extract first Playwright failure
+        if: always()
+        shell: bash
+        run: |
+          echo "=== FIRST PLAYWRIGHT FAILURE ==="
+          if [ -f mobile-release.log ]; then
+            first_error=$(grep -n -m1 -E 'Error:|\bFAIL\b|[0-9]+ failed' mobile-release.log | cut -d: -f1 || true)
+            if [ -n "$first_error" ]; then
+              end=$((first_error + 24))
+              sed -n "${first_error},${end}p" mobile-release.log
+              {
+                echo '### First Playwright failure'
+                sed -n "${first_error},${end}p" mobile-release.log
+              } >> "$GITHUB_STEP_SUMMARY"
+            else
+              tail -n 30 mobile-release.log
+              {
+                echo '### Playwright failure fallback'
+                tail -n 30 mobile-release.log
+              } >> "$GITHUB_STEP_SUMMARY"
+            fi
+          else
+            echo "mobile-release.log not found"
+            echo '### Playwright failure' >> "$GITHUB_STEP_SUMMARY"
+            echo 'mobile-release.log not found' >> "$GITHUB_STEP_SUMMARY"
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         continue-on-error: true
