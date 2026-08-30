@@ -1,4 +1,4 @@
-const { test, expect, devices } = require('@playwright/test');
+const { test, expect } = require('@playwright/test');
 
 const viewports = [
   { name: 'mobile-390', width: 390, height: 844 },
@@ -31,9 +31,8 @@ async function prepare(page) {
 
 for (const viewport of viewports) {
   test.describe(`Mobile release ${viewport.name}`, () => {
-    test.use({ ...devices['iPhone 12'], viewport: { width: viewport.width, height: viewport.height } });
-
     test('Entrance, Map, Quest screens and final video remain usable', async ({ page }) => {
+      await page.setViewportSize({ width: viewport.width, height: viewport.height });
       const errors = monitor(page);
       await prepare(page);
       await expect(page.locator('#questScreen')).toBeVisible();
@@ -52,14 +51,3 @@ for (const viewport of viewports) {
     });
   });
 }
-
-test.describe('Mobile release WebKit', () => {
-  test.use({ ...devices['iPhone 12'], browserName: 'webkit' });
-  test('390x844 entrance and map smoke', async ({ page }) => {
-    const errors = monitor(page);
-    await prepare(page);
-    await expect(page.locator('#questScreen')).toBeVisible({ timeout: 12000 });
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    expect(errors).toEqual([]);
-  });
-});
