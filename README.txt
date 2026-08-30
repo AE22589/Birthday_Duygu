@@ -184,8 +184,8 @@ mit transparenten Licht-/Energieeffekten (`pointer-events:none`), das erst nach 
 Keyhole-Unlock-Sequenz bei effektivem 7/7 eingeblendet wird;
 der vorhandene Final-Door-Hotspot bleibt die einzige Interaktion. Der CTA bleibt
 erhalten und die Nutzerin oeffnet die Tuer weiterhin selbst.
-Der finale Return-Endscreen zeigt anschliessend dauerhaft `WELCOME BACK.`, den
-Videoscreen mit dem Platzhalter `Testvideo.mp4` und den manuellen Button
+Der erste Rueckreise-Text lautet `One last trip.`. Der finale Return-Endscreen zeigt anschliessend dauerhaft `WELCOME BACK.`, den
+ruhigen Videoscreen mit dem Label `A MESSAGE FROM HOME`, dem Platzhalter `Testvideo.mp4` und dem manuellen Button
 `PLAY MY MESSAGE` (mit `Turn the sound on.`). Das Video startet nicht automatisch,
 verwendet nach dem Start native Controls und zeigt nach dem Ende `Happy Birthday,
 Duygu. 🤍`. Ein erneuter QA-Run setzt den Videoplayer auf Anfang und blendet den
