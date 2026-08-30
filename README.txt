@@ -179,6 +179,8 @@ gemeinsam sichtbar; der Videoscreen folgt spaeter.
 Beim Wechsel auf effektives 7/7 reagieren die Keyholes nach einer kurzen Pause
 nacheinander, bevor der permanente Final-Door-CTA erscheint.
 Der grosse Circle-Glow ist entfernt. Nach der ca. 280-ms-Keyhole-Sequenz erscheint
-das rein dekorative `final-door-animated-overlay.apng` (`pointer-events:none`);
+das rein dekorative Effect-only-Overlay `final-door-energy-effects-overlay-large.apng`
+mit transparenten Licht-/Energieeffekten (`pointer-events:none`), das erst nach der
+Keyhole-Unlock-Sequenz bei effektivem 7/7 eingeblendet wird;
 der vorhandene Final-Door-Hotspot bleibt die einzige Interaktion. Der CTA bleibt
 erhalten und die Nutzerin oeffnet die Tuer weiterhin selbst.
