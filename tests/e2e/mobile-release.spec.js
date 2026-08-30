@@ -16,6 +16,7 @@ function monitor(page) {
 
 async function prepare(page) {
   await page.addInitScript(() => {
+    Date.now = () => new Date('2026-09-09T12:00:00+02:00').getTime();
     localStorage.clear();
   });
   await page.goto('/index.html');
