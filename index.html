@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="lokumchallenge-mobile.css?v=1">
 <link rel="stylesheet" href="mobile-layout-safety.css?v=1">
 <link rel="stylesheet" href="roadtrip-visual.css?v=1">
+<link rel="stylesheet" href="final-flow.css?v=1">
 </head>
 <body>
 <main id="app">
@@ -61,6 +62,20 @@
       <div class="return-video-frame"><video id="returnVideo" preload="metadata" playsinline controls src="Testvideo.mp4"></video><button id="returnVideoPlay" class="return-video-play" type="button">▶ PLAY MY MESSAGE<span>Turn the sound on.</span></button></div>
       <p id="returnVideoEnd" class="return-video-end" hidden>Happy Birthday, Duygu. 🤍</p>
     </div>
+  </section>
+
+  <section id="oneLastChoice" class="final-flow-screen" hidden aria-labelledby="choiceTitle">
+    <h1 id="choiceTitle">ONE LAST CHOICE</h1><p>Choose wisely.</p>
+    <button id="choiceContinue" type="button">CONTINUE</button><button id="choiceReplay" type="button">REPLAY VIDEO</button>
+  </section>
+  <section id="pathChoice" class="final-flow-screen" hidden aria-labelledby="pathTitle">
+    <h1 id="pathTitle">YOUR TURN</h1><p>Three paths. One decision. Choose wisely.</p>
+    <div class="path-cards">
+      <button class="path-card" type="button" data-path="ACTION" aria-pressed="false"><strong>⚡ ACTION</strong><span>For those who prefer motion over comfort.<br>Expect the unexpected.</span></button>
+      <button class="path-card" type="button" data-path="CULINARY" aria-pressed="false"><strong>◉ CULINARY</strong><span>Some quests are better served than solved.<br>Trust your taste.</span></button>
+      <button class="path-card" type="button" data-path="RELAX" aria-pressed="false"><strong>☾ RELAX</strong><span>Not every victory needs adrenaline.<br>Choose the slower path.</span></button>
+    </div>
+    <div id="yourPick" class="your-pick" hidden><strong>YOUR PICK</strong><b id="pickedPath"></b><span>Tell me which path you chose.<br>I’ll take care of the rest.</span></div>
   </section>
 
   <section id="timeTravelScreen" class="time-travel-screen" hidden aria-live="polite" aria-label="A mysterious transition">

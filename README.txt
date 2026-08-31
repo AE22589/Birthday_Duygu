@@ -205,3 +205,8 @@ ruhigen Videoscreen mit dem Label `A MESSAGE FROM HOME`, dem Platzhalter `Testvi
 verwendet nach dem Start native Controls und zeigt nach dem Ende `Happy Birthday,
 Duygu. 🤍`. Ein erneuter QA-Run setzt den Videoplayer auf Anfang und blendet den
 Play-Button wieder ein; das Platzhaltervideo wird spaeter ersetzt.
+Nach dem echten Video-Ende folgt der separate Screen `ONE LAST CHOICE`; `CONTINUE`
+öffnet `YOUR TURN` mit den drei strukturellen Auswahlkarten ACTION, CULINARY und
+RELAX. Die Auswahl ist ausschließlich lokaler UI-State ohne Persistenz, Backend,
+Fetch oder Formular. Das Kartendesign bleibt bewusst austauschbar und wird später
+finalisiert; `REPLAY VIDEO` führt zurück zum unveränderten Videoscreen.
