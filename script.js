@@ -399,10 +399,10 @@ returnHotspot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.
 mobileFinalDoorButton?.addEventListener('click',handleFinalDoor);
 openFinalDoor.addEventListener('click',startReturnTimeTravel);
 returnVideoPlay.addEventListener('click',()=>{returnVideo.play().then(()=>{returnVideoPlay.hidden=true}).catch(()=>{})});
-returnVideo.addEventListener('ended',()=>{returnVideoEnd.hidden=false;returnVideoPanel.hidden=true;returnTravelScreen.classList.add('video-active');returnTravelScreen.hidden=true;oneLastChoice.hidden=false});
-choiceReplay.addEventListener('click',()=>{oneLastChoice.hidden=true;returnTravelScreen.hidden=false;returnVideoPanel.hidden=false;returnVideoEnd.hidden=true;returnVideo.currentTime=0;returnVideoPlay.hidden=false;});
+returnVideo.addEventListener('ended',async()=>{returnVideoEnd.hidden=false;returnTravelScreen.classList.add('video-active');returnVideoPanel.classList.remove('video-fade');await new Promise(resolve=>setTimeout(resolve,800));returnVideoPanel.classList.add('video-fade');await new Promise(resolve=>setTimeout(resolve,350));returnVideoPanel.hidden=true;returnTravelScreen.hidden=true;oneLastChoice.hidden=false});
+choiceReplay.addEventListener('click',()=>{oneLastChoice.hidden=true;returnTravelScreen.hidden=false;returnVideoPanel.hidden=false;returnVideoPanel.classList.remove('video-fade');returnVideoEnd.hidden=true;returnVideo.currentTime=0;returnVideoPlay.hidden=false;});
 choiceContinue.addEventListener('click',()=>{oneLastChoice.hidden=true;pathChoice.hidden=false});
-pathChoice.querySelectorAll('.path-card').forEach(card=>card.addEventListener('click',()=>{pathChoice.querySelectorAll('.path-card').forEach(c=>c.setAttribute('aria-pressed',String(c===card)));pickedPath.textContent=card.dataset.path;yourPick.hidden=false}));
+pathChoice.querySelectorAll('.path-card').forEach(card=>card.addEventListener('click',()=>{const wasSelected=card.getAttribute('aria-pressed')==='true';pathChoice.querySelectorAll('.path-card').forEach(c=>c.setAttribute('aria-pressed','false'));if(wasSelected){pickedPath.textContent='';yourPick.hidden=true}else{card.setAttribute('aria-pressed','true');pickedPath.textContent=card.dataset.path;yourPick.hidden=false}}));
 finalDoorModal.addEventListener('pointerup',e=>{if(e.target===finalDoorModal)finalDoorModal.hidden=true});
 unlockButton.addEventListener('click',()=>{
   if(isLockedOut()){updateLockoutUI();return}

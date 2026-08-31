@@ -33,16 +33,17 @@ test.describe('final choice flow', () => {
       await expect(page.locator('.path-card')).toHaveCount(3);
       await expect(page.locator('.path-card').first()).toBeHidden();
       await page.locator('#returnVideo').dispatchEvent('ended');
-      await expect(page.locator('#oneLastChoice')).toBeVisible();
+      await expect(page.locator('#oneLastChoice')).toBeVisible({ timeout: 3000 });
       await expect(page.locator('#oneLastChoice').getByText('Choose wisely.', { exact: true })).toBeVisible();
       await expect(page.locator('#choiceContinue')).toBeVisible();
       await page.locator('#choiceReplay').click();
       await expect(page.locator('#returnVideoPanel')).toBeVisible();
       await page.locator('#returnVideo').dispatchEvent('ended');
-      await expect(page.locator('#oneLastChoice')).toBeVisible();
+      await expect(page.locator('#oneLastChoice')).toBeVisible({ timeout: 3000 });
       await page.locator('#choiceContinue').click();
       await expect(page.locator('#pathChoice')).toBeVisible();
-      await expect(page.getByText('Three paths. One decision. Pick your path, then tell me what you chose.')).toBeVisible();
+      await expect(page.getByText('A Duygu Day in Hamburg is waiting for you.')).toBeVisible();
+      await expect(page.getByText('Choose your path — I’ll turn it into your next adventure. Then tell me what you chose.')).toBeVisible();
       const stateBefore = await page.evaluate(() => localStorage.getItem('duyguBirthdayQuestState_v1'));
       const requests = []; page.on('request', r => requests.push(r.url()));
       for (const path of ['ACTION', 'CULINARY', 'RELAX']) {
@@ -53,6 +54,15 @@ test.describe('final choice flow', () => {
         await expect(page.locator('#pickedPath')).toHaveText(path);
         await expect(page.locator('#pickMessage')).toHaveText('Now tell me what you chose — I’ll take care of the rest.');
       }
+      await page.locator('.path-card[data-path="RELAX"]').click();
+      await expect(page.locator('#yourPick')).toBeHidden();
+      await expect(page.locator('.path-card[aria-pressed="true"]')).toHaveCount(0);
+      await page.locator('.path-card[data-path="ACTION"]').press('Enter');
+      await expect(page.locator('#yourPick')).toBeVisible();
+      await page.locator('.path-card[data-path="ACTION"]').press('Space');
+      await expect(page.locator('#yourPick')).toBeHidden();
+      await page.locator('.path-card[data-path="RELAX"]').click();
+      await expect(page.locator('#yourPick')).toBeVisible();
       await expect(page.locator('.path-card[data-path="ACTION"]')).toHaveAttribute('aria-pressed', 'false');
       await expect(page.locator('#yourPick')).toBeVisible();
       await expect(page.locator('#pickedPath')).toHaveText('RELAX');
