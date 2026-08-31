@@ -399,8 +399,8 @@ returnHotspot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.
 mobileFinalDoorButton?.addEventListener('click',handleFinalDoor);
 openFinalDoor.addEventListener('click',startReturnTimeTravel);
 returnVideoPlay.addEventListener('click',()=>{returnVideo.play().then(()=>{returnVideoPlay.hidden=true}).catch(()=>{})});
-returnVideo.addEventListener('ended',()=>{returnVideoEnd.hidden=false;returnVideoPanel.hidden=true;returnTravelScreen.classList.add('video-active');oneLastChoice.hidden=false});
-choiceReplay.addEventListener('click',()=>{oneLastChoice.hidden=true;returnVideoPanel.hidden=false;returnVideoEnd.hidden=true;returnVideo.currentTime=0;returnVideoPlay.hidden=false;});
+returnVideo.addEventListener('ended',()=>{returnVideoEnd.hidden=false;returnVideoPanel.hidden=true;returnTravelScreen.classList.add('video-active');returnTravelScreen.hidden=true;oneLastChoice.hidden=false});
+choiceReplay.addEventListener('click',()=>{oneLastChoice.hidden=true;returnTravelScreen.hidden=false;returnVideoPanel.hidden=false;returnVideoEnd.hidden=true;returnVideo.currentTime=0;returnVideoPlay.hidden=false;});
 choiceContinue.addEventListener('click',()=>{oneLastChoice.hidden=true;pathChoice.hidden=false});
 pathChoice.querySelectorAll('.path-card').forEach(card=>card.addEventListener('click',()=>{pathChoice.querySelectorAll('.path-card').forEach(c=>c.setAttribute('aria-pressed',String(c===card)));pickedPath.textContent=card.dataset.path;yourPick.hidden=false}));
 finalDoorModal.addEventListener('pointerup',e=>{if(e.target===finalDoorModal)finalDoorModal.hidden=true});
