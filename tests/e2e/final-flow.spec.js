@@ -42,7 +42,7 @@ test.describe('final choice flow', () => {
       await expect(page.locator('#oneLastChoice')).toBeVisible();
       await page.locator('#choiceContinue').click();
       await expect(page.locator('#pathChoice')).toBeVisible();
-      await expect(page.getByText('Three paths. One decision. Choose wisely.')).toBeVisible();
+      await expect(page.getByText('Three paths. One decision. Pick your path, then tell me what you chose.')).toBeVisible();
       const stateBefore = await page.evaluate(() => localStorage.getItem('duyguBirthdayQuestState_v1'));
       const requests = []; page.on('request', r => requests.push(r.url()));
       for (const path of ['ACTION', 'CULINARY', 'RELAX']) {
@@ -51,6 +51,7 @@ test.describe('final choice flow', () => {
         await expect(card).toHaveAttribute('aria-pressed', 'true');
         await expect(page.locator('.path-card[aria-pressed="true"]')).toHaveCount(1);
         await expect(page.locator('#pickedPath')).toHaveText(path);
+        await expect(page.locator('#pickMessage')).toHaveText('Now tell me what you chose — I’ll take care of the rest.');
       }
       await expect(page.locator('.path-card[data-path="ACTION"]')).toHaveAttribute('aria-pressed', 'false');
       await expect(page.locator('#yourPick')).toBeVisible();
