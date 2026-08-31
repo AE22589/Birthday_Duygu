@@ -37,7 +37,8 @@ test.describe('final choice flow', () => {
       await expect(page.locator('#returnVideoPanel')).toBeVisible();
       await expect(page.locator('#oneLastChoice')).toBeHidden();
       await expect(page.locator('#oneLastChoice')).toBeVisible({ timeout: 3000 });
-      await expect(page.locator('#oneLastChoice').getByText('Choose wisely.', { exact: true })).toBeVisible();
+      await expect(page.locator('#oneLastChoice').getByText('ONE LAST STEP', { exact: true })).toBeVisible();
+      await expect(page.locator('#oneLastChoice').getByText('❤️ HAPPY BIRTHDAY, DUYGU ❤️', { exact: true })).toBeVisible();
       await expect(page.locator('#choiceContinue')).toBeVisible();
       await page.locator('#choiceReplay').click();
       await expect(page.locator('#returnVideoPanel')).toBeVisible();
