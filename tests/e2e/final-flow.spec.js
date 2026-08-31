@@ -33,12 +33,18 @@ test.describe('final choice flow', () => {
       await expect(page.locator('.path-card')).toHaveCount(3);
       await expect(page.locator('.path-card').first()).toBeHidden();
       await page.locator('#returnVideo').dispatchEvent('ended');
+      await page.waitForTimeout(1000);
+      await expect(page.locator('#returnVideoPanel')).toBeVisible();
+      await expect(page.locator('#oneLastChoice')).toBeHidden();
       await expect(page.locator('#oneLastChoice')).toBeVisible({ timeout: 3000 });
       await expect(page.locator('#oneLastChoice').getByText('Choose wisely.', { exact: true })).toBeVisible();
       await expect(page.locator('#choiceContinue')).toBeVisible();
       await page.locator('#choiceReplay').click();
       await expect(page.locator('#returnVideoPanel')).toBeVisible();
       await page.locator('#returnVideo').dispatchEvent('ended');
+      await page.waitForTimeout(1000);
+      await expect(page.locator('#returnVideoPanel')).toBeVisible();
+      await expect(page.locator('#oneLastChoice')).toBeHidden();
       await expect(page.locator('#oneLastChoice')).toBeVisible({ timeout: 3000 });
       await page.locator('#choiceContinue').click();
       await expect(page.locator('#pathChoice')).toBeVisible();
