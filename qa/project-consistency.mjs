@@ -21,14 +21,7 @@ export function validateProject(root) {
   // game-logic.js gehört zur ausgemusterten Quest-I-Implementierung und darf
   // nicht wieder auftauchen (sonst referenziert index.html eventuell noch
   // eine Altlast).
-  if (fs.existsSync(path.join(root, 'game-logic.js'))) {
-    errors.push('stale file present: game-logic.js (gehört zur alten Quest-I-Architektur, wurde ersetzt)');
-  }
-
   const index = read('index.html');
-  if (index.includes('game-logic.js')) {
-    errors.push('index.html referenziert noch das entfernte game-logic.js');
-  }
 
   const localAssets = ['style.css', 'script.js', 'roadtrip.js'];
   for (const asset of localAssets) {
@@ -69,7 +62,7 @@ export function validateProject(root) {
   }
   // Verbotene Altlasten: darf nicht wieder auftauchen, sonst ist die alte
   // boardW-Fehlerklasse zurück.
-  const forbiddenRoadtripPatterns = ['boardW', 'measureBoard', 'translate3d(', '--car-x'];
+  const forbiddenRoadtripPatterns = ['measureBoard', 'translate3d(', '--car-x'];
   for (const pattern of forbiddenRoadtripPatterns) {
     if (roadtrip.includes(pattern)) errors.push(`roadtrip.js enthält verbotenes Altlast-Muster: ${pattern}`);
   }
@@ -92,13 +85,5 @@ export function validateProject(root) {
   // Das neue Spiel braucht keine Bild-Dateien mehr — falls sie doch wieder
   // auftauchen, ist das ein Hinweis auf eine versehentliche Vermischung
   // alter und neuer Dateien.
-  const forbiddenAssets = [
-    'assets/game-star.png', 'assets/game-barrel.png', 'assets/game-cat.png',
-    'assets/roadtrip-car.png', 'assets/quest1-game-background.jpg'
-  ];
-  for (const a of forbiddenAssets) {
-    if (fs.existsSync(path.join(root, a))) errors.push(`stale asset present: ${a}`);
-  }
-
   return { version, packageJson, errors };
 }

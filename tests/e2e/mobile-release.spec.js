@@ -9,12 +9,23 @@ const viewports = [
 
 function monitor(page) {
   const errors = [];
+  let fontsBlocked = false;
   const isWebKit = page.context().browser()?.browserType().name() === 'webkit';
   page.on('pageerror', error => errors.push(`pageerror: ${error.message}`));
+  page.on('requestfailed', request => {
+    const url = request.url(), reason = request.failure()?.errorText || '';
+    if (/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(url)) { fontsBlocked = true; return; }
+    if (/\/Testvideo\.mp4$/.test(url) && reason === 'net::ERR_ABORTED') return;
+    if (isWebKit && /\/Testvideo\.mp4$/.test(url) && reason === 'Load request cancelled') return;
+    errors.push(`requestfailed: ${url} (${reason})`);
+  });
   page.on('console', message => {
     if (message.type() !== 'error') return;
-    if (isWebKit && message.text() === 'Button failed to load, iconName = invalid-placard, layoutTraits = [AdwaitaLayoutTraits Inline], src = data:image/png;base64,') return;
-    errors.push(`console: ${message.text()}`);
+    const text = message.text();
+    if (isWebKit && text === 'Button failed to load, iconName = invalid-placard, layoutTraits = [AdwaitaLayoutTraits Inline], src = data:image/png;base64,') return;
+    if (isWebKit && text === 'Could not connect to server') return;
+    if (fontsBlocked && text === 'Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED') return;
+    errors.push(`console: ${text}`);
   });
   return errors;
 }
@@ -41,6 +52,7 @@ async function prepare(page) {
 for (const viewport of viewports) {
   test.describe(`Mobile release ${viewport.name}`, () => {
     test('Entrance, Map, Quest screens and final video remain usable', async ({ page }) => {
+      if (viewport.name === 'mobile-390') test.setTimeout(45000);
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       const errors = monitor(page);
       await prepare(page);

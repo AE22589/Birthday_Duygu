@@ -1,7 +1,8 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { validateProject } from './project-consistency.mjs';
 
-const root = path.resolve(new URL('..', import.meta.url).pathname);
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const result = validateProject(root);
 if (result.errors.length) {
   throw new Error(`project consistency failed:\n${result.errors.join('\n')}`);

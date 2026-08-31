@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const L = require('../paintit.js');
+const L = require('./paintit.js');
 
 // Grid-Grundlagen
 const grid0 = L.createGrid(6, 6);

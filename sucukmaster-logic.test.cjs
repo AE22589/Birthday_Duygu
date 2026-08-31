@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const L = require('../sucukmaster.js');
+const L = require('./sucukmaster.js');
 
 assert.equal(L.CONFIG.SLOT_COUNT, 4);
 assert.equal(L.CONFIG.SIDE_DURATION_MS, 6000);
