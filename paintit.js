@@ -290,15 +290,17 @@ if (typeof document !== 'undefined') (function(){
     if (!running) return;
     pointerActive = true;
     wall.setPointerCapture(e.pointerId);
+    moveRoller(e.clientX, e.clientY);
+    rollerCursor.classList.add('is-touching');
     tryPaintAt(e.clientX, e.clientY);
   });
   wall.addEventListener('pointermove', e => {
     if (pointerActive) tryPaintAt(e.clientX, e.clientY);
     else moveRoller(e.clientX, e.clientY);
   });
-  wall.addEventListener('pointerup', () => { pointerActive = false; lastPaintedIndex = null; });
-  wall.addEventListener('pointercancel', () => { pointerActive = false; lastPaintedIndex = null; });
-  wall.addEventListener('pointerleave', () => { pointerActive = false; });
+  wall.addEventListener('pointerup', () => { pointerActive = false; lastPaintedIndex = null; rollerCursor.classList.remove('is-touching'); });
+  wall.addEventListener('pointercancel', () => { pointerActive = false; lastPaintedIndex = null; rollerCursor.classList.remove('is-touching'); });
+  wall.addEventListener('pointerleave', () => { pointerActive = false; rollerCursor.classList.remove('is-touching'); });
 
   readyBtn.addEventListener('click', startGame);
   retryBtn.addEventListener('click', startGame);

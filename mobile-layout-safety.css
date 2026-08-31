@@ -1,4 +1,8 @@
 /* Mobile viewport safety; desktop rules remain untouched. */
+.pi-wall{cursor:url('roller.png') 6 24,crosshair}
+.pi-roller{display:none}
+.pi-wall{border:2px solid #00e5ff;box-shadow:0 0 10px rgba(0,229,255,.42),0 0 24px rgba(255,46,136,.12),inset 0 0 16px rgba(0,229,255,.1)}
+.pi-wall:before{content:"";position:absolute;inset:5px;border:1px solid rgba(0,229,255,.35);pointer-events:none;z-index:8}
 @media (max-width:700px){
   #entrance .entrance-bg{background-image:url('entrance-scene-mobile.gif')}
   html,body{overflow-x:hidden}
@@ -36,4 +40,7 @@
   .mobile-final-door-cta button{min-height:50px;padding:10px 24px;border:2px solid #00e5ff;background:#08141d;color:#fff;font:700 14px/1 monospace;box-shadow:0 0 14px rgba(0,229,255,.3);touch-action:manipulation}
   #questScreen .quest-stage{display:flex;flex-direction:column;justify-content:center;gap:8px}
   #questScreen .mobile-final-door-cta[hidden]{display:none}
+  .pi-wall{cursor:default}
+  .pi-roller{display:block;width:28px;height:28px;border:0;border-radius:0;background:url('roller.png') center/contain no-repeat;box-shadow:none;transform:translate(-50%,-115%);opacity:0}
+  .pi-roller.is-touching{opacity:1}
 }
