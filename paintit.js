@@ -296,11 +296,11 @@ if (typeof document !== 'undefined') (function(){
   });
   wall.addEventListener('pointermove', e => {
     if (pointerActive) tryPaintAt(e.clientX, e.clientY);
-    else moveRoller(e.clientX, e.clientY);
+    else { moveRoller(e.clientX, e.clientY); rollerCursor.classList.add('is-hovering'); }
   });
   wall.addEventListener('pointerup', () => { pointerActive = false; lastPaintedIndex = null; rollerCursor.classList.remove('is-touching'); });
-  wall.addEventListener('pointercancel', () => { pointerActive = false; lastPaintedIndex = null; rollerCursor.classList.remove('is-touching'); });
-  wall.addEventListener('pointerleave', () => { pointerActive = false; rollerCursor.classList.remove('is-touching'); });
+  wall.addEventListener('pointercancel', () => { pointerActive = false; lastPaintedIndex = null; rollerCursor.classList.remove('is-touching','is-hovering'); });
+  wall.addEventListener('pointerleave', () => { pointerActive = false; rollerCursor.classList.remove('is-touching','is-hovering'); });
 
   readyBtn.addEventListener('click', startGame);
   retryBtn.addEventListener('click', startGame);
