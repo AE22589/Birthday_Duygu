@@ -17,9 +17,6 @@ const WRONG_CODE_MESSAGES=[
   ['Wrong code, detective. 🔐','Curiosity is encouraged.\nBreaking in is not.'],
   ['Not today. 👀','The door has seen your little experiment — and remains unimpressed.']
 ];
-const LOCKOUT_KEY='duyguAdminLockout_v1';
-const LOCKOUT_ATTEMPT_LIMIT=3;
-const LOCKOUT_DURATION_MS=24*60*60*1000;
 
 const $=id=>document.getElementById(id);
 const entrance=$('entrance'),timeTravelScreen=$('timeTravelScreen'),timeTravelText=$('timeTravelText'),timeTravelStorm=$('timeTravelStorm'),returnTravelScreen=$('returnTravelScreen'),returnTravelText=$('returnTravelText'),returnTravelGif=$('returnTravelGif'),returnVideoPanel=$('returnVideoPanel'),returnVideo=$('returnVideo'),returnVideoPlay=$('returnVideoPlay'),returnVideoEnd=$('returnVideoEnd'),oneLastChoice=$('oneLastChoice'),choiceContinue=$('choiceContinue'),choiceReplay=$('choiceReplay'),pathChoice=$('pathChoice'),yourPick=$('yourPick'),pickedPath=$('pickedPath'),questScreen=$('questScreen'),doorHit=$('doorHit'),modal=$('adminModal'),finalDoorModal=$('finalDoorModal'),openFinalDoor=$('openFinalDoor'),finalDoorAnimatedOverlay=$('finalDoorAnimatedOverlay'),mobileFinalDoorCta=$('mobileFinalDoorCta'),mobileFinalDoorButton=$('mobileFinalDoorButton'),codeInput=$('adminCode'),unlockButton=$('unlock'),cancelButton=$('cancel'),error=$('error'),wrongCodePopup=$('wrongCodePopup'),wrongCodeTitle=$('wrongCodeTitle'),wrongCodeMessage=$('wrongCodeMessage'),wrongCodeClose=$('wrongCodeClose'),toast=$('toast'),lockTitle=$('lockTitle'),lockText=$('lockText'),mapShell=$('mapShell'),mapImage=$('mapImage'),svg=$('mapInteraction'),controlsGroup=$('questControls'),lockedLayers=$('lockedLayers'),questStatusLayers=$('questStatusLayers'),finalDoorReadyLayer=$('finalDoorReadyLayer'),activeLayer=$('activeLayer'),activeRing=$('activeRing'),activeRingGlow=$('activeRingGlow'),finalDoorHotspot=$('finalDoorHotspot'),returnHotspot=$('returnHotspot'),countdown={days:$('days'),hours:$('hours'),minutes:$('minutes'),seconds:$('seconds')};
@@ -51,15 +48,8 @@ const NAMES=['The Road Trip','Paint It!','Sucuk Master',"Lokum's Challenge",'Mem
 const CHECKMARK_ANCHORS=[{x:190,y:665},{x:390,y:655},{x:535,y:645},{x:875,y:645},{x:1030,y:650},{x:1195,y:655},{x:1355,y:670}];
 const FINAL_DOOR_PROGRESS_SLOTS=[{x:630,y:201,width:30,height:48},{x:665,y:201,width:30,height:48},{x:699,y:201,width:30,height:48},{x:733,y:201,width:30,height:48},{x:767,y:201,width:30,height:48},{x:802,y:201,width:29,height:48},{x:835,y:201,width:30,height:48}];
 const STATUS_BADGE_ANCHORS=[{x:197,y:700},{x:404,y:700},{x:562,y:700},{x:916,y:700},{x:1072,y:700},{x:1229,y:700},{x:1386,y:700}];
-let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,lockoutTimer=null,mapQaClickCount=0,mapQaClickWindowStart=0,finalQaClickCount=0,finalQaClickWindowStart=0,lastEffectiveCount=null,unlockAnimating=false,adminUnlockContext='entrance',lastWrongCodeIndex=-1,transitionRunning=false,state=loadState();
+let previewGranted=false,countdownTimer=null,clickCount=0,clickWindowStart=0,lastTouchActivation=-Infinity,mapQaClickCount=0,mapQaClickWindowStart=0,finalQaClickCount=0,finalQaClickWindowStart=0,lastEffectiveCount=null,unlockAnimating=false,adminUnlockContext='entrance',lastWrongCodeIndex=-1,transitionRunning=false,state=loadState();
 
-function loadLockout(){try{const p=JSON.parse(localStorage.getItem(LOCKOUT_KEY)||'{}');return{attempts:Number.isInteger(p.attempts)?p.attempts:0,lockedUntil:Number.isFinite(p.lockedUntil)?p.lockedUntil:0}}catch{return{attempts:0,lockedUntil:0}}}
-function saveLockout(s){try{localStorage.setItem(LOCKOUT_KEY,JSON.stringify(s))}catch{}}
-function clearLockout(){try{localStorage.removeItem(LOCKOUT_KEY)}catch{}}
-function isLockedOut(){return loadLockout().lockedUntil>Date.now()}
-function lockoutRemainingMs(){return Math.max(0,loadLockout().lockedUntil-Date.now())}
-function formatLockoutRemaining(ms){const totalMinutes=Math.ceil(ms/60000);const h=Math.floor(totalMinutes/60),m=totalMinutes%60;return h>0?`${h}h ${m}m`:`${Math.max(1,m)}m`}
-function registerWrongAttempt(){const s=loadLockout();s.attempts=(s.attempts||0)+1;if(s.attempts>=LOCKOUT_ATTEMPT_LIMIT){s.lockedUntil=Date.now()+LOCKOUT_DURATION_MS;s.attempts=0}saveLockout(s)}
 
 function loadState(){try{const p=JSON.parse(localStorage.getItem(STATE_KEY)||'{}');const c=Array.isArray(p.completed)?p.completed.filter(n=>Number.isInteger(n)&&n>=1&&n<=7):[];return{completed:[...new Set(c)].sort((a,b)=>a-b)}}catch{return{completed:[]}}}
 function isQaUnlockAllActive(){try{return sessionStorage.getItem(QA_UNLOCK_KEY)==='1'}catch{return false}}
@@ -82,30 +72,14 @@ function setCountdown(ms){const t=Math.max(0,Math.floor(ms/1000));const d=Math.f
 function isUnlocked(){return previewGranted||Date.now()>=TARGET_MS}
 function unlockEntrance(){lockTitle.textContent='THE DOOR IS READY';lockText.innerHTML='The right moment has arrived.<br>Click the door and begin the adventure.'}
 function refreshCountdown(){const remaining=TARGET_MS-Date.now();setCountdown(remaining);if(remaining<=0||previewGranted){unlockEntrance();if(countdownTimer){clearInterval(countdownTimer);countdownTimer=null}}}
-function updateLockoutUI(){
-  if(isLockedOut()){
-    error.textContent=`Too many attempts. Try again in ${formatLockoutRemaining(lockoutRemainingMs())}.`;
-    codeInput.disabled=true;
-    unlockButton.disabled=true;
-  }else{
-    codeInput.disabled=false;
-    unlockButton.disabled=false;
-    if(lockoutTimer){clearInterval(lockoutTimer);lockoutTimer=null}
-  }
-}
 function openPreviewModal(context='entrance'){
   adminUnlockContext=context;
   if(wrongCodePopup)wrongCodePopup.hidden=true;
   clickCount=0;clickWindowStart=0;modal.hidden=false;codeInput.value='';error.textContent='';
-  if(isLockedOut()){
-    updateLockoutUI();
-    if(!lockoutTimer)lockoutTimer=setInterval(updateLockoutUI,1000);
-  }else{
-    codeInput.disabled=false;unlockButton.disabled=false;
-    requestAnimationFrame(()=>codeInput.focus());
-  }
+  codeInput.disabled=false;unlockButton.disabled=false;
+  requestAnimationFrame(()=>codeInput.focus());
 }
-function closePreviewModal(){modal.hidden=true;clickCount=0;clickWindowStart=0;adminUnlockContext='entrance';codeInput.value='';error.textContent='';if(lockoutTimer){clearInterval(lockoutTimer);lockoutTimer=null}}
+function closePreviewModal(){modal.hidden=true;clickCount=0;clickWindowStart=0;adminUnlockContext='entrance';codeInput.value='';error.textContent=''}
 function showWrongCodePopup(){let index=Math.floor(Math.random()*WRONG_CODE_MESSAGES.length);if(WRONG_CODE_MESSAGES.length>1&&index===lastWrongCodeIndex)index=(index+1)%WRONG_CODE_MESSAGES.length;lastWrongCodeIndex=index;wrongCodeTitle.textContent=WRONG_CODE_MESSAGES[index][0];wrongCodeMessage.textContent=WRONG_CODE_MESSAGES[index][1];wrongCodePopup.hidden=false;wrongCodeClose.focus()}
 function setSvgGeometry(g){
   svg.setAttribute('viewBox',`0 0 ${g.width} ${g.height}`);
@@ -378,9 +352,6 @@ window.__DUYGU_SELF_TEST__=()=>({
   questFourLoaderAvailable:typeof ensureLokumChallengeLoaded==='function',
   mapHotspots:document.querySelectorAll('.quest-hotspot').length,
   stateKey:STATE_KEY,
-  lockoutAttemptLimit:LOCKOUT_ATTEMPT_LIMIT,
-  isLockedOut:isLockedOut(),
-  lockoutRemainingMs:lockoutRemainingMs()
 });
 
 doorHit.addEventListener('touchend',e=>{lastTouchActivation=performance.now();handleDoorActivation(e)},{passive:false});
@@ -405,19 +376,11 @@ choiceContinue.addEventListener('click',()=>{oneLastChoice.hidden=true;pathChoic
 pathChoice.querySelectorAll('.path-card').forEach(card=>card.addEventListener('click',()=>{const wasSelected=card.getAttribute('aria-pressed')==='true';pathChoice.querySelectorAll('.path-card').forEach(c=>c.setAttribute('aria-pressed','false'));if(wasSelected){pickedPath.textContent='';yourPick.hidden=true}else{card.setAttribute('aria-pressed','true');pickedPath.textContent=card.dataset.path;yourPick.hidden=false}}));
 finalDoorModal.addEventListener('pointerup',e=>{if(e.target===finalDoorModal)finalDoorModal.hidden=true});
 unlockButton.addEventListener('click',()=>{
-  if(isLockedOut()){updateLockoutUI();return}
   if(codeInput.value.trim()!==ADMIN_CODE){
-    registerWrongAttempt();
     if(adminUnlockContext==='entrance'&&wrongCodePopup)showWrongCodePopup();
-    if(isLockedOut()){
-      updateLockoutUI();
-      if(!lockoutTimer)lockoutTimer=setInterval(updateLockoutUI,1000);
-    }else{
-      error.textContent='Wrong code.';codeInput.select();
-    }
+    error.textContent='Wrong code.';codeInput.select();
     return;
   }
-  clearLockout();
   if(adminUnlockContext==='mapQa'){
     try{sessionStorage.setItem(QA_UNLOCK_KEY,'1')}catch{}
     closePreviewModal();showQuestMap();showToast('Quest map QA unlock enabled.');
