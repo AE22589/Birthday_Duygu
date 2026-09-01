@@ -3,6 +3,9 @@ const VERSION='1.11.1';
 const QA_MODE=new URLSearchParams(location.search).has('qa') && navigator.webdriver===true;
 const QA_VISUAL_MAP=new URLSearchParams(location.search).get('qa')==='visual-map' && navigator.webdriver===true;
 const TARGET_MS=Date.parse('2026-09-08T00:00:00+02:00');
+const VIDEO_LOCK_MS=Date.parse('2026-09-09T00:00:00+02:00');
+const QA_ALREADY_PLAYED_KEY='duyguQaAlreadyPlayed_v1';
+const QA_ALREADY_PLAYED_UNTIL=Date.parse('2026-09-07T00:00:00+02:00');
 const ADMIN_CODE='1337';
 const CLICK_LIMIT=5;
 const CLICK_WINDOW_MS=2500;
@@ -22,6 +25,8 @@ const WRONG_CODE_MESSAGES=[
 ];
 
 const $=id=>document.getElementById(id);
+const videoStamp=$('videoStamp');
+const qaAlreadyPlayedToggle=$('qaAlreadyPlayedToggle');
 const entrance=$('entrance'),timeTravelScreen=$('timeTravelScreen'),timeTravelText=$('timeTravelText'),timeTravelStorm=$('timeTravelStorm'),returnTravelScreen=$('returnTravelScreen'),returnTravelText=$('returnTravelText'),returnTravelGif=$('returnTravelGif'),returnVideoPanel=$('returnVideoPanel'),returnVideo=$('returnVideo'),returnVideoPlay=$('returnVideoPlay'),returnVideoEnd=$('returnVideoEnd'),oneLastChoice=$('oneLastChoice'),choiceContinue=$('choiceContinue'),choiceReplay=$('choiceReplay'),pathChoice=$('pathChoice'),yourPick=$('yourPick'),pickedPath=$('pickedPath'),questScreen=$('questScreen'),doorHit=$('doorHit'),modal=$('adminModal'),finalDoorModal=$('finalDoorModal'),openFinalDoor=$('openFinalDoor'),finalDoorAnimatedOverlay=$('finalDoorAnimatedOverlay'),mobileFinalDoorCta=$('mobileFinalDoorCta'),mobileFinalDoorButton=$('mobileFinalDoorButton'),codeInput=$('adminCode'),unlockButton=$('unlock'),cancelButton=$('cancel'),error=$('error'),wrongCodePopup=$('wrongCodePopup'),wrongCodeTitle=$('wrongCodeTitle'),wrongCodeMessage=$('wrongCodeMessage'),wrongCodeClose=$('wrongCodeClose'),toast=$('toast'),lockTitle=$('lockTitle'),lockText=$('lockText'),mapShell=$('mapShell'),mapImage=$('mapImage'),svg=$('mapInteraction'),controlsGroup=$('questControls'),lockedLayers=$('lockedLayers'),questStatusLayers=$('questStatusLayers'),finalDoorReadyLayer=$('finalDoorReadyLayer'),activeLayer=$('activeLayer'),activeRing=$('activeRing'),activeRingGlow=$('activeRingGlow'),finalDoorHotspot=$('finalDoorHotspot'),returnHotspot=$('returnHotspot'),countdown={days:$('days'),hours:$('hours'),minutes:$('minutes'),seconds:$('seconds')};
 if(!entrance||!timeTravelScreen||!timeTravelText||!timeTravelStorm||!questScreen||!doorHit||!mapImage||!svg||!controlsGroup||!lockedLayers||!questStatusLayers||!activeLayer||!activeRing||!activeRingGlow||!finalDoorHotspot||!returnHotspot)return;
 
@@ -81,6 +86,9 @@ function preloadMapAsset(){loadDeferredAsset(mapImage,'href','data-href');const 
 function showToast(message){toast.textContent=message;toast.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove('show'),2200)}
 function setCountdown(ms){const t=Math.max(0,Math.floor(ms/1000));const d=Math.floor(t/86400),h=Math.floor(t%86400/3600),m=Math.floor(t%3600/60),s=t%60;countdown.days.textContent=String(d).padStart(2,'0');countdown.hours.textContent=String(h).padStart(2,'0');countdown.minutes.textContent=String(m).padStart(2,'0');countdown.seconds.textContent=String(s).padStart(2,'0')}
 function isUnlocked(){return previewGranted||Date.now()>=TARGET_MS}
+function isQaAlreadyPlayed(){try{return Date.now()<QA_ALREADY_PLAYED_UNTIL&&sessionStorage.getItem(QA_ALREADY_PLAYED_KEY)==='true'}catch{return false}}
+function isVideoLocked(){return Date.now()>=VIDEO_LOCK_MS||isQaAlreadyPlayed()}
+function updateQaAlreadyPlayedToggle(){if(!qaAlreadyPlayedToggle)return;const available=Date.now()<QA_ALREADY_PLAYED_UNTIL;qaAlreadyPlayedToggle.hidden=!available;if(!available)return;setTimeout(updateQaAlreadyPlayedToggle,QA_ALREADY_PLAYED_UNTIL-Date.now()+5);const active=isQaAlreadyPlayed();qaAlreadyPlayedToggle.textContent=`QA: ALREADY PLAYED ${active?'ON':'OFF'}`;qaAlreadyPlayedToggle.classList.toggle('is-on',active);if(returnVideo&&returnTravelScreen&&!returnTravelScreen.hidden){returnVideo.controls=!active;returnVideoPlay.hidden=active;videoStamp.hidden=!active;if(active){returnVideo.pause();returnVideo.currentTime=0}}}
 function unlockEntrance(){lockTitle.textContent='THE DOOR IS READY';lockText.innerHTML='The right moment has arrived.<br>Click the door and begin the adventure.'}
 function refreshCountdown(){const remaining=TARGET_MS-Date.now();setCountdown(remaining);if(remaining<=0||previewGranted){unlockEntrance();if(countdownTimer){clearInterval(countdownTimer);countdownTimer=null}}}
 function openPreviewModal(context='entrance'){
@@ -347,7 +355,7 @@ async function handleQuestActivation(n){
     catch(err){console.error('[Quest VII]',err);showToast('Quest VII could not be loaded. Please refresh and try again.');}
   }
 }
-async function startReturnTimeTravel(){loadReturnAsset();finalDoorModal.hidden=true;returnTravelScreen.hidden=false;returnVideoPanel.hidden=true;returnVideo.pause();returnVideo.currentTime=0;returnVideoEnd.hidden=true;returnVideoPlay.hidden=false;returnTravelGif.hidden=true;returnTravelText.hidden=false;returnTravelText.className='return-travel-text';const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));for(const line of ['One last trip.','Hold on.',"Let's get you back home."]){returnTravelText.textContent=line;returnTravelText.classList.remove('is-visible');void returnTravelText.offsetWidth;returnTravelText.classList.add('is-visible');await wait(2500);returnTravelText.classList.remove('is-visible');await wait(250)}returnTravelText.hidden=true;returnTravelGif.hidden=false;await wait(4800);returnTravelGif.hidden=true;returnVideoPanel.hidden=false}
+async function startReturnTimeTravel(){loadReturnAsset();const locked=isVideoLocked();returnVideo.controls=!locked;returnVideoPlay.hidden=locked;videoStamp.hidden=!locked;finalDoorModal.hidden=true;returnTravelScreen.hidden=false;returnVideoPanel.hidden=true;returnVideo.pause();returnVideo.currentTime=0;returnVideoEnd.hidden=true;returnVideoPlay.hidden=!locked;returnTravelGif.hidden=true;returnTravelText.hidden=false;returnTravelText.className='return-travel-text';const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));for(const line of ['One last trip.','Hold on.',"Let's get you back home."]){returnTravelText.textContent=line;returnTravelText.classList.remove('is-visible');void returnTravelText.offsetWidth;returnTravelText.classList.add('is-visible');await wait(2500);returnTravelText.classList.remove('is-visible');await wait(250)}returnTravelText.hidden=true;returnTravelGif.hidden=false;await wait(4800);returnTravelGif.hidden=true;returnVideoPanel.hidden=false}
 function handleFinalDoor(){const completedCount=[...effectiveCompleted()].filter(n=>Number.isInteger(n)&&n>=1&&n<=7).length;if(completedCount<7){toast.classList.add('final-door-locked');showToast('FINAL DOOR LOCKED\nThe door needs all seven keys.');setTimeout(()=>toast.classList.remove('final-door-locked'),2300);return}finalDoorModal.hidden=false;openFinalDoor.focus()}
 function handleReturn(){showEntrance();document.getElementById('roadTripScreen')?.setAttribute('hidden','');document.getElementById('paintItScreen')?.setAttribute('hidden','');document.getElementById('memoryLaneScreen')?.setAttribute('hidden','');document.getElementById('puzzleScreen')?.setAttribute('hidden','');document.getElementById('wordChallengeScreen')?.setAttribute('hidden','')}
 
@@ -379,9 +387,11 @@ returnHotspot.addEventListener('click',e=>{e.preventDefault();handleReturn()});
 returnHotspot.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();handleReturn()}});
 mobileFinalDoorButton?.addEventListener('click',handleFinalDoor);
 openFinalDoor.addEventListener('click',startReturnTimeTravel);
-returnVideoPlay.addEventListener('click',()=>{returnVideo.play().then(()=>{returnVideoPlay.hidden=true}).catch(()=>{})});
+updateQaAlreadyPlayedToggle();
+qaAlreadyPlayedToggle?.addEventListener('click',()=>{try{if(isQaAlreadyPlayed())sessionStorage.removeItem(QA_ALREADY_PLAYED_KEY);else sessionStorage.setItem(QA_ALREADY_PLAYED_KEY,'true')}catch{}updateQaAlreadyPlayedToggle()});
+returnVideoPlay.addEventListener('click',()=>{if(isVideoLocked())return;returnVideo.play().then(()=>{returnVideoPlay.hidden=true}).catch(()=>{})});
 returnVideo.addEventListener('ended',async()=>{returnVideo.pause();const lastFrame=Math.max(0,returnVideo.duration-0.05);if(Number.isFinite(lastFrame)&&returnVideo.duration>0)returnVideo.currentTime=lastFrame;returnVideoEnd.hidden=false;returnTravelScreen.classList.add('video-active');returnVideoPanel.classList.remove('video-fade');await new Promise(resolve=>setTimeout(resolve,2200));returnVideoPanel.classList.add('video-fade');await new Promise(resolve=>setTimeout(resolve,350));returnVideoPanel.hidden=true;returnTravelScreen.hidden=true;oneLastChoice.hidden=false});
-choiceReplay.addEventListener('click',()=>{oneLastChoice.hidden=true;returnTravelScreen.hidden=false;returnVideoPanel.hidden=false;returnVideoPanel.classList.remove('video-fade');returnVideoEnd.hidden=true;returnVideo.currentTime=0;returnVideoPlay.hidden=false;});
+choiceReplay.addEventListener('click',()=>{if(isVideoLocked())return;oneLastChoice.hidden=true;returnTravelScreen.hidden=false;returnVideoPanel.hidden=false;returnVideoPanel.classList.remove('video-fade');returnVideoEnd.hidden=true;returnVideo.currentTime=0;returnVideoPlay.hidden=false;});
 choiceContinue.addEventListener('click',()=>{oneLastChoice.hidden=true;pathChoice.hidden=false});
 pathChoice.querySelectorAll('.path-card').forEach(card=>card.addEventListener('click',()=>{const wasSelected=card.getAttribute('aria-pressed')==='true';pathChoice.querySelectorAll('.path-card').forEach(c=>c.setAttribute('aria-pressed','false'));if(wasSelected){pickedPath.textContent='';yourPick.hidden=true}else{card.setAttribute('aria-pressed','true');pickedPath.textContent=card.dataset.path;yourPick.hidden=false}}));
 finalDoorModal.addEventListener('pointerup',e=>{if(e.target===finalDoorModal)finalDoorModal.hidden=true});
