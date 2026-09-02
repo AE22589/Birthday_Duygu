@@ -1,16 +1,12 @@
 const { test, expect } = require('@playwright/test');
 
 async function enterFinalQa(page) {
-  await page.addInitScript(() => { Date.now = () => new Date('2026-09-07T23:00:00+02:00').getTime(); localStorage.clear(); });
+  await page.addInitScript(() => {
+    Date.now = () => new Date('2026-09-08T12:00:00+02:00').getTime();
+    if (!localStorage.getItem('duyguBirthdayQuestState_v1')) localStorage.setItem('duyguBirthdayQuestState_v1', JSON.stringify({ completed: [1, 2, 3, 4, 5, 6, 7] }));
+  });
   await page.goto('/index.html');
-  await page.locator('#doorHit').click({ clickCount: 5, delay: 80, force: true });
-  await page.locator('#adminCode').fill('1337');
-  await page.locator('#unlock').click();
   await expect(page.locator('#questScreen')).toBeVisible({ timeout: 30000 });
-  await page.locator('#finalDoorHotspot').click({ clickCount: 5, delay: 80, force: true });
-  await expect(page.locator('#adminModal')).toBeVisible();
-  await page.locator('#adminCode').fill('1337');
-  await page.locator('#unlock').click();
   await page.locator('#finalDoorHotspot').click();
   await expect(page.locator('#finalDoorModal')).toBeVisible();
   await page.locator('#openFinalDoor').click();
@@ -19,13 +15,15 @@ async function enterFinalQa(page) {
 
 test.describe('final choice flow', () => {
   test.setTimeout(60000);
-  for (const project of ['desktop-1920', 'mobile-390']) {
+  for (const project of ['desktop-1366', 'desktop-1920', 'mobile-390']) {
     test(`video to final choice (${project})`, async ({ page }, testInfo) => {
       test.skip(testInfo.project.name !== project);
       const errors = [];
       let fontsBlocked = false;
+      const mediaRequests = [];
       page.on('pageerror', e => errors.push(e.message));
-      page.on('requestfailed', r => { if (/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(r.url())) fontsBlocked = true; else if (!/\/Testvideo\.mp4$/.test(r.url()) || r.failure()?.errorText !== 'net::ERR_ABORTED') errors.push(`requestfailed: ${r.url()}`); });
+      page.on('request', r => { if (/\/(bday\.mp4|Testvideo\.mp4)$/.test(r.url())) mediaRequests.push(r.url()); });
+      page.on('requestfailed', r => { if (/^https:\/\/fonts\.(googleapis|gstatic)\.com\//.test(r.url())) fontsBlocked = true; else errors.push(`requestfailed: ${r.url()}`); });
       page.on('console', m => { if (m.type() === 'error' && !(fontsBlocked && m.text() === 'Failed to load resource: net::ERR_NETWORK_ACCESS_DENIED')) errors.push(m.text()); });
       await enterFinalQa(page);
       await expect(page.locator('#oneLastChoice')).toBeHidden();
@@ -33,20 +31,23 @@ test.describe('final choice flow', () => {
       await expect(page.locator('.path-card')).toHaveCount(3);
       await expect(page.locator('.path-card').first()).toBeHidden();
       await page.locator('#returnVideo').dispatchEvent('ended');
-      await page.waitForTimeout(1000);
-      await expect(page.locator('#returnVideoPanel')).toBeVisible();
-      await expect(page.locator('#oneLastChoice')).toBeHidden();
+      const firstEndedAt = Date.now();
+      await expect(page.locator('#returnVideoPanel')).toHaveClass(/video-fade/, { timeout: 3000 });
       await expect(page.locator('#oneLastChoice')).toBeVisible({ timeout: 3000 });
+      expect(Date.now() - firstEndedAt).toBeGreaterThanOrEqual(2200);
+      expect(Date.now() - firstEndedAt).toBeLessThan(3500);
       await expect(page.locator('#oneLastChoice').getByText('ONE LAST STEP', { exact: true })).toBeVisible();
       await expect(page.locator('#oneLastChoice').getByText('❤️ HAPPY BIRTHDAY, DUYGU ❤️', { exact: true })).toBeVisible();
       await expect(page.locator('#choiceContinue')).toBeVisible();
       await page.locator('#choiceReplay').click();
       await expect(page.locator('#returnVideoPanel')).toBeVisible();
+      await page.locator('#returnVideoPlay').click();
       await page.locator('#returnVideo').dispatchEvent('ended');
-      await page.waitForTimeout(1000);
-      await expect(page.locator('#returnVideoPanel')).toBeVisible();
-      await expect(page.locator('#oneLastChoice')).toBeHidden();
+      const replayEndedAt = Date.now();
+      await expect(page.locator('#returnVideoPanel')).toHaveClass(/video-fade/, { timeout: 3000 });
       await expect(page.locator('#oneLastChoice')).toBeVisible({ timeout: 3000 });
+      expect(Date.now() - replayEndedAt).toBeGreaterThanOrEqual(2200);
+      expect(Date.now() - replayEndedAt).toBeLessThan(3500);
       await page.locator('#choiceContinue').click();
       await expect(page.locator('#pathChoice')).toBeVisible();
       await expect(page.getByText('A Duygu Day in Hamburg is waiting for you.')).toBeVisible();
@@ -74,7 +75,10 @@ test.describe('final choice flow', () => {
       await expect(page.locator('#yourPick')).toBeVisible();
       await expect(page.locator('#pickedPath')).toHaveText('RELAX');
       expect(await page.evaluate(() => localStorage.getItem('duyguBirthdayQuestState_v1'))).toBe(stateBefore);
-      expect(requests.filter(url => !url.includes('fonts.googleapis.com') && !url.includes('fonts.gstatic.com'))).toEqual([]);
+      expect(requests.filter(url => !url.includes('fonts.googleapis.com') && !url.includes('fonts.gstatic.com') && !/\/bday\.mp4$/.test(url))).toEqual([]);
+      await expect(page.locator('#returnVideo')).toHaveAttribute('src', /bday\.mp4$/);
+      expect(mediaRequests.some(url => /\/bday\.mp4$/.test(url))).toBe(true);
+      expect(mediaRequests.some(url => /\/Testvideo\.mp4$/.test(url))).toBe(false);
       expect(errors).toEqual([]);
     });
   }
