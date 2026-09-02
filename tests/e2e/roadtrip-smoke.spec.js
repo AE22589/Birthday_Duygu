@@ -42,3 +42,41 @@ test('Quest I smoke uses the current Road Trip flow', async ({ page }) => {
   expect(consoleErrors, consoleErrors.join('\n')).toEqual([]);
   expect(pageErrors, pageErrors.join('\n')).toEqual([]);
 });
+
+test('Quest II smoke completes through real paint flow', async ({ page }) => {
+  test.setTimeout(60000);
+  const networkErrors = [], consoleErrors = [], pageErrors = [];
+  page.on('response', response => { if (response.status() >= 400) networkErrors.push(`${response.status()} ${response.url()}`); });
+  page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+  page.on('pageerror', error => pageErrors.push(error.message));
+  await page.addInitScript(() => localStorage.setItem('duyguBirthdayQuestState_v1', JSON.stringify({ completed: [1] })));
+  await page.goto('/index.html?qa=visual-map');
+  await expect(page.locator('#questScreen')).toBeVisible();
+  await expect(page.locator('[data-quest="2"]')).toHaveAttribute('tabindex', '0');
+  await expect(page.locator('[data-quest="3"]')).toHaveAttribute('tabindex', '-1');
+  await page.locator('[data-quest="2"]').click();
+  await expect(page.locator('#paintItScreen')).toBeVisible();
+  await page.locator('#piReadyButton').click();
+  await expect(page.locator('#paintItGame')).toBeVisible();
+  await expect(page.locator('#piWall')).toBeVisible();
+  await page.evaluate(() => {
+    for (let row = 0; row < 6; row++) for (let col = 0; col < 6; col++) for (let pass = 0; pass < 4; pass++) window.__PAINTIT__.paintAt(row, col);
+  });
+  await expect(page.locator('#paintItResult')).toBeVisible();
+  await expect(page.locator('#piKeyReward')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('duyguBirthdayQuestState_v1') || '{}').completed || [])).toEqual([1, 2]);
+  await page.locator('#piReturnToMapFromResult').click();
+  await expect(page.locator('#questScreen')).toBeVisible();
+  await expect(page.locator('[data-quest="2"]')).toHaveAttribute('aria-label', /completed/i);
+  await expect(page.locator('[data-quest="3"]')).toHaveAttribute('tabindex', '0');
+  await expect(page.locator('[data-quest="4"]')).toHaveAttribute('tabindex', '-1');
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('duyguBirthdayQuestState_v1') || '{}').completed || [])).toEqual([1, 2]);
+  await page.goto('/index.html?qa=visual-map');
+  await expect(page.locator('#questScreen')).toBeVisible();
+  await expect(page.locator('[data-quest="3"]')).toHaveAttribute('tabindex', '0');
+  await expect(page.locator('[data-quest="4"]')).toHaveAttribute('tabindex', '-1');
+  expect(networkErrors, networkErrors.join('\n')).toEqual([]);
+  expect(consoleErrors, consoleErrors.join('\n')).toEqual([]);
+  expect(pageErrors, pageErrors.join('\n')).toEqual([]);
+});
