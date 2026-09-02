@@ -1,29 +1,44 @@
 import { test, expect } from '@playwright/test';
 
-test('Road Trip smoke: board is measured after game becomes visible and object moves', async ({ page }) => {
-  await page.goto('/index.html');
-  await page.evaluate(() => window.__ROADTRIP_QA__?.start?.());
-
-  const board = await page.evaluate(() => window.__ROADTRIP_QA__?.getBoardSize?.());
-  expect(board?.w).toBeGreaterThan(0);
-  expect(board?.h).toBeGreaterThan(0);
-
-  const before = await page.evaluate(() => {
-    const o = window.__ROADTRIP_QA__?.getState?.().objects?.find(o => o.qaTest);
-    return o ? { y:o.y, top:o.el.getBoundingClientRect().top, width:o.el.getBoundingClientRect().width } : null;
-  });
-  expect(before).not.toBeNull();
-
-  await page.waitForTimeout(180);
-
-  const after = await page.evaluate(() => {
-    const o = window.__ROADTRIP_QA__?.getState?.().objects?.find(o => o.qaTest);
-    return o ? { y:o.y, top:o.el.getBoundingClientRect().top, width:o.el.getBoundingClientRect().width } : null;
-  });
-  expect(after).not.toBeNull();
-  expect(after.y).toBeGreaterThan(before.y);
-  expect(after.top).toBeGreaterThan(before.top);
-  expect(after.width).toBeGreaterThan(before.width);
-
-  await page.evaluate(() => window.__ROADTRIP_QA__?.stop?.());
+test('Quest I smoke uses the current Road Trip flow', async ({ page }) => {
+  test.setTimeout(90000);
+  const networkErrors = [], consoleErrors = [], pageErrors = [];
+  page.on('response', r => { if (r.status() >= 400) networkErrors.push(`${r.status()} ${r.url()}`); });
+  page.on('console', m => { if (m.type() === 'error') consoleErrors.push(m.text()); });
+  page.on('pageerror', e => pageErrors.push(e.message));
+  await page.addInitScript(() => { Date.now = () => new Date('2026-09-07T23:00:00+02:00').getTime(); });
+  await page.goto('/index.html?qa=visual-map');
+  await page.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
+  await page.reload();
+  await page.goto('/index.html?qa=visual-map');
+  await expect(page.locator('#questScreen')).toBeVisible({ timeout: 30000 });
+  await expect(page.locator('[data-quest="1"]')).toBeVisible();
+  await expect(page.locator('[data-quest="2"]')).toHaveAttribute('tabindex', '-1');
+  await expect(page.locator('[data-quest="3"]')).toHaveAttribute('tabindex', '-1');
+  await page.locator('[data-quest="1"]').click();
+  await expect(page.locator('#roadTripScreen')).toBeVisible();
+  await expect(page.locator('#roadTripIntro')).toBeVisible();
+  await page.locator('#readyButton').click();
+  await expect(page.locator('#roadTripGame')).toBeVisible();
+  await expect(page.locator('#roadBoard')).toBeVisible();
+  await expect(page.locator('#playerCar')).toBeVisible();
+  await expect(page.locator('#timeCount')).toHaveText(/^(5[0-9]|60)$/);
+  await expect(page.locator('#starCount')).toHaveText(/^\d+ \/ 15$/);
+  await page.keyboard.press('ArrowLeft');
+  await expect.poll(() => page.evaluate(() => window.__ROADTRIP__?.getState?.().running)).toBeTruthy();
+  await page.evaluate(() => window.__ROADTRIP__?.forceFinish?.(false));
+  await expect(page.locator('#roadTripResult')).toBeVisible();
+  await expect(page.locator('#keyReward')).toBeVisible();
+  await page.locator('#returnToMapFromResult').click();
+  await expect(page.locator('#questScreen')).toBeVisible();
+  await expect(page.locator('[data-quest="2"]')).toHaveAttribute('tabindex', '0');
+  await expect(page.locator('[data-quest="3"]')).toHaveAttribute('tabindex', '-1');
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('duyguBirthdayQuestState_v1') || '{}').completed || [])).toContain(1);
+  await page.goto('/index.html?qa=visual-map');
+  await expect(page.locator('#questScreen')).toBeVisible({ timeout: 10000 });
+  await expect(page.locator('[data-quest="2"]')).toHaveAttribute('tabindex', '0');
+  expect(networkErrors, networkErrors.join('\n')).toEqual([]);
+  expect(consoleErrors, consoleErrors.join('\n')).toEqual([]);
+  expect(pageErrors, pageErrors.join('\n')).toEqual([]);
 });
