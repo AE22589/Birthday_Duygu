@@ -1,0 +1,71 @@
+import { test, expect } from '@playwright/test';
+
+test('Quest VI Puzzle smoke', async ({ page }) => {
+  test.setTimeout(60000);
+  const networkErrors = [], consoleErrors = [], pageErrors = [];
+  page.on('response', response => { if (response.status() >= 400) networkErrors.push(`${response.status()} ${response.url()}`); });
+  page.on('console', message => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+  page.on('pageerror', error => pageErrors.push(error.message));
+
+  await page.addInitScript(() => {
+    if (sessionStorage.getItem('__puzzle_fixture_applied') === 'true') return;
+    localStorage.clear();
+    sessionStorage.clear();
+    localStorage.setItem('duyguBirthdayQuestState_v1', JSON.stringify({ completed: [1, 2, 3, 4, 5] }));
+    sessionStorage.setItem('__puzzle_fixture_applied', 'true');
+  });
+  await page.goto('/index.html?qa=visual-map');
+  await expect(page.locator('#questScreen')).toBeVisible();
+  await expect(page.locator('[data-quest="6"]')).toHaveAttribute('tabindex', '0');
+  await expect(page.locator('[data-quest="7"]')).toHaveAttribute('tabindex', '-1');
+  await page.locator('[data-quest="6"]').click();
+  await expect(page.locator('#puzzleScreen')).toBeVisible();
+  await expect(page.locator('#puzzleIntro')).toBeVisible();
+  await expect(page.locator('#pzReadyButton')).toBeVisible();
+  await page.locator('#pzReadyButton').click();
+  await expect(page.locator('#puzzleGame')).toBeVisible();
+  const board = page.locator('#pzBoard');
+  const pieces = page.locator('#pzPalette .pz-piece');
+  await expect(board).toBeVisible();
+  await expect(pieces).toHaveCount(6);
+  await expect(board.locator('.pz-slot')).toHaveCount(6);
+  await expect(board.locator('.pz-slot.is-empty')).toHaveCount(6);
+  const boardBox = await board.boundingBox();
+  expect(boardBox?.width).toBeGreaterThan(0);
+  expect(boardBox?.height).toBeGreaterThan(0);
+  expect(Math.abs((boardBox.width / 2) / (boardBox.height / 3) - 1)).toBeLessThan(0.05);
+  await page.locator('#pzPalette .pz-piece[data-piece="0"]').click();
+  await board.locator('.pz-slot').nth(1).click();
+  await expect(page.locator('#puzzleResult')).toBeHidden();
+  await expect(pieces).toHaveCount(5);
+  await page.locator('#pzPalette .pz-piece[data-piece="1"]').click();
+  await board.locator('.pz-slot').nth(1).click();
+  await expect(pieces).toHaveCount(5);
+  await board.locator('.pz-piece[data-piece="0"]').click();
+  await page.locator('#pzReturnPiece').click();
+  await expect(pieces).toHaveCount(6);
+  for (let piece = 0; piece < 6; piece += 1) {
+    await page.locator(`#pzPalette .pz-piece[data-piece="${piece}"]`).click();
+    await board.locator('.pz-slot').nth(piece).click();
+    if (piece < 5) await expect(board.locator('.pz-slot').nth(piece).locator(`.pz-piece[data-piece="${piece}"]`)).toBeVisible();
+  }
+  await expect(page.locator('#pzPalette .pz-piece')).toHaveCount(0);
+  await expect(page.locator('#puzzleResult')).toBeVisible();
+  await expect(page.locator('#puzzleResult .rt-key-reward')).toBeVisible();
+  await expect(page.locator('#puzzleResult')).toContainText('KEY VI ACQUIRED');
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('duyguBirthdayQuestState_v1') || '{}').completed || [])).toEqual([1, 2, 3, 4, 5, 6]);
+  await page.locator('#pzReturnButton').click();
+  await expect(page.locator('#questScreen')).toBeVisible();
+  await expect(page.locator('[data-quest="6"]')).toHaveAttribute('aria-label', /completed/i);
+  await expect(page.locator('[data-quest="7"]')).toHaveAttribute('tabindex', '0');
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('duyguBirthdayQuestState_v1') || '{}').completed || [])).toEqual([1, 2, 3, 4, 5, 6]);
+  await page.goto('/index.html?qa=visual-map');
+  await expect(page.locator('#questScreen')).toBeVisible();
+  await expect(page.locator('[data-quest="7"]')).toHaveAttribute('tabindex', '0');
+  await expect(page.locator('#questScreen')).toHaveJSProperty('hidden', false);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.body.scrollWidth <= innerWidth)).toBe(true);
+  expect(networkErrors, networkErrors.join('\n')).toEqual([]);
+  expect(consoleErrors, consoleErrors.join('\n')).toEqual([]);
+  expect(pageErrors, pageErrors.join('\n')).toEqual([]);
+});
