@@ -11,6 +11,9 @@ async function enterFinalQa(page) {
   await expect(page.locator('#finalDoorModal')).toBeVisible();
   await page.locator('#openFinalDoor').click();
   await expect(page.locator('#returnVideoPanel')).toBeVisible({ timeout: 30000 });
+  await expect(page.locator('#returnVideoPlay')).toBeVisible();
+  await expect(page.locator('#returnVideoPlay')).toBeEnabled();
+  await expect(page.locator('#returnVideo')).toHaveAttribute('src', /bday\.mp4$/);
 }
 
 test.describe('final choice flow', () => {
