@@ -34,7 +34,8 @@ ARCHITEKTUR
 SPIELABLAUF
 Quest I: central spawn validation checks full future sprite paths, with larger
 spacing near the car and a reaction gap between stars and hazards. Unsafe spawns
-are skipped. The larger stars, detailed CSS arcade car and layered neon skyline
+are skipped. Star spawns remain random, but move to another lane after three
+consecutive stars in one lane. The larger stars, detailed CSS arcade car and layered neon skyline
 use roadtrip-visual.css; controls, hitboxes, timer and rewards remain unchanged.
 - 3 Fahrspuren, Pfeiltasten (← →) oder Wischen zum Spurwechsel.
 - Sterne sammeln, Tonnen/Katzen ausweichen.
@@ -54,7 +55,7 @@ Ziehen mit Maus/Finger streicht Felder ein. Jedes Feld braucht 4
 Durchgänge, bis es vollständig gedeckt ist — einmaliges Berühren reicht
 bewusst nicht, das verlängert die Spieldauer auf ein realistisches
 Fenster von 25-40 Sekunden und gibt Lokum eine echte Chance zu stören.
-Lokum hinterlässt in unregelmäßigen Abständen (5-8s) Pfotenabdrücke auf
+Lokum hinterlässt in unregelmäßigen Abständen (4-6.4s) Pfotenabdrücke auf
 bereits vollständig gestrichenen Feldern — diese fallen auf 0 zurück und
 müssen neu gestrichen werden. Duygu folgt der Zeigerposition sanft
 (CSS-Transition, kein Eins-zu-eins-Kleben am Cursor, damit der Finger auf
@@ -116,7 +117,8 @@ Quest V is a lazy-loaded 4×4 Memory with eight shuffled image pairs. Cards use
 the shared neon arcade back, contain their full front image without cropping,
 and support click/tap interaction. Two cards may be open at once; matches stay
 open while non-matches turn back after a short delay. There is no time limit.
-Finding all eight pairs stores Quest 5 in the shared progress state and unlocks
+Finding all eight pairs keeps the completed board visible for a short, subtle
+celebration before storing Quest 5 in the shared progress state and unlocking
 Quest VI through the existing map progression.
 
 QUEST VI — OUR LITTLE PUZZLE

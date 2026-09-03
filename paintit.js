@@ -26,8 +26,8 @@ const PI_CONFIG = Object.freeze({
   GRID_ROWS: 6,
   PASSES_NEEDED: 4,
   COMPLETE_THRESHOLD: 0.9,
-  PAW_MIN_INTERVAL_MS: 5000,
-  PAW_MAX_INTERVAL_MS: 8000
+  PAW_MIN_INTERVAL_MS: 4000,
+  PAW_MAX_INTERVAL_MS: 6400
 });
 
 function piCreateGrid(cols, rows){ return new Array(cols * rows).fill(0); }

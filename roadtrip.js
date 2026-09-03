@@ -131,6 +131,7 @@ if (typeof document !== 'undefined') (function(){
   let invulnerableUntil = 0, lastMoveAt = 0;
   let sprites = [];
   let spawnStarAt = 0, spawnObstacleAt = 0;
+  let lastStarLane = null, consecutiveStarLanes = 0;
   let touchStartX = null;
 
   function setView(next){
@@ -204,7 +205,12 @@ if (typeof document !== 'undefined') (function(){
   function maybeSpawn(){
     const nowMs = elapsed * 1000;
     if (score < RT_CONFIG.TARGET_STARS + 8 && nowMs >= spawnStarAt) {
-      spawn('star', Math.random() < 0.65 ? lane : Math.floor(Math.random() * 3));
+      let starLane = Math.random() < 0.65 ? lane : Math.floor(Math.random() * 3);
+      if (consecutiveStarLanes >= 3 && starLane === lastStarLane) starLane = [0,1,2].filter(candidate => candidate !== lastStarLane)[Math.floor(Math.random() * 2)];
+      if (spawn('star', starLane)) {
+        consecutiveStarLanes = starLane === lastStarLane ? consecutiveStarLanes + 1 : 1;
+        lastStarLane = starLane;
+      }
       spawnStarAt = nowMs + 700 + Math.random() * 600;
     }
     if (nowMs >= spawnObstacleAt) {
@@ -259,7 +265,7 @@ if (typeof document !== 'undefined') (function(){
     sprites.forEach(o => o.el.remove());
     sprites = [];
     lane = 1; lives = RT_CONFIG.LIVES; score = 0; elapsed = 0;
-    spawnStarAt = 0; spawnObstacleAt = 0; invulnerableUntil = 0;
+    spawnStarAt = 0; spawnObstacleAt = 0; invulnerableUntil = 0; lastStarLane = null; consecutiveStarLanes = 0;
     car.classList.remove('hit');
     paintCar();
     updateHud();
