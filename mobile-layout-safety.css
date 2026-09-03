@@ -36,7 +36,8 @@
   .rt-touch-controls{touch-action:manipulation}
   .pi-paint-legend,.pi-paw-hint{margin:6px auto;color:#b9f8ff;text-align:center;font:600 12px/1.35 monospace}
   .pi-paw-hint{color:#ff9bd7}
-  .pz-layout{width:min(88vw,calc((100dvh - 170px)/3))}
+  .pz-layout{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:94vw;max-width:760px}
+  .pz-instruction{margin:4px 0 6px;font-size:10px}
   .gw-word.long-word{font-size:clamp(28px,8vw,36px);white-space:nowrap}
   .mobile-final-door-cta{display:flex;flex-direction:column;align-items:center;gap:10px;width:min(92vw,420px);padding:14px 12px calc(14px + env(safe-area-inset-bottom));color:#ffd23f;text-align:center;font:700 clamp(16px,4.5vw,24px)/1.2 monospace}
   .mobile-final-door-cta button{min-height:50px;padding:10px 24px;border:2px solid #00e5ff;background:#08141d;color:#fff;font:700 14px/1 monospace;box-shadow:0 0 14px rgba(0,229,255,.3);touch-action:manipulation}
