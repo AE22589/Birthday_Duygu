@@ -129,8 +129,8 @@ the shuffled palette into any free slot and back; on mobile, tap a piece and the
 a free slot, with placed pieces returnable to the palette. There is no time limit,
 and the quest succeeds only when all six pieces occupy their exact matching slots.
 Solving it stores Quest 6 in the shared progress state and unlocks Quest VII.
-The mobile game view keeps a compact tap instruction visible and uses a larger
-single-column layout for the three puzzle panels.
+The mobile game view keeps a compact tap instruction visible and uses a compact
+three-panel layout for reference, board, and pieces.
 
 QUEST VII — GERMAN WORD CHALLENGE
 Quest VII uses ten fixed German words in this order: LÜFTEN, GARDINE,
