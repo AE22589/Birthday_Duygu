@@ -49,6 +49,7 @@
 }
 
 .sm-slots{overflow:hidden}
+.sm-duygu{clip-path:inset(0 28% 0 0)}
 .pz-board.is-complete-celebration{pointer-events:none;box-shadow:0 0 22px rgba(0,229,255,.58),0 0 36px rgba(255,46,136,.28),inset 0 0 24px rgba(255,210,63,.1);animation:pzCelebrationGlow 1.25s ease-in-out 2}
 .pz-board.is-complete-celebration::after{content:"";position:absolute;inset:-8%;z-index:5;pointer-events:none;background:linear-gradient(110deg,transparent 38%,rgba(0,229,255,.06) 45%,rgba(255,210,63,.55) 50%,rgba(255,46,136,.1) 55%,transparent 62%);transform:translateX(-125%);animation:pzCelebrationSweep 1.1s ease-out .18s forwards}
 @keyframes pzCelebrationGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.13)}}
