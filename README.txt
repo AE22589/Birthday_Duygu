@@ -128,7 +128,8 @@ board on desktop and above it on mobile. On desktop, pieces can be dragged from
 the shuffled palette into any free slot and back; on mobile, tap a piece and then
 a free slot, with placed pieces returnable to the palette. There is no time limit,
 and the quest succeeds only when all six pieces occupy their exact matching slots.
-Solving it stores Quest 6 in the shared progress state and unlocks Quest VII.
+Solving it keeps the completed board visible for a short, subtle celebration
+before storing Quest 6 in the shared progress state and unlocking Quest VII.
 The mobile game view keeps a compact tap instruction visible and uses a compact
 three-panel layout for reference, board, and pieces.
 

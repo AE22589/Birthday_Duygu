@@ -47,3 +47,10 @@
   #pathChoice .your-pick b{font-size:18px}
   #pathChoice .your-pick span{font-size:12px;line-height:1.25}
 }
+
+.sm-slots{overflow:hidden}
+.pz-board.is-complete-celebration{pointer-events:none;box-shadow:0 0 22px rgba(0,229,255,.58),0 0 36px rgba(255,46,136,.28),inset 0 0 24px rgba(255,210,63,.1);animation:pzCelebrationGlow 1.25s ease-in-out 2}
+.pz-board.is-complete-celebration::after{content:"";position:absolute;inset:-8%;z-index:5;pointer-events:none;background:linear-gradient(110deg,transparent 38%,rgba(0,229,255,.06) 45%,rgba(255,210,63,.55) 50%,rgba(255,46,136,.1) 55%,transparent 62%);transform:translateX(-125%);animation:pzCelebrationSweep 1.1s ease-out .18s forwards}
+@keyframes pzCelebrationGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.13)}}
+@keyframes pzCelebrationSweep{to{transform:translateX(125%)}}
+@media(prefers-reduced-motion:reduce){.pz-board.is-complete-celebration,.pz-board.is-complete-celebration::after{animation:none}}

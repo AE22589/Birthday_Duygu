@@ -31,7 +31,7 @@ if (typeof document !== 'undefined') (function () {
   const resultTitle = $('gwResultTitle');
   const resultMessage = $('gwResultMessage');
   const backToMap = $('gwBackToMap');
-  if (!screen || !game || !result || !wordCounter || !scoreCounter || !progress || !word || answers.length !== 3 || !feedback || !next || !resultTitle || !resultMessage || !backToMap || !gameBackToMap) return;
+  if (!screen || !game || !result || !wordCounter || !scoreCounter || !progress || !word || answers.length !== 3 || !feedback || !next || !resultTitle || !resultMessage || !backToMap) return;
 
   let questionIndex = 0;
   let score = 0;
@@ -147,7 +147,7 @@ if (typeof document !== 'undefined') (function () {
   answers.forEach(button => button.addEventListener('click', () => chooseAnswer(button)));
   next.addEventListener('click', nextWord);
   backToMap.addEventListener('click', () => { setView('game'); window.showQuestMap?.(); });
-  gameBackToMap.addEventListener('click', () => { setView('game'); window.showQuestMap?.(); });
+  gameBackToMap?.addEventListener('click', () => { setView('game'); window.showQuestMap?.(); });
   window.showWordChallengeScreen = start;
 })();
 
